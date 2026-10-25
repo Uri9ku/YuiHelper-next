@@ -716,6 +716,41 @@ E 修改模型页 / 动作预览页
 - 多动画混合（mix）、drawOrder、slot 颜色/附件切换；
 - 真机全链路回归（设备重连后）。
 
+### 14.16 S8 已完成（2026-10-26）：IK 约束求解
+
+**做了什么**：新增 `SpineIkSolver`，在动画采样后对 IK 约束求解，再输出姿态给渲染器。
+
+| 能力 | 说明 |
+|---|---|
+| 1 骨 IK | 把骨骼朝向目标（tip 指向目标；末端已贴近目标时跳过，避免亚像素抖动） |
+| 2 骨 IK | 余弦定理解膝盖/肘部：父骨角度 ∓α、子骨相对角 (π−β)，`bendPositive` 控制弯曲方向 |
+| 逐帧 mix / bend | 读取 `SpineAnimation.ikTimelines` 覆盖 setup 的 mix/bend（约束被动画驱动时也正确） |
+| 安全阀 | 解完若末端反而更远（目标不可达/数值异常）→ 该约束回退，不会把姿势搞坏 |
+
+**实测（`Administrator / Cathedral`，257 骨、6 个 IK 约束）**：
+
+| 约束 | 类型 | FK 末端到目标 | IK 求解后 |
+|---|---|---:|---:|
+| `IK_gillet_b` | 1 骨 | 580.6 | **438.5** |
+| `IK_gillet_f` | 1 骨 | 529.3 | **387.6** |
+| `IK_leg_b` / `IK_leg_f` | 2 骨 | 6.0 / 6.0 | 6.0 / 6.0（动画已烘焙到接近目标，求解器自动跳过） |
+| `IK_toe_b` / `IK_toe_f` | 1 骨 | 5.6 / 5.6 | 5.6 / 5.6（同上） |
+
+> 说明：gillet 骨骼长度 < 目标距离，1 骨 IK 只能"指向"目标（末端最近 = |距离−骨长|），
+> 这与官方行为一致；legs/toes 说明该动作的 FK 已基本满足 IK（游戏里动画是 IK 烘焙后的结果）。
+> FK vs IK 渲染对照图：`build/spine_ik_off.png` / `build/spine_ik_on.png`。
+
+**S8 交付**：
+- `lib/data/spine/spine_ik_solver.dart`（新）：1 骨/2 骨 IK + 回退保护；
+- `spine_animation_player.dart`：`poseAt(time, solveIk: true)` 默认求解 IK，`ikOverridesAt(time)` 提供逐帧 mix/bend；
+- `test/spine_ik_offline_test.dart`：逐约束收敛验证 + FK/IK 渲染对照；
+- 全量 **185 个用例通过**，`dart analyze` No issues found。
+
+**仍未做（S9 候选）**：
+1. transform / path 约束求解（数据已就位）；
+2. 多动画混合（mix）、drawOrder、slot 颜色/附件切换；
+3. 真机全链路回归（USB 断开中）+ 全屏压测。
+
 ---
 
 > 声明：本分析仅用于个人学习、研究与存档；游戏素材版权归 ©Bandai Namco Entertainment / ©Wright Flyer Studios 及相关权利方所有，请勿用于商业用途或再分发。

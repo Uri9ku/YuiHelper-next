@@ -1,4 +1,5 @@
 import 'skeleton_pose.dart';
+import 'spine_ik_solver.dart';
 import 'spine_animation_data.dart';
 import 'spine_binary.dart';
 
@@ -71,8 +72,22 @@ final class SpineAnimationPlayer {
     return (skinIndex, slotIndex, attachment) => map['$skinIndex:$slotIndex:$attachment'];
   }
 
-  /// 指定时间点的姿态：套用骨骼时间轴 → 计算世界变换。
-  SkeletonPose poseAt(double time) {
+  /// IK 时间轴在 [time] 处的 mix/bend 覆盖（约束下标 → 覆盖值）。
+  Map<int, ({double mix, bool bendPositive})> ikOverridesAt(double time) {
+    final anim = _animation;
+    if (anim == null || anim.ikTimelines.isEmpty) return const {};
+    final out = <int, ({double mix, bool bendPositive})>{};
+    for (final tl in anim.ikTimelines) {
+      final v = tl.sample(time);
+      if (v != null) out[tl.constraintIndex] = v;
+    }
+    return out;
+  }
+
+  /// 指定时间点的姿态：套用骨骼时间轴 → 世界变换 → IK 求解。
+  ///
+  /// [solveIk] 为 false 时只做 FK（调试/对照用）。
+  SkeletonPose poseAt(double time, {bool solveIk = true}) {
     final anim = _animation;
     if (anim == null) return SkeletonPose.bindPose(data);
 
@@ -111,17 +126,20 @@ final class SpineAnimationPlayer {
       }
     }
 
-    return SkeletonPose.fromLocals(
-      data,
-      BoneLocals(
-        rotation: rotation,
-        x: x,
-        y: y,
-        scaleX: scaleX,
-        scaleY: scaleY,
-        shearX: shearX,
-        shearY: shearY,
-      ),
+    final locals = BoneLocals(
+      rotation: rotation,
+      x: x,
+      y: y,
+      scaleX: scaleX,
+      scaleY: scaleY,
+      shearX: shearX,
+      shearY: shearY,
+    );
+    if (!solveIk) return SkeletonPose.fromLocals(data, locals);
+    return SpineIkSolver.solve(
+      data: data,
+      locals: locals,
+      overrides: ikOverridesAt(time),
     );
   }
 }
