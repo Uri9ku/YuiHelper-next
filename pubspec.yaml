@@ -1,7 +1,7 @@
 name: yui_helper_next
 description: "YuiHelper next：按 design/ 设计稿实现的新版 UI + 领取奖励/装配想象力/换模型后端。"
 publish_to: none
-version: 0.1.0+1
+version: 0.1.1+2
 
 environment:
   sdk: ^3.13.4
