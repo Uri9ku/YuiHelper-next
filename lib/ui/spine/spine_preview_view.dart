@@ -51,6 +51,7 @@ class _SpinePreviewViewState extends State<SpinePreviewView> with SingleTickerPr
   Ticker? _ticker;
   Duration _lastTick = Duration.zero;
   double _animTime = 0;
+  double _fps = 0;
 
   @override
   void initState() {
@@ -127,6 +128,10 @@ class _SpinePreviewViewState extends State<SpinePreviewView> with SingleTickerPr
     _lastTick = elapsed;
     if (last == Duration.zero) return;
     final dt = (elapsed - last).inMicroseconds / 1e6;
+    if (dt > 0) {
+      final instant = 1 / dt;
+      _fps = _fps == 0 ? instant : _fps * 0.85 + instant * 0.15;
+    }
     setState(() {
       player.update(dt);
       _animTime = player.time;

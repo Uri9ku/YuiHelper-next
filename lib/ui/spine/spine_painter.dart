@@ -161,6 +161,16 @@ abstract final class SpineBinder {
     return Rect.fromLTRB(minX, minY, maxX, maxY);
   }
 
+  /// 合批后的绘制次数（相邻同页算一次）；用于测试/性能诊断。
+  static int pageRunCount(List<SpineDrawBatch> batches) {
+    if (batches.isEmpty) return 0;
+    var runs = 1;
+    for (var i = 1; i < batches.length; i++) {
+      if (!identical(batches[i].page, batches[i - 1].page)) runs++;
+    }
+    return runs;
+  }
+
   /// 线框顶点（只画三角形边，调试/三态提示用）。
   static List<Offset> wireframeSegments(List<SpineDrawBatch> batches) {
     final out = <Offset>[];
@@ -190,6 +200,7 @@ class SpinePainter extends CustomPainter {
     this.padding = 0.94,
     this.wireframe = false,
     this.wireColor = const Color(0xFF6EE7B7),
+    this.batching = true,
   });
 
   final List<SpineDrawBatch> batches;
@@ -197,6 +208,9 @@ class SpinePainter extends CustomPainter {
   final double padding;
   final bool wireframe;
   final Color wireColor;
+
+  /// 是否按图集页合批（默认开：把相邻同页批次合并成一次 drawVertices）。
+  final bool batching;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -224,12 +238,84 @@ class SpinePainter extends CustomPainter {
 
     if (wireframe) {
       _paintWireframe(canvas);
+    } else if (batching) {
+      _paintBatched(canvas);
     } else {
       for (final batch in batches) {
         _paintBatch(canvas, batch);
       }
     }
     canvas.restore();
+  }
+
+  void _paintBatched(Canvas canvas) {
+    // 合批：把连续的、同一图集页的批次合并成一次 drawVertices。
+    // 只合并"相邻"批次，保证与逐附件绘制的叠加顺序完全一致（像素级一致）。
+    var i = 0;
+    while (i < batches.length) {
+      final page = batches[i].page;
+      var j = i + 1;
+      while (j < batches.length && identical(batches[j].page, page)) {
+        j++;
+      }
+      _paintRun(canvas, batches.sublist(i, j), page);
+      i = j;
+    }
+  }
+
+  void _paintRun(Canvas canvas, List<SpineDrawBatch> run, SpineAtlasPageTexture page) {
+    var vertexCount = 0;
+    var indexCount = 0;
+    for (final b in run) {
+      vertexCount += b.vertices.length ~/ 2;
+      indexCount += b.triangles.length;
+    }
+    if (vertexCount == 0 || indexCount < 3) return;
+
+    final positions = Float32List(vertexCount * 2);
+    final texCoords = Float32List(vertexCount * 2);
+    final indices = Uint16List(indexCount);
+    final pw = page.width.toDouble();
+    final ph = page.height.toDouble();
+    var vBase = 0;
+    var iBase = 0;
+    for (final b in run) {
+      final count = b.vertices.length ~/ 2;
+      for (var i = 0; i < count; i++) {
+        final x = b.vertices[i * 2];
+        final y = b.vertices[i * 2 + 1];
+        if (!x.isFinite || !y.isFinite) return;
+        positions[(vBase + i) * 2] = x;
+        positions[(vBase + i) * 2 + 1] = y;
+        texCoords[(vBase + i) * 2] = b.uvs[i * 2] * pw;
+        texCoords[(vBase + i) * 2 + 1] = b.uvs[i * 2 + 1] * ph;
+      }
+      for (var k = 0; k < b.triangles.length; k++) {
+        indices[iBase + k] = b.triangles[k] + vBase;
+      }
+      vBase += count;
+      iBase += b.triangles.length;
+    }
+    if (vBase > 0xFFFF) return; // 单次 drawVertices 索引上限
+
+    final paint = Paint()
+      ..filterQuality = FilterQuality.medium
+      ..shader = ui.ImageShader(
+        page.image,
+        TileMode.clamp,
+        TileMode.clamp,
+        Matrix4.identity().storage,
+      );
+    canvas.drawVertices(
+      ui.Vertices.raw(
+        ui.VertexMode.triangles,
+        positions,
+        textureCoordinates: texCoords,
+        indices: indices,
+      ),
+      BlendMode.srcOver,
+      paint,
+    );
   }
 
   void _paintWireframe(Canvas canvas) {
@@ -311,5 +397,6 @@ class SpinePainter extends CustomPainter {
       oldDelegate.batches != batches ||
       oldDelegate.background != background ||
       oldDelegate.padding != padding ||
-      oldDelegate.wireframe != wireframe;
+      oldDelegate.wireframe != wireframe ||
+      oldDelegate.batching != batching;
 }
