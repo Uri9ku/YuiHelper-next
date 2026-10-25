@@ -179,11 +179,14 @@ class _SpinePreviewViewState extends State<SpinePreviewView> with SingleTickerPr
   List<SpineDrawBatch> _currentBatches(SpineRenderBundle bundle) {
     final player = _player;
     if (player == null || !player.hasAnimation) return bundle.batchesFor(_skin);
+    final skin = _chosenSkin(bundle);
     return SpineBinder.bind(
       data: bundle.data,
-      skin: _chosenSkin(bundle),
+      skin: skin,
       pose: player.pose(),
       textures: bundle.textures,
+      skinIndex: bundle.data.indexOfSkin(skin),
+      deformLookup: player.deformAt(player.time),
     );
   }
 

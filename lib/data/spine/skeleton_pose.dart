@@ -181,8 +181,9 @@ final BonePose _identityPose = BonePose(
 Float32List skinMeshVertices(
   SpineMeshAttachment mesh,
   SkeletonPose pose,
-  int slotBoneIndex,
-) {
+  int slotBoneIndex, {
+  List<double>? deform,
+}) {
   final count = mesh.vertexCount;
   final out = Float32List(count * 2);
 
@@ -193,7 +194,10 @@ Float32List skinMeshVertices(
       var wy = 0.0;
       for (final inf in influences[i]) {
         final bone = pose.bones[inf.boneIndex];
-        final (px, py) = bone.toWorld(inf.x, inf.y);
+        // deform 偏移在「附件局部空间」加到每个顶点的绑定位置上
+        final dx = deform == null ? 0.0 : _deformAt(deform, i * 2);
+        final dy = deform == null ? 0.0 : _deformAt(deform, i * 2 + 1);
+        final (px, py) = bone.toWorld(inf.x + dx, inf.y + dy);
         wx += px * inf.weight;
         wy += py * inf.weight;
       }
@@ -206,7 +210,9 @@ Float32List skinMeshVertices(
   final raw = mesh.unweightedVertices!;
   final bone = pose.bones[slotBoneIndex];
   for (var i = 0; i < count; i++) {
-    final (px, py) = bone.toWorld(raw[i * 2], raw[i * 2 + 1]);
+    final dx = deform == null ? 0.0 : _deformAt(deform, i * 2);
+    final dy = deform == null ? 0.0 : _deformAt(deform, i * 2 + 1);
+    final (px, py) = bone.toWorld(raw[i * 2] + dx, raw[i * 2 + 1] + dy);
     out[i * 2] = px;
     out[i * 2 + 1] = py;
   }
@@ -249,3 +255,6 @@ List<(double, double)> regionCorners(
   }
   return result;
 }
+
+double _deformAt(List<double> deform, int index) =>
+    index < deform.length ? deform[index] : 0.0;

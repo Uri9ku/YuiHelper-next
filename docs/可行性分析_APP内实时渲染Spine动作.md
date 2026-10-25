@@ -680,6 +680,42 @@ E 修改模型页 / 动作预览页
 2. **多动画混合（mix）**：动作切换过渡、待机→普攻更自然；
 3. **产品化**：缺页"去游戏里打开一次"引导 + LRU 缓存 + 真机全链路回归 + 全屏页合批压测。
 
+### 14.15 S7 已完成（2026-10-26）：约束数据读入 + deform 网格形变应用
+
+**这轮做了什么**：
+
+| 能力 | 之前 | 现在 |
+|---|---|---|
+| IK / transform / path 约束（setup） | 整段 **skip**（数据被丢掉） | **读入** `SpineSkeletonData.ikConstraints / transformConstraints / pathConstraints`（含骨骼链、目标、mix、bend） |
+| 动画里的 IK 时间轴 | 读掉 | 读入 `SpineAnimation.ikTimelines`（逐帧 mix / bend，供 S8 求解） |
+| deform 网格形变 | 读掉 | **读入并应用**：`SpineBoneTimeline` 之外新增 `SpineDeformTimeline`（官方 3.6 的 start+values 区间语义），装配时按附件叠加到顶点 |
+| 渲染契约 | — | `SpineBinder.bind(..., skinIndex, deformLookup)`；`skinMeshVertices(..., deform:)`（加权/未加权都支持） |
+
+**实测（`Administrator / Cathedral` 真实角色骨架 + 图集 + 页贴图）**：
+- IK 约束 6 个被正确读入（JSON 侧同为 6）；
+- deform 时间轴跨全部动画扫描：帧数/时间轴自洽，采样出**非零偏移**；
+- 同一姿态下「带 deform / 不带 deform」顶点最大差 > 0.5 单位，渲染图不同
+  （对照图：`build/spine_deform_off.png` / `build/spine_deform_on.png`）。
+
+**顺带修正的两个 3.6 格式坑**（都是先踩后修，写进文档避免再犯）：
+1. **transform 约束的 mix 是 4 个**（rotate/translate/scale/shear），不是 3.8 的 6 个逐分量 mix；
+2. **path 约束的 mix 是 2 个**（rotate/translate），不是 3 个。
+   读多/读少都会让后续段整体错位（表现为"读取越界"或 EOF 对不上）。
+
+**S7 交付**：
+- `lib/data/spine/spine_constraint_data.dart`：三类约束的 setup 数据模型；
+- `spine_binary.dart`：约束读入 + IK 时间轴保留 + deform 帧读入（`start`/`values` 区间）；
+- `spine_animation_data.dart`：`SpineDeformFrame/Timeline`、`SpineIkTimeline`；
+- `skeleton_pose.dart`：`skinMeshVertices(..., deform:)`；
+- `spine_painter.dart`：`bind(..., skinIndex, deformLookup)`；
+- `spine_animation_player.dart`：`deformAt(time)`；
+- 检查全绿：**183 个用例通过**，`dart analyze` No issues found（含新增 3 个 S7 用例）。
+
+**仍未做（S8）**：
+- **IK/transform/path 约束求解**（数据已就位）：足部贴地、手部对齐、路径摆放；
+- 多动画混合（mix）、drawOrder、slot 颜色/附件切换；
+- 真机全链路回归（设备重连后）。
+
 ---
 
 > 声明：本分析仅用于个人学习、研究与存档；游戏素材版权归 ©Bandai Namco Entertainment / ©Wright Flyer Studios 及相关权利方所有，请勿用于商业用途或再分发。

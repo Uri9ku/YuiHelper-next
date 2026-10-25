@@ -126,6 +126,8 @@ final class SpineAnimation {
     required this.name,
     required this.duration,
     required this.boneTimelines,
+    this.deformTimelines = const <SpineDeformTimeline>[],
+    this.ikTimelines = const <SpineIkTimeline>[],
     this.hasSlotTimelines = false,
     this.hasDeformTimelines = false,
     this.hasDrawOrderTimeline = false,
@@ -139,8 +141,128 @@ final class SpineAnimation {
 
   final List<SpineBoneTimeline> boneTimelines;
 
+  /// deform 时间轴（S7：已读入，装配时按附件应用）
+  final List<SpineDeformTimeline> deformTimelines;
+
+  /// IK 约束时间轴（S7：已读入；求解在 S8）
+  final List<SpineIkTimeline> ikTimelines;
+
   final bool hasSlotTimelines;
   final bool hasDeformTimelines;
   final bool hasDrawOrderTimeline;
   final int eventCount;
 }
+
+/// deform 时间轴里的一帧：从 [start] 开始的 [values] 个逐顶点偏移（x,y 平铺）。
+final class SpineDeformFrame {
+  SpineDeformFrame({required this.start, required this.values});
+
+  final int start;
+  final List<double> values;
+
+  int get end => start + values.length;
+}
+
+/// deform 时间轴：网格附件的逐顶点偏移（布料/裙摆/肌肉形变）。
+///
+/// 官方 3.6 的 deform 帧只存「一段区间」的偏移（start + values），不是整段顶点；
+/// 采样时把各帧统一展开到 `[0, span)` 再插值。
+final class SpineDeformTimeline {
+  SpineDeformTimeline({
+    required this.skinIndex,
+    required this.slotIndex,
+    required this.attachmentName,
+    required this.times,
+    required this.frames,
+    required this.curves,
+  });
+
+  final int skinIndex;
+  final int slotIndex;
+  final String attachmentName;
+  final List<double> times;
+  final List<SpineDeformFrame> frames;
+  final List<SpineCurve> curves;
+
+  /// 展开后的每帧长度（所有帧 end 的最大值，向上取偶）
+  int get span {
+    var m = 0;
+    for (final f in frames) {
+      if (f.end > m) m = f.end;
+    }
+    return m.isEven ? m : m + 1;
+  }
+
+  double get duration => times.isEmpty ? 0 : times.last;
+
+  List<double> _expand(SpineDeformFrame frame, int span) {
+    final out = List<double>.filled(span, 0);
+    for (var i = 0; i < frame.values.length && frame.start + i < span; i++) {
+      out[frame.start + i] = frame.values[i];
+    }
+    return out;
+  }
+
+  /// 采样某时刻的顶点偏移（长度 = [span]，未覆盖的顶点为 0）。
+  List<double>? sample(double time) {
+    final n = times.length;
+    if (n == 0 || frames.length != n) return null;
+    final width = span;
+    if (width == 0) return null;
+    if (time <= times.first) return _expand(frames.first, width);
+    if (time >= times.last) return _expand(frames.last, width);
+    var lo = 0;
+    var hi = n - 1;
+    while (lo + 1 < hi) {
+      final mid = (lo + hi) >> 1;
+      if (times[mid] <= time) {
+        lo = mid;
+      } else {
+        hi = mid;
+      }
+    }
+    final t0 = times[lo];
+    final t1 = times[hi];
+    final spanT = t1 - t0;
+    final raw = spanT <= 0 ? 0.0 : ((time - t0) / spanT).clamp(0.0, 1.0);
+    final k = (lo < curves.length ? curves[lo] : const SpineCurve.linear()).evaluate(raw);
+    final a = _expand(frames[lo], width);
+    final b = _expand(frames[hi], width);
+    for (var i = 0; i < width; i++) {
+      a[i] = a[i] + (b[i] - a[i]) * k;
+    }
+    return a;
+  }
+}
+
+/// IK 时间轴：逐帧改约束的 mix / bend。
+final class SpineIkTimeline {
+  SpineIkTimeline({
+    required this.constraintIndex,
+    required this.times,
+    required this.mix,
+    required this.bendPositive,
+  });
+
+  final int constraintIndex;
+  final List<double> times;
+  final List<double> mix;
+  final List<int> bendPositive;
+
+  double get duration => times.isEmpty ? 0 : times.last;
+
+  ({double mix, bool bendPositive})? sample(double time) {
+    final n = times.length;
+    if (n == 0) return null;
+    var i = 0;
+    if (time >= times.last) {
+      i = n - 1;
+    } else if (time > times.first) {
+      while (i + 1 < n && times[i + 1] <= time) {
+        i++;
+      }
+    }
+    return (mix: mix[i], bendPositive: bendPositive[i] != 0);
+  }
+}
+

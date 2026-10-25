@@ -56,6 +56,8 @@ abstract final class SpineBinder {
     required SpineSkin skin,
     required SkeletonPose pose,
     required List<SpineAtlasPageTexture> textures,
+    int skinIndex = 0,
+    List<double>? Function(int skinIndex, int slotIndex, String attachment)? deformLookup,
   }) {
     final batches = <SpineDrawBatch>[];
     for (final slotIndex in skin.slotIndices) {
@@ -65,11 +67,17 @@ abstract final class SpineBinder {
           final hit = findRegion(textures, attachment.path);
           if (hit == null) continue;
           final (page, region) = hit;
+          final deform = deformLookup?.call(skinIndex, slotIndex, attachment.name);
           batches.add(
             SpineDrawBatch(
               region: region,
               page: page,
-              vertices: skinMeshVertices(attachment, pose, slot.boneIndex),
+              vertices: skinMeshVertices(
+                attachment,
+                pose,
+                slot.boneIndex,
+                deform: deform,
+              ),
               uvs: _meshUvs(attachment, region, page),
               triangles: attachment.triangles,
             ),

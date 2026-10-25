@@ -55,6 +55,22 @@ final class SpineAnimationPlayer {
   /// 当前姿态（未选动画时返回 bind pose）。
   SkeletonPose pose() => poseAt(_time);
 
+  /// 某时刻的 deform 查找器（传给 `SpineBinder.bind` 的 `deformLookup`）。
+  ///
+  /// 键 = skinIndex:slotIndex:attachmentName；没有 deform 数据时返回 null。
+  List<double>? Function(int skinIndex, int slotIndex, String attachment)? deformAt(double time) {
+    final anim = _animation;
+    if (anim == null || anim.deformTimelines.isEmpty) return null;
+    final map = <String, List<double>>{};
+    for (final tl in anim.deformTimelines) {
+      final offsets = tl.sample(time);
+      if (offsets == null) continue;
+      map['${tl.skinIndex}:${tl.slotIndex}:${tl.attachmentName}'] = offsets;
+    }
+    if (map.isEmpty) return null;
+    return (skinIndex, slotIndex, attachment) => map['$skinIndex:$slotIndex:$attachment'];
+  }
+
   /// 指定时间点的姿态：套用骨骼时间轴 → 计算世界变换。
   SkeletonPose poseAt(double time) {
     final anim = _animation;

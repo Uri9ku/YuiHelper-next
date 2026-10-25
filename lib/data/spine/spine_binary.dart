@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'spine_animation_data.dart';
+import 'spine_constraint_data.dart';
 
 /// Spine 二进制骨架（`.skel`）解析器 —— 纯 Dart、零依赖。
 ///
@@ -239,6 +240,9 @@ final class SpineSkeletonData {
     required this.slots,
     required this.defaultSkin,
     required this.skins,
+    this.ikConstraints = const <SpineIkConstraintData>[],
+    this.transformConstraints = const <SpineTransformConstraintData>[],
+    this.pathConstraints = const <SpinePathConstraintData>[],
     required this.animationCount,
     required this.animationNames,
     this.animations = const <SpineAnimation>[],
@@ -269,6 +273,11 @@ final class SpineSkeletonData {
   /// 命名皮肤（游戏里用来做换装/表情）。
   final List<SpineSkin> skins;
 
+  /// 约束 setup 数据（S7 读入；IK 求解在 S8）
+  final List<SpineIkConstraintData> ikConstraints;
+  final List<SpineTransformConstraintData> transformConstraints;
+  final List<SpinePathConstraintData> pathConstraints;
+
   final int animationCount;
   final List<String> animationNames;
 
@@ -286,6 +295,13 @@ final class SpineSkeletonData {
 
   /// 解析结束时读到的字节数。**必须等于原始文件长度**，否则数据不可信。
   final int consumedBytes;
+
+  /// 皮肤在二进制里的索引：default = 0，命名皮肤 = 1..n。
+  int indexOfSkin(SpineSkin skin) {
+    if (identical(skin, defaultSkin) || skin.name == defaultSkin.name) return 0;
+    final i = skins.indexOf(skin);
+    return i < 0 ? 0 : i + 1;
+  }
 
   /// 按名字找皮肤；`name` 为空或找不到时回退到 [defaultSkin]。
   SpineSkin skin({String? name}) {
@@ -336,9 +352,9 @@ abstract final class SpineBinaryParser {
 
     final bones = _readBones(r, nonessential);
     final slots = _readSlots(r);
-    _skipIkConstraints(r);
-    _skipTransformConstraints(r);
-    _skipPathConstraints(r);
+    final ikConstraints = _readIkConstraints(r);
+    final transformConstraints = _readTransformConstraints(r);
+    final pathConstraints = _readPathConstraints(r);
 
     final defaultSkin = _readSkin(r, 'default');
     final skins = <SpineSkin>[];
@@ -363,6 +379,9 @@ abstract final class SpineBinaryParser {
       slots: slots,
       defaultSkin: defaultSkin,
       skins: skins,
+      ikConstraints: ikConstraints,
+      transformConstraints: transformConstraints,
+      pathConstraints: pathConstraints,
       animationCount: parsedAnimations.count,
       animationNames: parsedAnimations.names,
       animations: parsedAnimations.animations,
@@ -423,61 +442,105 @@ abstract final class SpineBinaryParser {
     return slots;
   }
 
-  static void _skipIkConstraints(_Reader r) {
+  static List<SpineIkConstraintData> _readIkConstraints(_Reader r) {
     final count = r.varint();
+    final out = <SpineIkConstraintData>[];
     for (var i = 0; i < count; i++) {
-      r.string(); // name
-      r.varint(); // order
+      final name = r.string() ?? '';
+      final order = r.varint();
       final boneCount = r.varint();
-      for (var b = 0; b < boneCount; b++) {
-        r.varint();
-      }
-      r.varint(); // target
-      r.float(); // mix
-      r.int8(); // bendDirection
+      final bones = <int>[for (var b = 0; b < boneCount; b++) r.varint()];
+      final target = r.varint();
+      final mix = r.float();
+      final bend = r.int8();
+      out.add(SpineIkConstraintData(
+        name: name,
+        order: order,
+        bones: bones,
+        target: target,
+        mix: mix,
+        bendPositive: bend != 0,
+      ));
     }
+    return out;
   }
 
-  static void _skipTransformConstraints(_Reader r) {
+  static List<SpineTransformConstraintData> _readTransformConstraints(_Reader r) {
     final count = r.varint();
+    final out = <SpineTransformConstraintData>[];
     for (var i = 0; i < count; i++) {
-      r.string(); // name
-      r.varint(); // order
+      final name = r.string() ?? '';
+      final order = r.varint();
       final boneCount = r.varint();
-      for (var b = 0; b < boneCount; b++) {
-        r.varint();
-      }
-      r.varint(); // target
-      r.boolean(); // local
-      r.boolean(); // relative
-      // offsetRotation, offsetX, offsetY, offsetScaleX, offsetScaleY, offsetShearY
-      for (var f = 0; f < 6; f++) {
-        r.float();
-      }
-      // rotate/translate/scale/shear mix
-      for (var f = 0; f < 4; f++) {
-        r.float();
-      }
+      final bones = <int>[for (var b = 0; b < boneCount; b++) r.varint()];
+      final target = r.varint();
+      final local = r.boolean();
+      final relative = r.boolean();
+      final offsetRotation = r.float();
+      final offsetX = r.float();
+      final offsetY = r.float();
+      final offsetScaleX = r.float();
+      final offsetScaleY = r.float();
+      final offsetShearY = r.float();
+      final mixRotate = r.float();
+      final mixTranslate = r.float();
+      final mixScale = r.float();
+      final mixShear = r.float();
+      out.add(SpineTransformConstraintData(
+        name: name,
+        order: order,
+        bones: bones,
+        target: target,
+        local: local,
+        relative: relative,
+        offsetRotation: offsetRotation,
+        offsetX: offsetX,
+        offsetY: offsetY,
+        offsetScaleX: offsetScaleX,
+        offsetScaleY: offsetScaleY,
+        offsetShearY: offsetShearY,
+        mixRotate: mixRotate,
+        mixTranslate: mixTranslate,
+        mixScale: mixScale,
+        mixShear: mixShear,
+      ));
     }
+    return out;
   }
 
-  static void _skipPathConstraints(_Reader r) {
+  static List<SpinePathConstraintData> _readPathConstraints(_Reader r) {
     final count = r.varint();
+    final out = <SpinePathConstraintData>[];
     for (var i = 0; i < count; i++) {
-      r.string(); // name
-      r.varint(); // order
+      final name = r.string() ?? '';
+      final order = r.varint();
       final boneCount = r.varint();
-      for (var b = 0; b < boneCount; b++) {
-        r.varint();
-      }
-      r.varint(); // target slot
-      r.varint(); // position mode
-      r.varint(); // spacing mode
-      r.varint(); // rotate mode
-      for (var f = 0; f < 5; f++) {
-        r.float();
-      }
+      final bones = <int>[for (var b = 0; b < boneCount; b++) r.varint()];
+      final targetSlot = r.varint();
+      final positionMode = r.varint();
+      final spacingMode = r.varint();
+      final rotateMode = r.varint();
+      final rotation = r.float();
+      final position = r.float();
+      final spacing = r.float();
+      final mixRotate = r.float();
+      final mixTranslate = r.float();
+      out.add(SpinePathConstraintData(
+        name: name,
+        order: order,
+        bones: bones,
+        targetSlot: targetSlot,
+        positionMode: positionMode,
+        spacingMode: spacingMode,
+        rotateMode: rotateMode,
+        rotation: rotation,
+        position: position,
+        spacing: spacing,
+        mixRotate: mixRotate,
+        mixTranslate: mixTranslate,
+      ));
     }
+    return out;
   }
 
   static SpineSkin _readSkin(_Reader r, String name) {
@@ -739,18 +802,29 @@ abstract final class SpineBinaryParser {
       }
     }
 
-    // ── IK 时间轴：读掉（v1 不做约束求解，见主报告 §14.13） ──
+    // ── IK 时间轴：保留（S7 读入；求解在 S8） ──
+    final ikTimelines = <SpineIkTimeline>[];
     final ikCount = r.varint();
     for (var i = 0; i < ikCount; i++) {
-      r.varint();
+      final constraintIndex = r.varint();
       final frames = r.varint();
+      final times = <double>[];
+      final mixes = <double>[];
+      final bends = <int>[];
       for (var f = 0; f < frames; f++) {
         final time = r.float();
+        times.add(time);
         if (time > duration) duration = time;
-        r.float(); // mix
-        r.int8(); // bendPositive
+        mixes.add(r.float());
+        bends.add(r.int8());
         if (f < frames - 1) _readCurve(r);
       }
+      ikTimelines.add(SpineIkTimeline(
+        constraintIndex: constraintIndex,
+        times: times,
+        mix: mixes,
+        bendPositive: bends,
+      ));
     }
 
     // ── transform 时间轴：读掉 ──
@@ -788,29 +862,45 @@ abstract final class SpineBinaryParser {
       }
     }
 
-    // ── deform 时间轴：读掉（网格形变 v1 不应用） ──
+    // ── deform 时间轴：保留（S7 应用） ──
     var hasDeformTimelines = false;
+    final deformTimelines = <SpineDeformTimeline>[];
     final skinCount = r.varint();
     for (var s = 0; s < skinCount; s++) {
-      r.varint();
+      final skinIndex = r.varint();
       final slotCount = r.varint();
       for (var sl = 0; sl < slotCount; sl++) {
-        r.varint();
+        final slotIndex = r.varint();
         final deformCount = r.varint();
         for (var d = 0; d < deformCount; d++) {
           hasDeformTimelines = true;
-          r.string();
+          final attachmentName = r.string() ?? '';
           final frames = r.varint();
+          final times = <double>[];
+          final deformFrames = <SpineDeformFrame>[];
+          final curves = <SpineCurve>[];
           for (var f = 0; f < frames; f++) {
             final time = r.float();
+            times.add(time);
             if (time > duration) duration = time;
             final end = r.varint();
             if (end > 0) {
-              r.varint();
-              r.floatArray(end);
+              final startIndex = r.varint();
+              final values = r.floatArray(end);
+              deformFrames.add(SpineDeformFrame(start: startIndex, values: values));
+            } else {
+              deformFrames.add(SpineDeformFrame(start: 0, values: const <double>[]));
             }
-            if (f < frames - 1) _readCurve(r);
+            if (f < frames - 1) curves.add(_readCurve(r));
           }
+          deformTimelines.add(SpineDeformTimeline(
+            skinIndex: skinIndex,
+            slotIndex: slotIndex,
+            attachmentName: attachmentName,
+            times: times,
+            frames: deformFrames,
+            curves: curves,
+          ));
         }
       }
     }
@@ -846,6 +936,8 @@ abstract final class SpineBinaryParser {
       name: name,
       duration: duration,
       boneTimelines: boneTimelines,
+      deformTimelines: deformTimelines,
+      ikTimelines: ikTimelines,
       hasSlotTimelines: hasSlotTimelines,
       hasDeformTimelines: hasDeformTimelines,
       hasDrawOrderTimeline: hasDrawOrder,
