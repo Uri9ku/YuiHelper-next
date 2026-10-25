@@ -532,6 +532,40 @@ E 修改模型页 / 动作预览页
 **结论**：**战斗/移动实时渲染所需的资源路径已 100% 就绪**（基础骨架 + 敌人骨架 + 身体/脸/武器图集与页）。
 唯一缺口是 461 个技能 cut-in / 交谈 / 展示骨架——不影响战斗/移动，**S2 跑一次 pathlog hook 即可补齐**。
 
+### 14.10 S2 进展（2026-10-25）：真机取数链路已打通，页贴图有明确边界
+
+**V0 真机验证**（Xiaomi 24129PN74C / Android 16 / offline mod；用 App 同款 `frida-inject` + `assets/spine_fetch.js`）：
+
+| 取数对象 | 结果 | 证据 |
+|---|---|---|
+| `characterSpine/f_chara_2/f_chara_2_v0.5_sword.skelenc` | ✅ **8,339,008 字节**、头部 `1c…` | 与本地解包明文**大小一致**（同路径 hash `dd66aa14…`） |
+| `characterAtlas/chara_2/alice_uw_2022_new_year_inc.atlas` | ✅ **21,068 字节**、文本头 `\nali…` | 与本地 `atlas.atlas` **逐字节等长** |
+| `enemySpine/enemy_530_dragon/enemy_530_dragon.skelenc` | ✅ 158,759 字节、`1c…` | 敌人骨架可按时取 |
+| `.pkmenc` / `.pngenc` 页贴图 | ❌ `DataCache::read` 返回空（`f8=0` / null） | 连运行时日志里的**真实路径** `characterAtlas/chara_2/edith_integrator.pkmenc` 也失败 → 页贴图不走该接口 |
+
+**结论**：
+1. **A 类资源（`.skelenc` / `.atlas`，AES+XZ）可以按时取明文** —— S2 的"骨架/图集按逻辑路径取数"已打通，注入一次约 40~60s（脚本内固定等 40s 让游戏加载完成以捕获 `DataCache` 实例）。
+2. **B 类资源（`.pkmenc` 页贴图）不能走 `DataCache::read`** —— 这是已确认的硬边界。页贴图有两条可行来源：
+   - **mod 的解码缓存** `files/saoub_all/`（设备实测 1,404 文件 / 563 MB，文件名里编码了逻辑路径与尺寸/格式，可直接解码）——覆盖"玩过/预热过"的页，缺的页提示用户"在游戏里打开该角色一次"即可补齐；
+   - 或重做 **B 类 codec**（`可行性分析_B类codec逆向路线.md` 的 oracle 路线，成本高）。
+3. 附带发现：`DataCache::read` 对**未加载**资源也可能返回空，因此注入后固定等待 40s 再取数（脚本已实现）。
+
+**S2 已交付代码**：
+
+| 文件 | 作用 |
+|---|---|
+| `assets/spine_fetch.js` | 注入脚本：读 `request.txt` → 逐条调 `DataCache::read` → 明文落盘到游戏私有目录 `files/yui-spine/out/`，支持一行多候选（`a\|b`） |
+| `assets/frida-inject`（已有） | App 内置注入器，S2 直接复用 |
+| `lib/data/spine/spine_path_table.dart` | 解析 `paths.json`：变体 → 身体/脸图集、页路径派生、素体骨架选择、取数清单 |
+| `lib/data/spine/spine_oracle.dart` | 取数编排：root/进程检查 → 部署注入器与脚本 → 准备 IO（游戏私有目录，规避 SELinux）→ 注入 → 读 `result.json` + base64 取明文 → 分类失败（noRoot/gameNotRunning/badResult…） |
+| `tools/v0_fetch.py` | 真机 V0 复跑脚本（同上流程，命令行版） |
+| `test/spine_path_table_test.dart`、`test/spine_oracle_test.dart` | **15 个单测全绿**（`dart analyze` 0 issue） |
+
+**下一步（S3）**：
+1. 页贴图取数：实现 `SpineTextureCache`（读 `files/saoub_all/` + ETC2/RGBA 解码）；缺页时给"去游戏里打开该角色一次"的引导；
+2. 渲染接入：Dart 版 `.skel → 3.6 JSON`（或旧版纯 Dart 解析器）+ 多图集 loader，先在预览卡跑通 1 个角色 × `idle_battle/attack/dash`；
+3. 把 `SpineOracle`/`SpinePathTable` 接到 E 修改模型页（替换现在那张硬编码火柴人）。
+
 ---
 
 > 声明：本分析仅用于个人学习、研究与存档；游戏素材版权归 ©Bandai Namco Entertainment / ©Wright Flyer Studios 及相关权利方所有，请勿用于商业用途或再分发。
