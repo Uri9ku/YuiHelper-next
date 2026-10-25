@@ -596,6 +596,32 @@ E 修改模型页 / 动作预览页
 2. 渲染器：先按旧版 `drawVertices` 方案画出 bind pose（验证数据闭环），再补动画时间轴（S5）；
 3. 接到 E 修改模型页，替换硬编码火柴人；缺页/缺骨架按旧版"三态"如实提示。
 
+### 14.12 S4 已完成（2026-10-25）：渲染闭环打通，E 页已接真渲染
+
+**离线端到端验证（真实素材，已出图）**：用 _Stage0_ViewerReady/FrenzyBoar101（skel + atlas + 2 页 PNG）
+走完整链路 → **渲染出带贴图的野猪 bind pose**（uild/spine_offline_render.png，线框图 uild/spine_offline_wireframe.png）：
+骨骼、几何、UV、纹理、颜色全部正确（蓝身/红眼/獠牙/尾珠）。
+
+| S4 交付 | 说明 |
+|---|---|
+| lib/ui/spine/spine_painter.dart | SpineBinder（网格/区域 → 世界顶点 + 图集 UV）+ SpinePainter（drawVertices + ImageShader，含线框模式） |
+| lib/data/spine/spine_assembler.dart | 装配器：.skelenc → 解析；多图集（身体/脸/武器）→ 合并纹理池；	ex 像素 → ui.Image；产出 SpineRenderBundle（骨架/图集/皮肤/批次/缺页清单） |
+| lib/data/spine/spine_preview_loader.dart | 变体 → 装配入口（骨架优先服装骨架，回退 kind==base 素体；页贴图走缓存） |
+| lib/ui/spine/spine_preview_view.dart | 预览卡：加载/成功/缺件/错误四态 + 皮肤切换 + 线框开关（不画假模型） |
+| lib/ui/spine/spine_preview_page.dart | 「全部变体」真渲染页：搜索 1,488 个变体 → 选中 → 运行时取数 → 渲染 |
+| E 修改模型页 | 原硬编码火柴人（_BonePainter）**已删除**，预览卡改为真渲染 + 缺件提示 + 「浏览全部变体」入口 |
+| 测试 | spine_render_offline_test.dart（装配/出图/三态）+ 全量 **175 个用例全绿**；dart analyze **No issues found** |
+
+**已解决的关键坑**：
+1. 解析器把 default 皮肤单独放在 data.defaultSkin（命名皮肤才在 data.skins）——不合并会导致批次为空；
+2. 	estWidgets 里图片解码/	oImage/	oByteData 必须包在 	ester.runAsync 里，否则假时钟卡死（曾 10 分钟超时）；
+3. 多图集：3.6 运行时单图集限制，装配器合并纹理池、按 region 名跨套查找。
+
+**下一步（S5：动画）**：
+1. 在解析器里把动画时间轴从 skip 改成 read（旧版已摸清布局），或在 App 内做 .skel → 3.6 JSON + WebView 播放；
+2. AnimationState（采样/循环/混合/队列）+ 约束（IK/transform/path）→ 播放 idle_battle / attack / dash；
+3. 预览卡加动作下拉与播放控制；随后做 saoub_all 缺页引导与 LRU 缓存。
+
 ---
 
 > 声明：本分析仅用于个人学习、研究与存档；游戏素材版权归 ©Bandai Namco Entertainment / ©Wright Flyer Studios 及相关权利方所有，请勿用于商业用途或再分发。

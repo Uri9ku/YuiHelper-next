@@ -1,8 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 import '../../backend.dart';
+import '../../data/spine/spine_assembler.dart';
+import '../../data/spine/spine_path_table.dart';
+import '../../data/spine/spine_preview_loader.dart';
+import '../spine/spine_preview_page.dart';
+import '../spine/spine_preview_view.dart';
 import '../tokens.dart';
 import '../widgets/foundation.dart';
 
@@ -760,6 +766,23 @@ class _ModelSwapScreenState extends State<ModelSwapScreen> {
     return const StatusChip('骨架集未收录');
   }
 
+  /// S1 产出的路径表（1 MB 级 JSON，进程内只解析一次）。
+  static SpinePathTable? _spineTable;
+
+  /// E 页预览：按当前选中的角色 A 变体装配真模型。
+  ///
+  /// 骨架/图集走注入取数（A 类）；页贴图走 mod 解码缓存（B 类）。
+  /// 前置：root + 游戏已启动；缺件由 SpinePreviewView 如实提示，不画假模型。
+  Future<SpineRenderBundle> _loadSpinePreview(String variant) async {
+    final table = _spineTable ??=
+        SpinePathTable.parse(await rootBundle.loadString(SpinePathTable.assetPath));
+    return loadVariantPreview(
+      table: table,
+      variant: variant,
+      source: DeviceSpineSource(),
+    );
+  }
+
   Widget _buildPreviewCard() {
     final from = _fromId;
     return AppCard(
@@ -806,17 +829,11 @@ class _ModelSwapScreenState extends State<ModelSwapScreen> {
                       ),
                     ],
                   )
-                : const Stack(
-                    children: <Widget>[
-                      Positioned.fill(
-                        child: CustomPaint(painter: _BonePainter()),
-                      ),
-                      Positioned(
-                        left: AppSpace.xs,
-                        top: AppSpace.xs,
-                        child: StatusChip('12 网格'),
-                      ),
-                    ],
+                : SpinePreviewView(
+                    load: () => _loadSpinePreview(from),
+                    height: 150,
+                    background: AppColors.sub,
+                    showToolbar: false,
                   ),
           ),
           const SizedBox(height: AppSpace.xs),
@@ -850,13 +867,28 @@ class _ModelSwapScreenState extends State<ModelSwapScreen> {
                 ),
               ),
               const SizedBox(width: AppSpace.xs),
-              const Text('37 骨', style: AppText.micro),
+              const Text('实时取数', style: AppText.micro),
             ],
           ),
           const SizedBox(height: AppSpace.xs),
           const Text(
-            '线稿只画骨架结构（12 网格 / 37 骨），是示意占位，不是游戏内真实渲染。',
+            '预览从游戏运行时取数（需 root + 游戏在前台）；缺骨架/缺贴图会如实提示，不画假模型。',
             style: AppText.micro,
+          ),
+          const SizedBox(height: AppSpace.x2s),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton(
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const SpinePreviewPage()),
+              ),
+              child: const Text('浏览全部变体（真渲染）', style: AppText.caption),
+            ),
           ),
         ],
       ),
@@ -1112,99 +1144,4 @@ class _CandidateTile extends StatelessWidget {
       ),
     );
   }
-}
-
-/// 骨骼线稿：照 design/model-swap.html 的 120 × 168 骨架比例画，纯示意。
-class _BonePainter extends CustomPainter {
-  const _BonePainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final scaleX = size.width / 120;
-    final scaleY = size.height / 168;
-    final scale = scaleX < scaleY ? scaleX : scaleY;
-    canvas.save();
-    canvas.translate(
-      (size.width - 120 * scale) / 2,
-      (size.height - 168 * scale) / 2,
-    );
-    canvas.scale(scale, scale);
-
-    final line = Paint()
-      ..color = AppColors.ink3
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.8
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    final accentLine = Paint()
-      ..color = AppColors.accent
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.8
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    final accentDot = Paint()..color = AppColors.accent;
-    final inkDot = Paint()..color = AppColors.ink3;
-
-    // 头 / 颈
-    canvas.drawCircle(const Offset(60, 22), 11, line);
-    canvas.drawLine(const Offset(60, 33), const Offset(60, 42), line);
-    // 脊柱（强调色）与肩线
-    canvas.drawLine(const Offset(60, 42), const Offset(60, 104), accentLine);
-    canvas.drawLine(const Offset(36, 50), const Offset(84, 50), line);
-    // 双臂
-    canvas.drawPath(
-      Path()
-        ..moveTo(36, 50)
-        ..lineTo(26, 82)
-        ..lineTo(22, 116),
-      line,
-    );
-    canvas.drawPath(
-      Path()
-        ..moveTo(84, 50)
-        ..lineTo(94, 82)
-        ..lineTo(98, 116),
-      line,
-    );
-    // 髋与双腿
-    canvas.drawLine(const Offset(46, 104), const Offset(74, 104), line);
-    canvas.drawPath(
-      Path()
-        ..moveTo(46, 104)
-        ..lineTo(42, 136)
-        ..lineTo(40, 164),
-      line,
-    );
-    canvas.drawPath(
-      Path()
-        ..moveTo(74, 104)
-        ..lineTo(78, 136)
-        ..lineTo(80, 164),
-      line,
-    );
-
-    // 关节
-    for (final joint in const <Offset>[
-      Offset(60, 42),
-      Offset(36, 50),
-      Offset(84, 50),
-      Offset(46, 104),
-      Offset(74, 104),
-    ]) {
-      canvas.drawCircle(joint, 2.6, accentDot);
-    }
-    for (final joint in const <Offset>[
-      Offset(26, 82),
-      Offset(94, 82),
-      Offset(42, 136),
-      Offset(78, 136),
-    ]) {
-      canvas.drawCircle(joint, 2.6, inkDot);
-    }
-
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
