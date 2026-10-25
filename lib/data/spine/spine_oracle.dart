@@ -6,12 +6,6 @@ import 'package:flutter/services.dart' show rootBundle;
 
 import '../root_shell.dart';
 
-/// 一次 su 命令执行（可注入假实现，测试不打真机）。
-typedef ShellRunner = Future<ShellResult> Function(
-  String cmd, {
-  Duration timeout,
-});
-
 /// 内置资产读取（frida-inject 二进制 / spine_fetch.js）。
 typedef AssetLoader = Future<Uint8List> Function(String asset);
 

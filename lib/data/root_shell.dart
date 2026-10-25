@@ -1,6 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
+/// 可注入的 su 执行器（测试与离线工具可替换；RootShell.run 满足该签名）。
+typedef ShellRunner = Future<ShellResult> Function(
+  String cmd, {
+  Duration timeout,
+});
+
 /// 一次 su 命令的结果。
 final class ShellResult {
   const ShellResult(this.code, this.out);

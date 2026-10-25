@@ -566,6 +566,36 @@ E 修改模型页 / 动作预览页
 2. 渲染接入：Dart 版 `.skel → 3.6 JSON`（或旧版纯 Dart 解析器）+ 多图集 loader，先在预览卡跑通 1 个角色 × `idle_battle/attack/dash`；
 3. 把 `SpineOracle`/`SpinePathTable` 接到 E 修改模型页（替换现在那张硬编码火柴人）。
 
+### 14.11 S3 进展（2026-10-25）：页贴图解码链路打通（离线实测）
+
+**结论**：页贴图走 **mod 解码缓存 + ETC2 解码**这条路已验证可用（用真实缓存数据、并与我们解包出的 PNG 对照）。
+
+| 项 | 结果 |
+|---|---|
+| 缓存规模 | 本地 `saoub_all` 1,404 文件 / 558 MB → **702 个条目**（raw+json 成对）；其中 **spine 相关 81 条** |
+| 页名 → 缓存匹配 | 按「逻辑路径下划线化后作为后缀」匹配（如 `files/spine/characterAtlas/chara_2/test.pkmenc` → `..._files_spine_characterAtlas_chara_2_test.pkmenc`），不会跨目录误配 |
+| ETC2 解码 | `fmt=37496 (ETC2_RGBA8_EAC)` 可解；**该 build 的块顺序是 alpha 块在前**（`etc2AlphaFirst=true`）——用本地 PNG 对照确认：`4096×204` 页 avgRGB `(53,51,52)` vs 本地 `(51,51,51)`、alpha 覆盖率 `62.9%` vs `62.5%`；`3668×2568` 页覆盖率 `13.0%` vs 本地 `13%` |
+| 性能 | 4096×204 约 70 ms、3668×2568 约 471 ms（纯 Dart，未优化） |
+| 覆盖边界 | 缓存只含**预热/加载过**的资源（81 条 spine ≈ 3,425 页的 2.4%）→ 缺页时提示"在游戏里打开该角色一次" |
+
+**S3 已交付**：
+
+| 文件 | 作用 |
+|---|---|
+| `lib/data/spine/spine_binary.dart`（830 行，从旧版移植） | Spine 3.6 二进制骨架解析（300/300 EOF 已验证过；含 clipping/path 等附件） |
+| `lib/data/spine/skeleton_pose.dart` | bind pose 世界变换 + 网格顶点（后续动画运行时在此扩展） |
+| `lib/data/spine/atlas_variant.dart` | 从 `images` 路径推断图集变体名 |
+| `lib/data/assets/texture_atlas.dart` | LibGDX `.atlas` 文本解析（多页 / rotate） |
+| `lib/data/assets/etc2.dart` | ETC2 RGBA8（EAC）纯 Dart 解码 |
+| `lib/data/spine/spine_texture_cache.dart`（新增） | 读 `saoub_all`：索引、逻辑路径匹配、tex/ctex 解码、alpha 覆盖率诊断；支持设备源与本地目录源 |
+| `tools/s3_texture_probe.dart`（新增） | 离线解码探针（`dart run tools/s3_texture_probe.dart <缓存目录> --filter spine --limit 5`） |
+| 测试 | **46 个用例全绿**（含移植的 19 个骨架解析用例 + 图集用例 + S2/S3 新用例）；`dart analyze` **No issues found** |
+
+**下一步（S4：渲染接入）**：
+1. `SpineVariantAssembler`：variant → 取骨架（Oracle）+ 图集文本（Oracle）+ 页贴图（TextureCache）→ 校验完整性 → 产出可渲染对象；
+2. 渲染器：先按旧版 `drawVertices` 方案画出 bind pose（验证数据闭环），再补动画时间轴（S5）；
+3. 接到 E 修改模型页，替换硬编码火柴人；缺页/缺骨架按旧版"三态"如实提示。
+
 ---
 
 > 声明：本分析仅用于个人学习、研究与存档；游戏素材版权归 ©Bandai Namco Entertainment / ©Wright Flyer Studios 及相关权利方所有，请勿用于商业用途或再分发。
