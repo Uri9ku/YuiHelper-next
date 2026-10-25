@@ -1,0 +1,42 @@
+[
+ {
+  "atlas": "0cd725b7075f4ac1d28bb6b2aa512b4dd04e0607",
+  "label": "S0003 Effect Phenix",
+  "category": "Others",
+  "group": "S0003 Effect Phenix",
+  "page0": "s0003_effect_phenix.png",
+  "tried": 150
+ },
+ {
+  "atlas": "14691043f7ffba009e5dc4136b81debe673050ad",
+  "label": "S0001 Effect Sword",
+  "category": "Others",
+  "group": "S0001 Effect Sword",
+  "page0": "s0001_effect_sword.png",
+  "tried": 150
+ },
+ {
+  "atlas": "5b556c65e5ac2dd379b20c9f24d3654e8026ed70",
+  "label": "S0003 Effect Phenix Mask",
+  "category": "Others",
+  "group": "S0003 Effect Phenix",
+  "page0": "s0003_effect_phenix_mask.png",
+  "tried": 150
+ },
+ {
+  "atlas": "d6bc960dfccbedba29722da65adb298c1b09cd66",
+  "label": "S0002 Weapon",
+  "category": "Others",
+  "group": "S0002 Weapon",
+  "page0": "s0002_weapon.png",
+  "tried": 150
+ },
+ {
+  "atlas": "dcb641e2a32caaebb3b1101fd5ecdf9397b9800a",
+  "label": "Images",
+  "category": "Others",
+  "group": "S0001 Effect Sword",
+  "page0": "images.png",
+  "tried": 150
+ }
+]

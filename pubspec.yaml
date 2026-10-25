@@ -25,3 +25,5 @@ flutter:
     - assets/model_skeletons_seed.json
     - assets/imagination_fill.json
     - assets/skill_boards.json
+    # S1：Spine 资源路径表（逻辑路径 → 内容 hash），供运行时 oracle 取数
+    - assets/spine/paths.json
