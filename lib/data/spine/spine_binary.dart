@@ -3,6 +3,8 @@ library;
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'spine_animation_data.dart';
+
 /// Spine 二进制骨架（`.skel`）解析器 —— 纯 Dart、零依赖。
 ///
 /// # 为什么是这个版本
@@ -239,6 +241,7 @@ final class SpineSkeletonData {
     required this.skins,
     required this.animationCount,
     required this.animationNames,
+    this.animations = const <SpineAnimation>[],
     required this.eventCount,
     required this.consumedBytes,
   });
@@ -268,6 +271,17 @@ final class SpineSkeletonData {
 
   final int animationCount;
   final List<String> animationNames;
+
+  /// 解析出的动画（S5 起保留时间轴内容；事件/绘制顺序只读不应用）。
+  final List<SpineAnimation> animations;
+
+  /// 按名字找动画。
+  SpineAnimation? findAnimation(String name) {
+    for (final a in animations) {
+      if (a.name == name) return a;
+    }
+    return null;
+  }
   final int eventCount;
 
   /// 解析结束时读到的字节数。**必须等于原始文件长度**，否则数据不可信。
@@ -337,7 +351,7 @@ abstract final class SpineBinaryParser {
     }
 
     final eventCount = _skipEvents(r);
-    final (animationCount, animationNames) = _skipAnimations(r);
+    final parsedAnimations = _readAnimations(r);
 
     return SpineSkeletonData(
       hash: hash,
@@ -349,8 +363,9 @@ abstract final class SpineBinaryParser {
       slots: slots,
       defaultSkin: defaultSkin,
       skins: skins,
-      animationCount: animationCount,
-      animationNames: animationNames,
+      animationCount: parsedAnimations.count,
+      animationNames: parsedAnimations.names,
+      animations: parsedAnimations.animations,
       eventCount: eventCount,
       consumedBytes: r.pos,
     );
@@ -637,161 +652,219 @@ abstract final class SpineBinaryParser {
     return count;
   }
 
-  /// 动画段：只统计数量与名字，时间轴内容整体跳过。
-  static (int, List<String>) _skipAnimations(_Reader r) {
+  /// 动画段：读取数量/名字/时间轴（S5）。字节布局与旧版 skip 完全一致，
+  /// 判据仍是「读完恰好到 EOF」，所以解析器单测能直接验证没读错位。
+  static ({int count, List<String> names, List<SpineAnimation> animations}) _readAnimations(
+    _Reader r,
+  ) {
     final count = r.varint();
     final names = <String>[];
+    final animations = <SpineAnimation>[];
     for (var i = 0; i < count; i++) {
-      names.add(r.string() ?? '');
-      _skipAnimationBody(r);
+      final name = r.string() ?? '';
+      names.add(name);
+      animations.add(_readAnimationBody(r, name));
     }
-    return (count, names);
+    return (count: count, names: names, animations: animations);
   }
 
-  static void _skipAnimationBody(_Reader r) {
-    // slot 时间轴
-    _forEachTimeline(r, (type) {
-      final frames = r.varint();
-      for (var f = 0; f < frames; f++) {
-        r.float();
-        switch (type) {
-          case 0: // attachment
-            r.string();
-          case 1: // color
-            r.color();
-            if (f < frames - 1) _skipCurve(r);
-          default: // two-color
-            r.color();
-            r.color();
-            if (f < frames - 1) _skipCurve(r);
-        }
-      }
-    });
+  static SpineAnimation _readAnimationBody(_Reader r, String name) {
+    var duration = 0.0;
 
-    // 骨骼时间轴：rotate 每帧 1 个值，translate/scale/shear 每帧 2 个
-    _forEachTimeline(r, (type) {
-      final frames = r.varint();
-      final perFrame = type == 0 ? 1 : 2;
-      for (var f = 0; f < frames; f++) {
-        r.float();
-        for (var v = 0; v < perFrame; v++) {
-          r.float();
-        }
-        if (f < frames - 1) _skipCurve(r);
-      }
-    });
-
-    // IK 时间轴
-    final ikCount = r.varint();
-    for (var i = 0; i < ikCount; i++) {
-      r.varint();
-      final frames = r.varint();
-      for (var f = 0; f < frames; f++) {
-        r.float();
-        r.float();
-        r.int8();
-        if (f < frames - 1) _skipCurve(r);
-      }
-    }
-
-    // transform 时间轴
-    final transformCount = r.varint();
-    for (var i = 0; i < transformCount; i++) {
-      r.varint();
-      final frames = r.varint();
-      for (var f = 0; f < frames; f++) {
-        r.float();
-        for (var v = 0; v < 4; v++) {
-          r.float();
-        }
-        if (f < frames - 1) _skipCurve(r);
-      }
-    }
-
-    // path 时间轴
-    _forEachTimeline(r, (type) {
-      final frames = r.varint();
-      final perFrame = type == 2 ? 2 : 1;
-      for (var f = 0; f < frames; f++) {
-        r.float();
-        for (var v = 0; v < perFrame; v++) {
-          r.float();
-        }
-        if (f < frames - 1) _skipCurve(r);
-      }
-    });
-
-    // deform 时间轴
-    final skinCount = r.varint();
-    for (var s = 0; s < skinCount; s++) {
-      r.varint(); // skin index
-      final slotCount = r.varint();
-      for (var sl = 0; sl < slotCount; sl++) {
-        r.varint(); // slot index
-        final deformCount = r.varint();
-        for (var d = 0; d < deformCount; d++) {
-          r.string(); // attachment name
-          final frames = r.varint();
-          for (var f = 0; f < frames; f++) {
-            r.float();
-            final end = r.varint();
-            if (end > 0) {
-              r.varint(); // start
-              r.floatArray(end);
-            }
-            if (f < frames - 1) _skipCurve(r);
+    // ── slot 时间轴（attachment / color / two-color）：读掉不应用 ──
+    var hasSlotTimelines = false;
+    final slotEntries = r.varint();
+    for (var e = 0; e < slotEntries; e++) {
+      r.varint(); // slot index
+      final timelineCount = r.varint();
+      for (var t = 0; t < timelineCount; t++) {
+        hasSlotTimelines = true;
+        final type = r.int8();
+        final frames = r.varint();
+        for (var f = 0; f < frames; f++) {
+          final time = r.float();
+          if (time > duration) duration = time;
+          switch (type) {
+            case 0:
+              r.string();
+            case 1:
+              r.color();
+              if (f < frames - 1) _readCurve(r);
+            default:
+              r.color();
+              r.color();
+              if (f < frames - 1) _readCurve(r);
           }
         }
       }
     }
 
-    // draw order
-    final drawOrderFrames = r.varint();
-    for (var f = 0; f < drawOrderFrames; f++) {
-      r.float();
-      final changeCount = r.varint();
-      for (var c = 0; c < changeCount; c++) {
-        r.varint(); // slot index
-        r.varint(); // amount
+    // ── 骨骼时间轴：rotate / translate / scale / shear（读进内存） ──
+    final boneTimelines = <SpineBoneTimeline>[];
+    final boneEntries = r.varint();
+    for (var e = 0; e < boneEntries; e++) {
+      final boneIndex = r.varint();
+      final timelineCount = r.varint();
+      for (var t = 0; t < timelineCount; t++) {
+        final type = r.int8();
+        final frames = r.varint();
+        final stride = type == 0 ? 1 : 2;
+        final times = <double>[];
+        final values = <double>[];
+        final curves = <SpineCurve>[];
+        for (var f = 0; f < frames; f++) {
+          final time = r.float();
+          times.add(time);
+          if (time > duration) duration = time;
+          for (var v = 0; v < stride; v++) {
+            values.add(r.float());
+          }
+          if (f < frames - 1) curves.add(_readCurve(r));
+        }
+        boneTimelines.add(
+          SpineBoneTimeline(
+            boneIndex: boneIndex,
+            kind: switch (type) {
+              0 => 'rotate',
+              1 => 'translate',
+              2 => 'scale',
+              _ => 'shear',
+            },
+            times: times,
+            values: values,
+            curves: curves,
+            stride: stride,
+          ),
+        );
       }
     }
 
-    // 动画内 event 时间轴。⚠ 同样没有 volume/balance。
+    // ── IK 时间轴：读掉（v1 不做约束求解，见主报告 §14.13） ──
+    final ikCount = r.varint();
+    for (var i = 0; i < ikCount; i++) {
+      r.varint();
+      final frames = r.varint();
+      for (var f = 0; f < frames; f++) {
+        final time = r.float();
+        if (time > duration) duration = time;
+        r.float(); // mix
+        r.int8(); // bendPositive
+        if (f < frames - 1) _readCurve(r);
+      }
+    }
+
+    // ── transform 时间轴：读掉 ──
+    final transformCount = r.varint();
+    for (var i = 0; i < transformCount; i++) {
+      r.varint();
+      final frames = r.varint();
+      for (var f = 0; f < frames; f++) {
+        final time = r.float();
+        if (time > duration) duration = time;
+        for (var v = 0; v < 4; v++) {
+          r.float();
+        }
+        if (f < frames - 1) _readCurve(r);
+      }
+    }
+
+    // ── path 时间轴：读掉 ──
+    final pathEntries = r.varint();
+    for (var e = 0; e < pathEntries; e++) {
+      r.varint();
+      final timelineCount = r.varint();
+      for (var t = 0; t < timelineCount; t++) {
+        final type = r.int8();
+        final frames = r.varint();
+        final perFrame = type == 2 ? 2 : 1;
+        for (var f = 0; f < frames; f++) {
+          final time = r.float();
+          if (time > duration) duration = time;
+          for (var v = 0; v < perFrame; v++) {
+            r.float();
+          }
+          if (f < frames - 1) _readCurve(r);
+        }
+      }
+    }
+
+    // ── deform 时间轴：读掉（网格形变 v1 不应用） ──
+    var hasDeformTimelines = false;
+    final skinCount = r.varint();
+    for (var s = 0; s < skinCount; s++) {
+      r.varint();
+      final slotCount = r.varint();
+      for (var sl = 0; sl < slotCount; sl++) {
+        r.varint();
+        final deformCount = r.varint();
+        for (var d = 0; d < deformCount; d++) {
+          hasDeformTimelines = true;
+          r.string();
+          final frames = r.varint();
+          for (var f = 0; f < frames; f++) {
+            final time = r.float();
+            if (time > duration) duration = time;
+            final end = r.varint();
+            if (end > 0) {
+              r.varint();
+              r.floatArray(end);
+            }
+            if (f < frames - 1) _readCurve(r);
+          }
+        }
+      }
+    }
+
+    // ── drawOrder ──
+    var hasDrawOrder = false;
+    final drawOrderFrames = r.varint();
+    if (drawOrderFrames > 0) hasDrawOrder = true;
+    for (var f = 0; f < drawOrderFrames; f++) {
+      final time = r.float();
+      if (time > duration) duration = time;
+      final changeCount = r.varint();
+      for (var c = 0; c < changeCount; c++) {
+        r.varint();
+        r.varint();
+      }
+    }
+
+    // ── 动画内 event（3.6：没有 volume/balance） ──
     final eventCount = r.varint();
     for (var e = 0; e < eventCount; e++) {
-      r.float(); // time
-      r.varint(); // event index
-      r.varint(positive: false); // intValue
-      r.float(); // floatValue
+      final time = r.float();
+      if (time > duration) duration = time;
+      r.varint();
+      r.varint(positive: false);
+      r.float();
       if (r.boolean()) {
         r.string();
       }
     }
+
+    return SpineAnimation(
+      name: name,
+      duration: duration,
+      boneTimelines: boneTimelines,
+      hasSlotTimelines: hasSlotTimelines,
+      hasDeformTimelines: hasDeformTimelines,
+      hasDrawOrderTimeline: hasDrawOrder,
+      eventCount: eventCount,
+    );
   }
 
-  /// `count = varint(); for Each: index = varint(); for each timeline: ...`
-  static void _forEachTimeline(
-    _Reader r,
-    void Function(int timelineType) body,
-  ) {
-    final entries = r.varint();
-    for (var e = 0; e < entries; e++) {
-      r.varint(); // slot/bone/path index
-      final timelineCount = r.varint();
-      for (var t = 0; t < timelineCount; t++) {
-        body(r.int8());
-      }
+  /// 读一帧曲线：0=linear、1=stepped、2=bezier（后跟 4 个控制点）。
+  static SpineCurve _readCurve(_Reader r) {
+    final type = r.int8();
+    if (type == 2) {
+      final cx1 = r.float();
+      final cy1 = r.float();
+      final cx2 = r.float();
+      final cy2 = r.float();
+      return SpineCurve.bezier(cx1, cy1, cx2, cy2);
     }
-  }
-
-  static void _skipCurve(_Reader r) {
-    if (r.int8() == 2) {
-      // bezier：4 个控制点
-      r.float();
-      r.float();
-      r.float();
-      r.float();
-    }
+    if (type == 1) return const SpineCurve.stepped();
+    return const SpineCurve.linear();
   }
 
   /// 判定游标处「像不像骨骼区」，用于判断 header 里有没有 audio 字段。

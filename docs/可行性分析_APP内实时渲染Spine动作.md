@@ -622,6 +622,34 @@ E 修改模型页 / 动作预览页
 2. AnimationState（采样/循环/混合/队列）+ 约束（IK/transform/path）→ 播放 idle_battle / attack / dash；
 3. 预览卡加动作下拉与播放控制；随后做 saoub_all 缺页引导与 LRU 缓存。
 
+### 14.13 S5 已完成（2026-10-26）：动作播放打通（FK 时间轴）
+
+**关键改动**：解析器的动画段从「只统计名字/跳过内容」改成**真正读取时间轴**（字节布局与 skip 完全一致，
+判据仍是「读到 EOF 恰好对齐」——移植的 19 个合成用例 + 真实骨架 e2e 全部通过，证明没读错位）。
+
+| S5 交付 | 说明 |
+|---|---|
+| `lib/data/spine/spine_animation_data.dart` | 时间轴数据模型：`SpineCurve`（linear/stepped/bezier 反解）、`SpineBoneTimeline`（rotate/translate/scale/shear）、`SpineAnimation` |
+| `lib/data/spine/spine_animation_player.dart` | 播放器 v1：时间推进/循环 + 姿态采样（setup 值加时间轴偏移；scale 为乘）+ `SkeletonPose.fromLocals` 世界变换 |
+| `spine_binary.dart` | 动画段改为读入：骨骼时间轴保留；slot 颜色/附件、IK/transform/path、deform、drawOrder、event 读掉不应用（字段全读，保证对齐） |
+| `skeleton_pose.dart` | 新增 `BoneLocals` + `SkeletonPose.fromLocals`（与 bind pose 共用同一套世界变换公式） |
+| `lib/ui/spine/spine_preview_view.dart` | 动画下拉 + 播放/暂停 + 循环 + 进度显示；每帧重算姿态与批次后重绘；皮肤/线框保持不变 |
+| 测试 | `spine_animation_offline_test.dart`：时间轴解析自洽（times 递增、values=frames×stride、curves=frames-1）、半周期骨骼位移 >1 单位、**3 帧渲染出 PNG 且互不相同**（`build/spine_anim_0..2.png`）；全量 **178 个用例全绿**，`dart analyze` No issues found |
+
+**真机素材验证**：`FrenzyBoar101` 的 `idle_battle_front`（40 帧 / 1.30s）逐帧渲染出图，与 bind pose 明显不同
+（低头、抬尾、重心前移），说明时间轴采样正确。
+
+**v1 的诚实边界**（写进 UI 文案/文档，不假装完整）：
+- ✅ 已应用：rotate / translate / scale / shear（含三种曲线）；
+- ❌ 未应用：IK / transform / path 约束求解、deform 网格形变（布料/肌肉）、drawOrder、slot 颜色与附件切换；
+- ❌ 不做多动画混合（mix/队列），一次只播一条；
+- 性能：预览每帧重算批次（数百个 drawVertices），150dp 卡片够用；全屏 60fps 需后续合批优化。
+
+**下一步（S6 候选）**：
+1. 约束求解（IK/transform/path）+ deform，让动作更完整；
+2. 每帧合批（按图集页合并顶点缓冲）以支撑全屏 60fps；
+3. 缺页引导与 LRU 缓存的产品化；真机回归（设备重连后跑一次 E 页全链路）。
+
 ---
 
 > 声明：本分析仅用于个人学习、研究与存档；游戏素材版权归 ©Bandai Namco Entertainment / ©Wright Flyer Studios 及相关权利方所有，请勿用于商业用途或再分发。

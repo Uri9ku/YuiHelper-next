@@ -60,7 +60,36 @@ final class BonePose {
       (a * lx + b * ly + worldX, c * lx + d * ly + worldY);
 }
 
-/// 一份骨骼在 bind pose 下的完整姿态。
+/// 骨骼局部值的覆盖（动画时间轴采样结果）；没有覆盖的骨骼用 setup 值。
+final class BoneLocals {
+  BoneLocals({
+    this.rotation,
+    this.x,
+    this.y,
+    this.scaleX,
+    this.scaleY,
+    this.shearX,
+    this.shearY,
+  });
+
+  final List<double>? rotation;
+  final List<double>? x;
+  final List<double>? y;
+  final List<double>? scaleX;
+  final List<double>? scaleY;
+  final List<double>? shearX;
+  final List<double>? shearY;
+
+  double rotationOf(SpineBoneData b) => rotation?[b.index] ?? b.rotation;
+  double xOf(SpineBoneData b) => x?[b.index] ?? b.x;
+  double yOf(SpineBoneData b) => y?[b.index] ?? b.y;
+  double scaleXOf(SpineBoneData b) => scaleX?[b.index] ?? b.scaleX;
+  double scaleYOf(SpineBoneData b) => scaleY?[b.index] ?? b.scaleY;
+  double shearXOf(SpineBoneData b) => shearX?[b.index] ?? b.shearX;
+  double shearYOf(SpineBoneData b) => shearY?[b.index] ?? b.shearY;
+}
+
+/// 一份骨骼在某个姿态下的世界变换（bind pose 或动画采样后的姿态）。
 final class SkeletonPose {
   SkeletonPose(this.bones);
 
@@ -68,52 +97,54 @@ final class SkeletonPose {
   final List<BonePose> bones;
 
   /// 计算 bind pose（等于 setup pose：所有骨骼都取骨骼数据里的局部值）。
-  ///
-  /// 骨骼必须按**父在子前**排列——Spine 导出保证了这一点（父索引 < 子索引），
-  /// 所以单趟顺序遍历即可。
-  factory SkeletonPose.bindPose(SpineSkeletonData data) {
+  factory SkeletonPose.bindPose(SpineSkeletonData data) => SkeletonPose._compute(data, null);
+
+  /// 按 [locals] 覆盖局部值后计算世界变换（S5 动画采样用）。
+  factory SkeletonPose.fromLocals(SpineSkeletonData data, BoneLocals locals) =>
+      SkeletonPose._compute(data, locals);
+
+  factory SkeletonPose._compute(SpineSkeletonData data, BoneLocals? locals) {
     final poses = List<BonePose>.filled(data.bones.length, _identityPose);
     for (final bone in data.bones) {
       final parent = bone.parentIndex == null ? null : poses[bone.parentIndex!];
-      final radians = bone.rotation * math.pi / 180.0;
+      final localRotation = locals?.rotationOf(bone) ?? bone.rotation;
+      final localX = locals?.xOf(bone) ?? bone.x;
+      final localY = locals?.yOf(bone) ?? bone.y;
+      final localScaleX = locals?.scaleXOf(bone) ?? bone.scaleX;
+      final localScaleY = locals?.scaleYOf(bone) ?? bone.scaleY;
+      final radians = localRotation * math.pi / 180.0;
 
-      // 官方 spBone_updateWorldTransform 的 NORMAL 分支：
-      //   rotationX = rotation + shearX
-      //   rotationY = rotation + 90 + shearY
-      //   la = cos(rotationX) * scaleX,  lb = cos(rotationY) * scaleY
-      //   lc = sin(rotationX) * scaleX,  ld = sin(rotationY) * scaleY
-      final rotationX = radians + _deg2rad(bone.shearX);
-      final rotationY = radians + math.pi / 2 + _deg2rad(bone.shearY);
-      final la = math.cos(rotationX) * bone.scaleX;
-      final lb = math.cos(rotationY) * bone.scaleY;
-      final lc = math.sin(rotationX) * bone.scaleX;
-      final ld = math.sin(rotationY) * bone.scaleY;
+      // 官方 spBone_updateWorldTransform 的 NORMAL 分支
+      final rotationX = radians + _deg2rad(locals?.shearXOf(bone) ?? bone.shearX);
+      final rotationY = radians + math.pi / 2 + _deg2rad(locals?.shearYOf(bone) ?? bone.shearY);
+      final la = math.cos(rotationX) * localScaleX;
+      final lb = math.cos(rotationY) * localScaleY;
+      final lc = math.sin(rotationX) * localScaleX;
+      final ld = math.sin(rotationY) * localScaleY;
 
       if (parent == null) {
         poses[bone.index] = BonePose(
-          x: bone.x,
-          y: bone.y,
-          rotation: bone.rotation,
-          scaleX: bone.scaleX,
-          scaleY: bone.scaleY,
+          x: localX,
+          y: localY,
+          rotation: localRotation,
+          scaleX: localScaleX,
+          scaleY: localScaleY,
           a: la,
           b: lb,
           c: lc,
           d: ld,
-          worldX: bone.x,
-          worldY: bone.y,
+          worldX: localX,
+          worldY: localY,
         );
       } else {
-        // worldX = pa * x + pb * y + parentWorldX
-        // worldY = pc * x + pd * y + parentWorldY
-        final wx = parent.a * bone.x + parent.b * bone.y + parent.worldX;
-        final wy = parent.c * bone.x + parent.d * bone.y + parent.worldY;
+        final wx = parent.a * localX + parent.b * localY + parent.worldX;
+        final wy = parent.c * localX + parent.d * localY + parent.worldY;
         poses[bone.index] = BonePose(
-          x: bone.x,
-          y: bone.y,
-          rotation: bone.rotation,
-          scaleX: bone.scaleX,
-          scaleY: bone.scaleY,
+          x: localX,
+          y: localY,
+          rotation: localRotation,
+          scaleX: localScaleX,
+          scaleY: localScaleY,
           a: parent.a * la + parent.b * lc,
           b: parent.a * lb + parent.b * ld,
           c: parent.c * la + parent.d * lc,
