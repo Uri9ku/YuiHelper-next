@@ -2,7 +2,7 @@
 
 > 目标（见主报告 §14.3 S1）：给 App 一张「按变体取资源」的路径表，使它能在运行时通过注入通道
 > 调引擎 `DataCache::read(path)` 按需取明文——即方案 ①「运行时取数」的数据地基。
-> 产出：`assets/spine/paths.json`（642 KB） + 本说明 + `tools/build_spine_paths.py`（可复跑）
+> 产出：`assets/spine/paths.json`（666 KB） + 本说明 + `tools/build_spine_paths.py`（可复跑）
 > 生成时间：2026-10-25｜游戏版本：3.7.0｜客户端：offline mod（SAOUB-OFLINE）
 
 ---
@@ -82,7 +82,7 @@ logicalPath 不带前导 "/"，不带 "localization/tc/" 前缀
   "hashRule": "sha1(utf8('66VsXNegycgradYc' + logicalPath))",
   "pageRule": "pagePath = dirname(atlasPath) + '/' + pageName(no .png) + '.pkmenc'",
   "stats": { "atlases": 1661, "pagePaths": 3420, "pageVerified": 3420,
-             "skeletons": 69, "variants": 1390, "atlasUnresolved": 5 },
+             "skeletons": 167, "variants": 1488, "atlasUnresolved": 5 },
   "atlases": {
     "<atlasHash>": {
       "path": "files/spine/characterAtlas/chara_2/alice_uw_2022_new_year_inc.atlas",
@@ -136,7 +136,7 @@ for (final path in [atlas.path, skel.path, ...pages]) {
 | 技能 cut-in / 交谈 / 展示骨架 | **461** | 全部 hash 都在密文仓库里（路径真实存在）。已排除 ≈960 万条候选（8 类目录树 `characterSpine/chara_N`、大写 `CharacterSpine`、`playerCharacterSpine/uiSpine/effectSpine/other/根` 等 × 各种后缀 × 两代版本）。**已实证的命名规律**：基础体 `characterSpine/f_chara_N/...`、`a_chara` 在 `realCharacterSpine/a_chara_N/`、服装 `<set>_v<ver>_<atlas页stem>`、技能 cut-in `<set>_v<A.B.C>_<skill前缀>`（三段版本取自首条动画 `##_v0.5.37`）。**剩余 461 条的文件名 token 依赖 master `spine.bin` 私有 key（该表字符串段仍是密文）** → 建议 S2 用 `hook_pathlog.js` 现场记录 `openPath`（battle3_out 已证明能抓到 `skelenc` 路径） |
 | 页贴图未解 | 5 | 即上面 5 个特效图集各自的页 |
 
-> 注意：这 531 个骨架**不影响"战斗/移动动作实时渲染"**（战斗链只用基础骨架 + 敌人骨架，已 100% 覆盖），
+> 注意：这 461 个骨架**不影响"战斗/移动动作实时渲染"**（战斗链只用基础骨架 + 敌人骨架，已 100% 覆盖），
 > 只影响"技能演出/表情"这类展示动画；且它们的 hash 在仓库里，S2 一旦拿到路径即可直接取明文。
 
 ---
