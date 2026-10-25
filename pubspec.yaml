@@ -1,0 +1,27 @@
+name: yui_helper_next
+description: "YuiHelper next：按 design/ 设计稿实现的新版 UI + 领取奖励/装配想象力/换模型后端。"
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/frida-inject
+    - assets/saoars_model.js
+    - assets/names.tsv
+    - assets/model_pairs.json
+    - assets/model_bones.json
+    - assets/model_skeletons_seed.json
+    - assets/imagination_fill.json
+    - assets/skill_boards.json

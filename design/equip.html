@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>装配装备 · 页面稿</title>
+<style>
+:root{
+  --bg:#F4F5F7; --surface:#FFFFFF; --sub:#F7F8FA; --sunken:#FAFBFC;
+  --border:#E9EBEF; --border-strong:#DDE1E8;
+  --ink:#12141A; --ink-2:#5B6472; --ink-3:#9AA0AA;
+  --accent:#2563EB; --accent-press:#1D4ED8; --accent-soft:#EFF4FF; --accent-border:#B9CBF2;
+  --success:#10B981; --success-ink:#059669; --success-soft:#ECFDF5;
+  --warning:#F59E0B; --warning-ink:#B45309; --warning-soft:#FFF8EE; --warning-border:#FBE3BE;
+  --danger:#DC2626;
+  --r-pill:36px; --r-card:18px; --r-tile:16px; --r-inner:12px; --r-seg:9px; --r-tab:26px;
+  --sp-page:20px; --sp-card:14px; --sp-pad:16px; --sp-in:12px; --sp-xs:8px; --sp-2xs:4px;
+  --e1:0 1px 2px rgba(18,20,26,.04);
+  --e2:0 6px 18px rgba(18,20,26,.06);
+  --e3:0 8px 20px rgba(37,99,235,.28);
+  --font:"Inter","Noto Sans SC","HarmonyOS Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono","SFMono-Regular",Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--font);font-size:14px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{margin:0;font-weight:600;letter-spacing:-0.01em}
+p{margin:0}
+ul{margin:0}
+
+/* ---------- 顶栏 ---------- */
+.topbar{
+  position:sticky;top:0;z-index:40;height:64px;
+  display:flex;align-items:center;gap:14px;
+  padding:0 32px;background:rgba(255,255,255,.86);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--border);
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-mark{
+  width:30px;height:30px;border-radius:9px;flex:0 0 auto;
+  background:var(--accent);display:flex;align-items:center;justify-content:center;
+  color:var(--surface);font-family:var(--mono);font-size:12px;font-weight:700;
+}
+.brand-t{font-size:13px;font-weight:600;letter-spacing:0}
+.brand-s{font-size:11px;color:var(--ink-3);margin-top:-2px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;
+  border-radius:13px;background:var(--sub);border:1px solid var(--border);
+  font-size:11px;color:var(--ink-2);white-space:nowrap;
+}
+.chip.on{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent)}
+
+/* ---------- 文档布局 ---------- */
+.wrap{max-width:1440px;margin:0 auto;padding:0 32px}
+.pagehead{padding:34px 0 6px}
+.kicker{
+  display:inline-flex;align-items:center;gap:7px;font-size:10px;font-weight:600;
+  letter-spacing:1.6px;color:var(--accent);text-transform:uppercase;margin-bottom:8px;
+}
+.kicker::before{content:"";width:14px;height:2px;border-radius:1px;background:var(--accent)}
+.pagehead h1{font-size:26px;line-height:1.35;letter-spacing:-0.02em;max-width:880px}
+.lead{font-size:13px;color:var(--ink-2);max-width:820px;line-height:1.75;margin-top:10px}
+.pagemeta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.sec{margin-bottom:54px}
+.sec-head{margin-bottom:18px}
+.sec-head h2{font-size:19px;line-height:1.35}
+.sec-head p{font-size:12px;color:var(--ink-2);margin-top:6px;max-width:820px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:20px}
+.panel+.panel{margin-top:14px}
+.panel-hd{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
+.panel-hd h3{font-size:14px;line-height:1.4}
+.panel-hd p{font-size:11px;color:var(--ink-2);margin-top:3px}
+.panel-hd .badge{margin-left:auto}
+.badge{
+  display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:11px;
+  background:var(--sub);border:1px solid var(--border);font-size:10px;color:var(--ink-2);white-space:nowrap;
+}
+.badge.accent{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent)}
+.badge.ok{background:var(--success-soft);border-color:#C7F0DF;color:var(--success-ink)}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.stat{background:var(--sub);border-radius:var(--r-inner);padding:12px 14px}
+.stat b{display:block;font-family:var(--mono);font-size:17px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stat span{font-size:10px;color:var(--ink-3)}
+
+/* ---------- 表格 ---------- */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{
+  text-align:left;font-weight:500;color:var(--ink-3);font-size:10px;letter-spacing:.8px;
+  padding:8px 10px;border-bottom:1px solid var(--border);text-transform:uppercase;white-space:nowrap;
+}
+.tbl td{padding:9px 10px;border-bottom:1px solid #F1F3F6;color:var(--ink-2);vertical-align:top}
+.tbl tr:last-child td{border-bottom:0}
+.tbl td:first-child{color:var(--ink);font-weight:500}
+.tbl-note{font-size:11px;color:var(--ink-3);margin-top:10px}
+.dot-list{list-style:none;padding:0;margin:0;display:grid;gap:7px}
+.dot-list li{position:relative;padding-left:14px;font-size:12px;color:var(--ink-2)}
+.dot-list li::before{content:"";position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:var(--border-strong)}
+.dot-list li b{color:var(--ink);font-weight:500}
+.note{
+  border-left:2px solid var(--accent-border);padding:2px 0 2px 12px;
+  font-size:12px;color:var(--ink-2);line-height:1.7;
+}
+.note b{color:var(--ink)}
+
+/* ---------- 章节 1：四屏 ---------- */
+.screens{display:grid;grid-template-columns:repeat(2,max-content);gap:28px 32px;justify-content:center;align-items:start}
+.scol{width:428px;flex:0 0 auto}
+.slabel{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;margin-bottom:10px;color:var(--ink)}
+.slabel .sn{
+  font-family:var(--mono);font-size:10px;font-weight:600;color:var(--accent);
+  background:var(--accent-soft);border:1px solid var(--accent-border);border-radius:8px;padding:1px 6px;
+}
+.sstage{
+  background:#EDEFF3;border:1px solid var(--border);border-radius:22px;padding:18px;
+  display:flex;justify-content:center;
+}
+.sstage .phone{border-radius:26px;box-shadow:0 0 0 1px var(--border-strong)}
+.scap{font-size:11px;color:var(--ink-3);margin-top:10px;line-height:1.6}
+
+/* ---------- 组件实物（与 ui-system 一致） ---------- */
+.card{background:#FFFFFF;border:1px solid var(--border);border-radius:var(--r-card);padding:16px}
+.card-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.tt{font-size:14px;font-weight:600}
+.act{font-size:11px;font-weight:500;color:var(--accent)}
+.kpis{display:flex;gap:8px}
+.kpi{flex:1;background:var(--sub);border-radius:var(--r-inner);padding:10px}
+.kpi .k{font-size:10px;color:var(--ink-2)}
+.kpi .v{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em;margin-top:2px}
+.bar{height:4px;border-radius:2px;background:#EDEFF3;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:2px;background:var(--accent)}
+.pv{height:180px;border-radius:20px;position:relative;overflow:hidden;flex:0 0 auto}
+.pv .scrim{position:absolute;left:0;right:0;bottom:0;height:100px;background:linear-gradient(180deg,rgba(9,12,20,0),rgba(9,12,20,.9))}
+.pv .nm{position:absolute;left:16px;bottom:36px;color:var(--surface);font-size:17px;font-weight:700}
+.pv .mt{position:absolute;left:16px;bottom:16px;color:#C7D2E4;font-size:11px}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.slot{border:1px solid var(--border);border-radius:var(--r-tile);padding:12px;display:flex;flex-direction:column;gap:8px}
+.slot .n{font-size:11px;font-weight:500}
+.slot .a{font-size:9px;color:var(--accent)}
+.slot.empty{background:var(--sunken);border:1px dashed var(--border-strong)}
+.slot.empty .n{color:var(--ink-3)}
+.slot.empty .a{color:var(--ink-3)}
+.ico{width:20px;height:20px;display:block}
+.ico svg{display:block;width:100%;height:100%}
+.warn-strip{
+  display:flex;gap:9px;align-items:center;padding:12px;border-radius:var(--r-inner);
+  background:var(--warning-soft);border:1px solid var(--warning-border);
+  font-size:10px;line-height:1.5;color:var(--warning-ink);
+}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;font-family:inherit;cursor:default;white-space:nowrap}
+.btn-p{background:var(--accent);color:var(--surface);font-size:13px;font-weight:600;height:52px;border-radius:var(--r-tile);box-shadow:var(--e3)}
+.icbtn{
+  width:36px;height:36px;border-radius:50%;background:#FFFFFF;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+}
+
+/* ---------- 手机屏骨架（与 ui-system 一致） ---------- */
+.phone{width:390px;height:844px;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;color:var(--ink)}
+.phone .sb{height:62px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:600}
+.sb-bat{width:22px;height:11px;border:1.4px solid var(--ink);border-radius:3px;position:relative;opacity:.8}
+.sb-bat::after{content:"";position:absolute;left:1.6px;top:1.6px;bottom:1.6px;width:12px;background:var(--ink);border-radius:1.5px}
+.pbody{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;padding:8px 20px 14px;overflow:hidden}
+.p-nav{display:flex;align-items:center;gap:10px;height:44px;flex:0 0 auto}
+.p-nav .t{flex:1;text-align:center;font-size:17px;font-weight:600}
+.p-nav .a{font-size:12px;font-weight:500;color:var(--accent);width:36px;text-align:right}
+.p-cta{padding:10px 20px 18px;flex:0 0 auto}
+.p-cta .btn{width:100%;height:52px;border-radius:16px;font-size:13px}
+
+/* ---------- 页面级类（前缀 pg-） ---------- */
+.pg-log{
+  background:#FFFFFF;border:1px solid var(--border);border-radius:14px;padding:11px 12px;
+  display:flex;flex-direction:column;gap:5px;
+}
+.pg-log-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px}
+.pg-log-hd b{font-size:12px;font-weight:600}
+.pg-log-hd span{font-size:10px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.pg-lg{display:flex;gap:8px;align-items:baseline}
+.pg-t{font-family:var(--mono);font-size:9px;color:var(--ink-3);font-variant-numeric:tabular-nums;flex:0 0 auto}
+.pg-m{font-size:9.5px;color:var(--ink-2);line-height:1.5}
+
+/* ---------- 页脚 ---------- */
+.foot{
+  border-top:1px solid var(--border);margin-top:6px;padding:22px 0 44px;
+  display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--ink-3);
+}
+
+@media (max-width:1180px){
+  .wrap{padding:0 20px}
+  .grid2{grid-template-columns:minmax(0,1fr)}
+  .topbar{padding:0 20px}
+}
+@media (max-width:980px){
+  .screens{grid-template-columns:max-content}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:520px){
+  .wrap{padding:0 10px}
+  .pagehead h1{font-size:22px}
+  .screens{gap:20px}
+  .sstage{padding:8px;border-radius:16px}
+  .panel{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">B</div>
+    <div>
+      <div class="brand-t">装配装备 · 页面稿</div>
+      <div class="brand-s">离线游戏修改器 · Android / Flutter</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="chip">v1.0</span>
+    <span class="chip on">390 × 844</span>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="pagehead">
+    <div class="kicker">Page B · Equip</div>
+    <h1>装配装备：给每个角色装上它专属的那一件，空槽位一次填对</h1>
+    <p class="lead">
+      设计目标：把「想象力一键装配」做成一次可以解释的批量写入——先看清哪些角色能装、哪些槽位是空的，再一次性提交，
+      最后如实报告装配了多少、跳过了多少，并提醒重启游戏。三条底线：只填空槽，不覆盖已有；只装已解锁槽位，每角色最多 4 个；
+      跳过如实计数，没有专属数据 / 未解锁 / 没有库存的角色不会被假装装上。
+    </p>
+    <div class="pagemeta">
+      <span class="chip">390 × 844</span>
+      <span class="chip">2 × 2 四屏</span>
+      <span class="chip">7 种状态</span>
+      <span class="chip">210 条专属表</span>
+      <span class="chip on">沿用 ui-system 令牌</span>
+    </div>
+  </section>
+
+  <!-- ========== 01 四屏 ========== -->
+  <section class="sec" id="states">
+    <div class="sec-head">
+      <div class="kicker">01 · States</div>
+      <h2>四屏状态稿：从待装配到空态，一条流程四个截面</h2>
+      <p>四屏均按 390 × 844 真实尺寸渲染，2 × 2 排列。01 屏内部只用规范已有组件类，可整块复制进 ui-system 的 B 预览缩略图。</p>
+    </div>
+
+    <div class="screens">
+
+      <!-- ---------- 01 待装配（只用 ui-system 类） ---------- -->
+      <div class="scol">
+        <div class="slabel"><span class="sn">01</span>待装配</div>
+        <div class="sstage">
+          <div class="phone">
+            <div class="sb"><span>9:41</span><span class="sb-bat"></span></div>
+            <div class="pbody">
+              <div class="p-nav">
+                <div class="icbtn">
+                  <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;color:var(--ink)"><path d="M15 5l-6 7 6 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="t">装配装备</div>
+                <div class="a">刷新</div>
+              </div>
+
+              <div class="pv" style="height:150px;background:linear-gradient(135deg,#283A63,#4B3D7D 55%,#1C2137)">
+                <div class="scrim" style="height:96px"></div>
+                <div class="nm">桐人 · 专属想象力</div>
+                <div class="mt">已装配 3 / 4 槽位 · 库存 2 件</div>
+                <span class="chip" style="position:absolute;right:12px;top:12px;height:22px;padding:0 8px;border-radius:11px;font-size:9px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);color:var(--surface)">专属</span>
+              </div>
+
+              <div class="card" style="padding:12px">
+                <div class="kpis">
+                  <div class="kpi"><div class="k">拥有角色</div><div class="v">62</div></div>
+                  <div class="kpi"><div class="k">可装配</div><div class="v">48</div></div>
+                  <div class="kpi"><div class="k">空槽位</div><div class="v">120</div></div>
+                </div>
+              </div>
+
+              <div class="slots" style="grid-template-columns:repeat(2,1fr);gap:8px">
+                <div class="slot" style="gap:6px">
+                  <div class="ico"><svg viewBox="0 0 24 24" fill="none" style="color:var(--accent)"><path d="M12 3l2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4L12 3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                  <div class="n">专属想象力</div>
+                  <div class="a" style="font-family:var(--mono);color:var(--ink-3);font-size:9px">380114001</div>
+                </div>
+                <div class="slot" style="gap:6px">
+                  <div class="ico"><svg viewBox="0 0 24 24" fill="none" style="color:var(--accent)"><path d="M18 4l2 2-9 9-3-3 10-8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 14l3 3M4 20l3-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+                  <div class="n">专属想象力</div>
+                  <div class="a" style="font-family:var(--mono);color:var(--ink-3);font-size:9px">380114002</div>
+                </div>
+                <div class="slot" style="gap:6px">
+                  <div class="ico"><svg viewBox="0 0 24 24" fill="none" style="color:var(--accent)"><path d="M12 3l7 3v6c0 4.2-3 7.2-7 9-4-1.8-7-4.8-7-9V6l7-3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                  <div class="n">专属想象力</div>
+                  <div class="a" style="font-family:var(--mono);color:var(--ink-3);font-size:9px">380114003</div>
+                </div>
+                <div class="slot empty" style="gap:6px">
+                  <div class="ico"><svg viewBox="0 0 24 24" fill="none" style="color:var(--ink-3)"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+                  <div class="n">空槽位</div>
+                  <div class="a" style="color:var(--ink-3)">已解锁 · 可装配</div>
+                </div>
+              </div>
+
+              <div class="card" style="padding:14px">
+                <div class="card-hd" style="margin-bottom:10px">
+                  <span class="tt">装配规则</span>
+                  <span class="act">3 条</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px">
+                  <div style="font-size:10px;line-height:1.5;color:var(--ink-2)">只填空槽，已装配的槽位不动</div>
+                  <div style="font-size:10px;line-height:1.5;color:var(--ink-2)">只装已解锁槽位（最多 4 个）</div>
+                  <div style="font-size:10px;line-height:1.5;color:var(--ink-2)">多槽位使用不同库存副本</div>
+                </div>
+              </div>
+
+              <div style="font-size:10px;color:var(--ink-2);line-height:1.5">装配后需重启游戏，客户端才会重新拉取存档。</div>
+            </div>
+            <div class="p-cta"><div class="btn btn-p">一键装配所有角色 · 48 个</div></div>
+          </div>
+        </div>
+        <p class="scap">大图 + KPI + 2 × 2 槽位 + 规则卡；最后一条「装配后需重启游戏」单独放在卡下方，避免和规则挤在一起。</p>
+      </div>
+
+      <!-- ---------- 02 装配中 ---------- -->
+      <div class="scol">
+        <div class="slabel"><span class="sn">02</span>装配中</div>
+        <div class="sstage">
+          <div class="phone">
+            <div class="sb"><span>9:41</span><span class="sb-bat"></span></div>
+            <div class="pbody">
+              <div class="p-nav">
+                <div class="icbtn">
+                  <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;color:var(--ink)"><path d="M15 5l-6 7 6 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="t">装配装备</div>
+                <div class="a">刷新</div>
+              </div>
+
+              <div class="card" style="padding:14px">
+                <div class="card-hd" style="margin-bottom:10px">
+                  <span class="tt">正在装配…</span>
+                  <span style="font-family:var(--mono);font-size:10px;color:var(--ink-2);font-variant-numeric:tabular-nums">32 / 62</span>
+                </div>
+                <div class="bar"><i style="width:52%"></i></div>
+                <div style="font-size:10px;color:var(--ink-2);line-height:1.5;margin-top:10px;font-variant-numeric:tabular-nums">已填 78 / 120 个空槽位</div>
+              </div>
+
+              <div class="card" style="padding:12px">
+                <div class="kpis">
+                  <div class="kpi"><div class="k">已填槽位</div><div class="v">78</div></div>
+                  <div class="kpi"><div class="k">剩余槽位</div><div class="v">42</div></div>
+                  <div class="kpi"><div class="k">跳过角色</div><div class="v">6</div></div>
+                </div>
+              </div>
+
+              <div class="slots" style="grid-template-columns:repeat(2,1fr);gap:8px">
+                <div class="slot" style="gap:6px">
+                  <div class="ico"><svg viewBox="0 0 24 24" fill="none" style="color:var(--accent)"><path d="M12 3l2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4L12 3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                  <div class="n">专属想象力</div>
+                  <div class="a" style="font-family:var(--mono);color:var(--ink-3);font-size:9px">380114001</div>
+                </div>
+                <div class="slot" style="gap:6px">
+                  <div class="ico"><svg viewBox="0 0 24 24" fill="none" style="color:var(--accent)"><path d="M18 4l2 2-9 9-3-3 10-8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 14l3 3M4 20l3-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+                  <div class="n">专属想象力</div>
+                  <div class="a" style="font-family:var(--mono);color:var(--ink-3);font-size:9px">380114002</div>
+                </div>
+                <div class="slot" style="gap:6px">
+                  <div class="ico"><svg viewBox="0 0 24 24" fill="none" style="color:var(--accent)"><path d="M12 3l7 3v6c0 4.2-3 7.2-7 9-4-1.8-7-4.8-7-9V6l7-3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                  <div class="n">专属想象力</div>
+                  <div class="a" style="font-family:var(--mono);color:var(--ink-3);font-size:9px">380114003</div>
+                </div>
+                <div class="slot" style="gap:6px">
+                  <div class="ico"><svg viewBox="0 0 24 24" fill="none" style="color:var(--accent)"><path d="M12 4l7 6-7 10-7-10 7-6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                  <div class="n">专属想象力</div>
+                  <div class="a" style="color:var(--accent)">装配中…</div>
+                </div>
+              </div>
+
+              <div class="pg-log">
+                <div class="pg-log-hd"><b>装配日志</b><span>4 条</span></div>
+                <div class="pg-lg"><span class="pg-t">00:31:02</span><span class="pg-m">等待游戏回应…</span></div>
+                <div class="pg-lg"><span class="pg-t">00:31:01</span><span class="pg-m">提交 pc 更新 32 行</span></div>
+                <div class="pg-lg"><span class="pg-t">00:30:58</span><span class="pg-m">读取想象力库存 210 种</span></div>
+                <div class="pg-lg"><span class="pg-t">00:30:57</span><span class="pg-m">读取角色表 62 行</span></div>
+              </div>
+
+              <div style="font-size:10px;color:var(--ink-2);line-height:1.5">写入期间不要切走游戏；数据过期会提示重启游戏后再试。</div>
+            </div>
+            <div class="p-cta">
+              <div class="btn" style="background:#F1F3F6;color:var(--ink-3);font-size:13px;font-weight:600">正在装配…（32 / 62）</div>
+            </div>
+          </div>
+        </div>
+        <p class="scap">进度按角色计（32 / 62），槽位按数量计（78 / 120），两个口径都写出来。</p>
+      </div>
+
+      <!-- ---------- 03 已装配 ---------- -->
+      <div class="scol">
+        <div class="slabel"><span class="sn">03</span>已装配</div>
+        <div class="sstage">
+          <div class="phone">
+            <div class="sb"><span>9:41</span><span class="sb-bat"></span></div>
+            <div class="pbody">
+              <div class="p-nav">
+                <div class="icbtn">
+                  <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;color:var(--ink)"><path d="M15 5l-6 7 6 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="t">装配装备</div>
+                <div class="a">刷新</div>
+              </div>
+
+              <div style="display:flex;gap:9px;align-items:flex-start;padding:12px;background:var(--success-soft);border:1px solid #C7F0DF;border-radius:12px;color:var(--success-ink);font-size:10px;line-height:1.5">
+                <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;flex:0 0 auto;margin-top:1px"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M8 12.4l2.8 2.8L16.4 9.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>已给 48 个角色装上专属想象力（共 120 个槽位）。</span>
+              </div>
+
+              <div class="card" style="padding:12px">
+                <div class="kpis">
+                  <div class="kpi"><div class="k">装配角色</div><div class="v">48</div></div>
+                  <div class="kpi"><div class="k">填充槽位</div><div class="v">120</div></div>
+                  <div class="kpi"><div class="k">跳过</div><div class="v">14</div></div>
+                </div>
+              </div>
+
+              <div class="slots" style="grid-template-columns:repeat(2,1fr);gap:8px">
+                <div class="slot" style="gap:6px">
+                  <div class="ico"><svg viewBox="0 0 24 24" fill="none" style="color:var(--accent)"><path d="M12 3l2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4L12 3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+                    <span class="n">专属想象力</span>
+                    <span style="font-size:10px;font-weight:500;color:var(--success-ink);flex:0 0 auto">已装配</span>
+                  </div>
+                  <div class="a" style="font-family:var(--mono);color:var(--ink-3);font-size:9px">380114001</div>
+                </div>
+                <div class="slot" style="gap:6px">
+                  <div class="ico"><svg viewBox="0 0 24 24" fill="none" style="color:var(--accent)"><path d="M18 4l2 2-9 9-3-3 10-8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 14l3 3M4 20l3-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+                    <span class="n">专属想象力</span>
+                    <span style="font-size:10px;font-weight:500;color:var(--success-ink);flex:0 0 auto">已装配</span>
+                  </div>
+                  <div class="a" style="font-family:var(--mono);color:var(--ink-3);font-size:9px">380114002</div>
+                </div>
+                <div class="slot" style="gap:6px">
+                  <div class="ico"><svg viewBox="0 0 24 24" fill="none" style="color:var(--accent)"><path d="M12 3l7 3v6c0 4.2-3 7.2-7 9-4-1.8-7-4.8-7-9V6l7-3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+                    <span class="n">专属想象力</span>
+                    <span style="font-size:10px;font-weight:500;color:var(--success-ink);flex:0 0 auto">已装配</span>
+                  </div>
+                  <div class="a" style="font-family:var(--mono);color:var(--ink-3);font-size:9px">380114003</div>
+                </div>
+                <div class="slot" style="gap:6px">
+                  <div class="ico"><svg viewBox="0 0 24 24" fill="none" style="color:var(--accent)"><path d="M12 4l7 6-7 10-7-10 7-6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+                    <span class="n">专属想象力</span>
+                    <span style="font-size:10px;font-weight:500;color:var(--success-ink);flex:0 0 auto">已装配</span>
+                  </div>
+                  <div class="a" style="font-family:var(--mono);color:var(--ink-3);font-size:9px">380114004</div>
+                </div>
+              </div>
+
+              <div class="pg-log">
+                <div class="pg-log-hd"><b>装配日志</b><span>3 条</span></div>
+                <div class="pg-lg"><span class="pg-t">00:31:15</span><span class="pg-m">跳过 14 个角色（未解锁 14 · 无专属 0 · 无库存 0）</span></div>
+                <div class="pg-lg"><span class="pg-t">00:31:14</span><span class="pg-m">游戏回应：成功，已填 120 个槽位</span></div>
+                <div class="pg-lg"><span class="pg-t">00:31:12</span><span class="pg-m">提交 pc 更新 48 行 · hash 校验通过</span></div>
+              </div>
+
+              <div class="warn-strip" style="margin-top:auto">
+                <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;flex:0 0 auto"><path d="M12 3l9.5 17H2.5L12 3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9.5v4M12 16.6v.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                <span>请重启游戏，让客户端重新拉取存档。</span>
+              </div>
+            </div>
+            <div class="p-cta"><div class="btn btn-p">完成</div></div>
+          </div>
+        </div>
+        <p class="scap">四个槽位全部装满 + 绿色确认条；重启提示压在 CTA 上方。</p>
+      </div>
+
+      <!-- ---------- 04 空态 ---------- -->
+      <div class="scol">
+        <div class="slabel"><span class="sn">04</span>空态</div>
+        <div class="sstage">
+          <div class="phone">
+            <div class="sb"><span>9:41</span><span class="sb-bat"></span></div>
+            <div class="pbody">
+              <div class="p-nav">
+                <div class="icbtn">
+                  <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;color:var(--ink)"><path d="M15 5l-6 7 6 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="t">装配装备</div>
+                <div class="a">刷新</div>
+              </div>
+
+              <div class="card" style="height:280px;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
+                <svg viewBox="0 0 24 24" fill="none" style="width:28px;height:28px;color:var(--ink-3)"><path d="M12 3l2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4L12 3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 20l3.6-3.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                <div style="font-size:13px;font-weight:600;color:var(--ink)">没有需要装配的角色</div>
+                <div style="font-size:10px;color:var(--ink-3);line-height:1.5;text-align:center;max-width:240px">62 个角色里，14 个未解锁槽位，其余已装满或没有专属想象力。</div>
+              </div>
+
+              <div class="card" style="padding:12px">
+                <div class="kpis">
+                  <div class="kpi"><div class="k">可装配</div><div class="v">0</div></div>
+                  <div class="kpi"><div class="k">空槽位</div><div class="v">0</div></div>
+                  <div class="kpi"><div class="k">跳过</div><div class="v">62</div></div>
+                </div>
+              </div>
+
+              <div class="card" style="padding:12px">
+                <div class="card-hd" style="margin-bottom:8px">
+                  <span class="tt" style="font-size:12px">跳过明细</span>
+                  <span class="act" style="font-size:10px">62 个角色</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px">
+                  <div style="display:flex;justify-content:space-between;font-size:10px;line-height:1.5;color:var(--ink-2)"><span>已装满</span><span style="font-variant-numeric:tabular-nums">48</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:10px;line-height:1.5;color:var(--ink-2)"><span>未解锁槽位</span><span style="font-variant-numeric:tabular-nums">14</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:10px;line-height:1.5;color:var(--ink-2)"><span>没有专属想象力</span><span style="font-variant-numeric:tabular-nums">0</span></div>
+                </div>
+              </div>
+
+              <div style="font-size:10px;color:var(--ink-2);line-height:1.5">只填空槽：已有想象力的槽位不会被覆盖。</div>
+            </div>
+            <div class="p-cta"><div class="btn btn-p">返回</div></div>
+          </div>
+        </div>
+        <p class="scap">没有需要装配的角色时，把所有数字降到 0，并给出跳过明细。</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========== 02 七态 ========== -->
+  <section class="sec" id="copy">
+    <div class="sec-head">
+      <div class="kicker">02 · Seven States</div>
+      <h2>七种状态：成功只有一个，失败要说清下一步</h2>
+      <p>写入是「一次提交、整批接受或整批拒绝」，所以界面只有「装配中」一个过程态；失败三态都先给一个可执行动作，绝不显示成功。</p>
+    </div>
+    <div class="panel">
+      <div class="panel-hd">
+        <div><h3>状态与文案规格</h3><p>状态 / 界面表现 / CTA / 主文案</p></div>
+        <span class="badge accent">7 态</span>
+      </div>
+      <table class="tbl">
+        <tr><th>状态</th><th>界面表现</th><th>CTA</th><th>主文案</th></tr>
+        <tr>
+          <td>待装配</td>
+          <td>大图 + KPI（62 / 48 / 120）+ 3 实 1 空槽位 + 规则卡</td>
+          <td>主按钮「一键装配所有角色 · 48 个」</td>
+          <td>已装配 3 / 4 槽位 · 库存 2 件</td>
+        </tr>
+        <tr>
+          <td>装配中</td>
+          <td>进度卡 32 / 62 + 52% 进度条 + KPI + 4 条装配日志；其余按钮禁用</td>
+          <td>禁用「正在装配…（32 / 62）」</td>
+          <td>已填 78 / 120 个空槽位</td>
+        </tr>
+        <tr>
+          <td>已装配</td>
+          <td>绿色确认条 + KPI（48 / 120 / 14）+ 4 槽全装配 + 完成日志 + 重启提示条</td>
+          <td>主按钮「完成」</td>
+          <td>已给 48 个角色装上专属想象力（共 120 个槽位）</td>
+        </tr>
+        <tr>
+          <td>空态</td>
+          <td>空态卡 + KPI（0 / 0 / 62）+ 跳过明细；不渲染装配进度</td>
+          <td>主按钮「返回」</td>
+          <td>没有需要装配的角色</td>
+        </tr>
+        <tr>
+          <td>数据已更新（stale_skill_push）</td>
+          <td>红色提示条压在最上方：整批被拒；KPI 与槽位保持提交前的值，只读</td>
+          <td>主按钮「重启游戏后重试」</td>
+          <td>游戏端数据已更新，请重启游戏后再试一次</td>
+        </tr>
+        <tr>
+          <td>读取失败</td>
+          <td>红色提示条 + KPI 显示「—」+ 槽位网格不渲染</td>
+          <td>主按钮「重新读取」</td>
+          <td>读取角色表失败，请确认游戏在前台</td>
+        </tr>
+        <tr>
+          <td>写入被拒</td>
+          <td>红色提示条带原因码；已装配数量保持不变，不显示「已装配」确认条</td>
+          <td>主按钮「重启游戏后再试」</td>
+          <td>游戏拒绝了这次修改，请重启游戏后再试</td>
+        </tr>
+      </table>
+      <p class="tbl-note">七态里只有「待装配」「已装配」两态的主按钮可点；异常三态先给「重启游戏 / 重新读取」这类可执行动作，不显示任何成功文案。</p>
+    </div>
+  </section>
+
+  <!-- ========== 03 装配规则 ========== -->
+  <section class="sec" id="rules">
+    <div class="sec-head">
+      <div class="kicker">03 · Rules</div>
+      <h2>装配规则：先判断能不能装，再决定装几个</h2>
+      <p>装配是在存档里改 pc 行的 imaginationSlots 字段，写错不会报错、只会看起来没装。所以每条规则都要在提交前落到具体判断上。</p>
+    </div>
+    <div class="panel">
+      <div class="panel-hd">
+        <div><h3>规则与实现含义</h3><p>规则 / 实现含义 / 用户可见文案</p></div>
+        <span class="badge accent">7 条</span>
+      </div>
+      <table class="tbl">
+        <tr><th>规则</th><th>实现含义</th><th>用户可见文案</th></tr>
+        <tr>
+          <td>只填空槽</td>
+          <td>跳过 imaginationSlots 里已有值的槽位，不覆盖、不交换</td>
+          <td>只填空槽，已装配的槽位不动</td>
+        </tr>
+        <tr>
+          <td>只装已解锁</td>
+          <td>lastImaginationUnlockCount 取值 0–4，只在已解锁的前 N 个槽位里装</td>
+          <td>只装已解锁槽位（最多 4 个）</td>
+        </tr>
+        <tr>
+          <td>每角色一个专属</td>
+          <td>内置 210 条「角色 → 专属想象力」表，表里没有的角色直接跳过</td>
+          <td>这个角色没有专属想象力，已跳过</td>
+        </tr>
+        <tr>
+          <td>不同库存副本</td>
+          <td>同一角色的多个槽位必须用不同 stock id；可用副本不够就少装，不重复用同一件</td>
+          <td>多槽位使用不同库存副本</td>
+        </tr>
+        <tr>
+          <td>跳过如实计数</td>
+          <td>未解锁 / 没有专属 / 没有库存分别计数，不并入成功数</td>
+          <td>跳过 14 个角色（未解锁 14 · 无专属 0 · 无库存 0）</td>
+        </tr>
+        <tr>
+          <td>完成后需重启</td>
+          <td>客户端不监听存档变化，只有重启游戏才会重新拉取存档</td>
+          <td>装配后需重启游戏，客户端才会重新拉取存档</td>
+        </tr>
+        <tr>
+          <td>hash.before.pc 版本栅栏</td>
+          <td>提交 pc 行时带上写入前的存档 hash；服务端比对不一致就整批拒绝（stale_skill_push）</td>
+          <td>游戏端数据已更新，请重启游戏后再试一次</td>
+        </tr>
+      </table>
+      <p class="tbl-note">规则顺序：只填空槽 → 只装已解锁 → 有专属数据 → 有足够副本；任何一步不过就跳过这个角色，最后把跳过数如实写在结果里。</p>
+    </div>
+  </section>
+
+  <!-- ========== 04 数据概览 ========== -->
+  <section class="sec" id="data">
+    <div class="sec-head">
+      <div class="kicker">04 · Data</div>
+      <h2>数据概览：三个数字都来自设备侧实时读取</h2>
+      <p>界面不写死任何数量；下面这些只是本页示例，真实值每次进入页面重新计算。</p>
+    </div>
+    <div class="panel">
+      <div class="panel-hd">
+        <div><h3>规模与示例</h3><p>内置表规模 / 槽位上限 / 示例读数</p></div>
+        <span class="badge">只读</span>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>210</b><span>条专属想象力</span></div>
+        <div class="stat"><b>4</b><span>每角色槽位上限</span></div>
+        <div class="stat"><b>62</b><span>示例：拥有角色</span></div>
+        <div class="stat"><b>120</b><span>示例：空槽位</span></div>
+      </div>
+      <table class="tbl" style="margin-top:16px">
+        <tr><th>读数</th><th>含义</th><th>示例值</th></tr>
+        <tr><td>已拥有角色</td><td>存档里 pc 行的角色数量</td><td>62</td></tr>
+        <tr><td>可装配角色</td><td>有专属数据、有已解锁空槽位、有库存副本的角色</td><td>48</td></tr>
+        <tr><td>空槽位</td><td>已解锁且 imaginationSlots 为空的槽位总数</td><td>120</td></tr>
+        <tr><td>跳过</td><td>未解锁 / 无专属 / 无库存三种情况之和</td><td>14</td></tr>
+      </table>
+      <p class="tbl-note">48 + 14 = 62：可装配与跳过正好覆盖全部已拥有角色，不存在「既没装也没跳过」的第三种结果。</p>
+    </div>
+  </section>
+
+  <!-- ========== 05 组件与落点 ========== -->
+  <section class="sec" id="components">
+    <div class="sec-head">
+      <div class="kicker">05 · Components</div>
+      <h2>组件与 Flutter 落点：0 新色值</h2>
+      <p>本页只组合 ui-system 的组件与令牌；页面级布局类统一前缀 pg-，01 屏一个都不用。</p>
+    </div>
+    <div class="panel">
+      <div class="panel-hd">
+        <div><h3>复用项与落地规则</h3><p>左：本页新增的组合件 / 右：必须遵守的约束</p></div>
+        <span class="badge ok">0 新色值</span>
+      </div>
+      <div class="grid2">
+        <table class="tbl">
+          <tr><th>复用项</th><th>规则</th></tr>
+          <tr><td>.pv 大图预览</td><td>高 150 · 圆角 20；深色渐变沿用 B 预览既有三色（#283A63 → #4B3D7D → #1C2137），不新增色值</td></tr>
+          <tr><td>Slot 槽位卡</td><td>2 × 2 · 内边距 12 · 内距 6；图标 20 + 名称 11 + id 9 mono</td></tr>
+          <tr><td>KPI 数值块</td><td>3 列 · 值 16 · 标签 10；待装配 / 装配中 / 已装配三种口径</td></tr>
+          <tr><td>进度条 bar</td><td>高 4 · 圆角 2；宽度 = 已提交角色 / 总角色</td></tr>
+          <tr><td>日志行</td><td>时间 9 mono --ink-3 + 正文 9.5 --ink-2</td></tr>
+          <tr><td>warn-strip</td><td>琥珀浅底 + 16 图标 + 10 文案，只放「必须重启」这类会阻断生效的信息</td></tr>
+          <tr><td>固定 CTA</td><td>高 52 · 圆角 16 · 13/600；文案带数量（48 个）</td></tr>
+        </table>
+        <div>
+          <ul class="dot-list">
+            <li><b>0 新色值</b>：成功用 --success-ink、警示用 --warning-ink、失败用 --danger，其余全部引用令牌。</li>
+            <li><b>数字随手改</b>：62 / 48 / 120 / 14 每次都从设备侧读，界面不写死，空态就把三个数字降到 0。</li>
+            <li><b>不撒谎</b>：跳过数与成功数分开显示，未解锁的角色不会被算进「已装配」。</li>
+            <li><b>触控 ≥ 44</b>：槽位卡 90 高整块可点，主 CTA 52，返回圆钮 36 视觉 / 44 热区。</li>
+            <li><b>重启提示不可省</b>：任何装配成功都要把「重启游戏」放在 CTA 上方，不能只写在日志里。</li>
+          </ul>
+        </div>
+      </div>
+      <div class="note" style="margin-top:16px">
+        <b>Flutter 落点</b>：EquipPage = Scaffold + 固定底部 CTA；SlotGrid = GridView.count(crossAxisCount: 2)；
+        repository.equipExclusive() 返回 (filledCharacters, filledSlots, skipped)；进度 = LinearProgressIndicator(minHeight 4)。
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span>装配装备 · 页面稿 v1.0</span>
+    <span>令牌来自 design/ui-system.html，本页不新增色值</span>
+    <span>390 × 844 · Android / Flutter</span>
+  </div>
+
+</main>
+
+</body>
+</html>

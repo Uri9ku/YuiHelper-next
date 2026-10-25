@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>修改模型 · 页面稿</title>
+<style>
+:root{
+  --bg:#F4F5F7; --surface:#FFFFFF; --sub:#F7F8FA; --sunken:#FAFBFC;
+  --border:#E9EBEF; --border-strong:#DDE1E8;
+  --ink:#12141A; --ink-2:#5B6472; --ink-3:#9AA0AA;
+  --accent:#2563EB; --accent-press:#1D4ED8; --accent-soft:#EFF4FF; --accent-border:#B9CBF2;
+  --success:#10B981; --success-ink:#059669; --success-soft:#ECFDF5;
+  --warning:#F59E0B; --warning-ink:#B45309; --warning-soft:#FFF8EE; --warning-border:#FBE3BE;
+  --danger:#DC2626;
+  --r-pill:36px; --r-card:18px; --r-tile:16px; --r-inner:12px; --r-seg:9px; --r-tab:26px;
+  --sp-page:20px; --sp-card:14px; --sp-pad:16px; --sp-in:12px; --sp-xs:8px; --sp-2xs:4px;
+  --e1:0 1px 2px rgba(18,20,26,.04);
+  --e2:0 6px 18px rgba(18,20,26,.06);
+  --e3:0 8px 20px rgba(37,99,235,.28);
+  --font:"Inter","Noto Sans SC","HarmonyOS Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono","SFMono-Regular",Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--font);font-size:14px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{margin:0;font-weight:600;letter-spacing:-0.01em}
+p{margin:0}
+ul{margin:0}
+
+/* ---------- 顶栏 ---------- */
+.topbar{
+  position:sticky;top:0;z-index:40;height:64px;
+  display:flex;align-items:center;gap:14px;
+  padding:0 32px;background:rgba(255,255,255,.86);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--border);
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-mark{
+  width:30px;height:30px;border-radius:9px;flex:0 0 auto;
+  background:var(--accent);display:flex;align-items:center;justify-content:center;
+  color:var(--surface);font-family:var(--mono);font-size:12px;font-weight:700;
+}
+.brand-t{font-size:13px;font-weight:600;letter-spacing:0}
+.brand-s{font-size:11px;color:var(--ink-3);margin-top:-2px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;
+  border-radius:13px;background:var(--sub);border:1px solid var(--border);
+  font-size:11px;color:var(--ink-2);white-space:nowrap;
+}
+.chip.on{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent)}
+
+/* ---------- 文档布局 ---------- */
+.wrap{max-width:1440px;margin:0 auto;padding:0 32px}
+.pagehead{padding:34px 0 6px}
+.kicker{
+  display:inline-flex;align-items:center;gap:7px;font-size:10px;font-weight:600;
+  letter-spacing:1.6px;color:var(--accent);text-transform:uppercase;margin-bottom:8px;
+}
+.kicker::before{content:"";width:14px;height:2px;border-radius:1px;background:var(--accent)}
+.pagehead h1{font-size:26px;line-height:1.35;letter-spacing:-0.02em;max-width:880px}
+.lead{font-size:13px;color:var(--ink-2);max-width:820px;line-height:1.75;margin-top:10px}
+.pagemeta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.sec{margin-bottom:54px}
+.sec-head{margin-bottom:18px}
+.sec-head h2{font-size:19px;line-height:1.35}
+.sec-head p{font-size:12px;color:var(--ink-2);margin-top:6px;max-width:820px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:20px}
+.panel+.panel{margin-top:14px}
+.panel-hd{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
+.panel-hd h3{font-size:14px;line-height:1.4}
+.panel-hd p{font-size:11px;color:var(--ink-2);margin-top:3px}
+.panel-hd .badge{margin-left:auto}
+.badge{
+  display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:11px;
+  background:var(--sub);border:1px solid var(--border);font-size:10px;color:var(--ink-2);white-space:nowrap;
+}
+.badge.accent{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent)}
+.badge.ok{background:var(--success-soft);border-color:#C7F0DF;color:var(--success-ink)}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.stat{background:var(--sub);border-radius:var(--r-inner);padding:12px 14px}
+.stat b{display:block;font-family:var(--mono);font-size:17px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stat span{font-size:10px;color:var(--ink-3)}
+
+/* ---------- 表格 ---------- */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{
+  text-align:left;font-weight:500;color:var(--ink-3);font-size:10px;letter-spacing:.8px;
+  padding:8px 10px;border-bottom:1px solid var(--border);text-transform:uppercase;white-space:nowrap;
+}
+.tbl td{padding:9px 10px;border-bottom:1px solid #F1F3F6;color:var(--ink-2);vertical-align:top}
+.tbl tr:last-child td{border-bottom:0}
+.tbl td:first-child{color:var(--ink);font-weight:500}
+.tbl-note{font-size:11px;color:var(--ink-3);margin-top:10px}
+.dot-list{list-style:none;padding:0;margin:0;display:grid;gap:7px}
+.dot-list li{position:relative;padding-left:14px;font-size:12px;color:var(--ink-2)}
+.dot-list li::before{content:"";position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:var(--border-strong)}
+.dot-list li b{color:var(--ink);font-weight:500}
+.note{
+  border-left:2px solid var(--accent-border);padding:2px 0 2px 12px;
+  font-size:12px;color:var(--ink-2);line-height:1.7;
+}
+.note b{color:var(--ink)}
+
+/* ---------- 章节 1：四屏 ---------- */
+.screens{display:grid;grid-template-columns:repeat(2,max-content);gap:28px 32px;justify-content:center;align-items:start}
+.scol{width:428px;flex:0 0 auto}
+.slabel{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;margin-bottom:10px;color:var(--ink)}
+.slabel .sn{
+  font-family:var(--mono);font-size:10px;font-weight:600;color:var(--accent);
+  background:var(--accent-soft);border:1px solid var(--accent-border);border-radius:8px;padding:1px 6px;
+}
+.sstage{
+  background:#EDEFF3;border:1px solid var(--border);border-radius:22px;padding:18px;
+  display:flex;justify-content:center;
+}
+.sstage .phone{border-radius:26px;box-shadow:0 0 0 1px var(--border-strong)}
+.scap{font-size:11px;color:var(--ink-3);margin-top:10px;line-height:1.6}
+
+/* ---------- 组件实物（与 ui-system 一致） ---------- */
+.card{background:#FFFFFF;border:1px solid var(--border);border-radius:var(--r-card);padding:16px}
+.card-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.tt{font-size:14px;font-weight:600}
+.chipst{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:12px;background:var(--success-soft);color:var(--success-ink);font-size:10px;font-weight:500;white-space:nowrap}
+.pv{height:180px;border-radius:20px;position:relative;overflow:hidden;flex:0 0 auto}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;font-family:inherit;cursor:default;white-space:nowrap}
+.btn-p{background:var(--accent);color:var(--surface);font-size:13px;font-weight:600;height:52px;border-radius:var(--r-tile);box-shadow:var(--e3)}
+.icbtn{
+  width:36px;height:36px;border-radius:50%;background:#FFFFFF;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+}
+
+/* ---------- 手机屏骨架（与 ui-system 一致） ---------- */
+.phone{width:390px;height:844px;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;color:var(--ink)}
+.phone .sb{height:62px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:600}
+.sb-bat{width:22px;height:11px;border:1.4px solid var(--ink);border-radius:3px;position:relative;opacity:.8}
+.sb-bat::after{content:"";position:absolute;left:1.6px;top:1.6px;bottom:1.6px;width:12px;background:var(--ink);border-radius:1.5px}
+.pbody{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;padding:8px 20px 14px;overflow:hidden}
+.p-nav{display:flex;align-items:center;gap:10px;height:44px;flex:0 0 auto}
+.p-nav .t{flex:1;text-align:center;font-size:17px;font-weight:600}
+.p-nav .a{font-size:12px;font-weight:500;color:var(--accent);width:36px;text-align:right}
+.p-cta{padding:10px 20px 18px;flex:0 0 auto}
+.p-cta .btn{width:100%;height:52px;border-radius:16px;font-size:13px}
+
+/* ---------- 页面级类（前缀 pg-） ---------- */
+.pg-count{
+  display:flex;align-items:center;gap:12px;padding:12px;
+  background:var(--warning-soft);border:1px solid var(--warning-border);border-radius:12px;
+}
+.pg-steps{display:flex;flex-direction:column;gap:4px}
+.pg-step{
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:9.5px;line-height:1.5;color:var(--ink-2);
+}
+.pg-dot{width:4px;height:4px;border-radius:50%;background:var(--success-ink);flex:0 0 auto}
+.pg-log{
+  background:#FFFFFF;border:1px solid var(--border);border-radius:14px;padding:11px 12px;
+  display:flex;flex-direction:column;gap:5px;
+}
+.pg-log-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px}
+.pg-log-hd b{font-size:12px;font-weight:600}
+.pg-log-hd span{font-size:10px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.pg-lg{display:flex;gap:8px;align-items:baseline}
+.pg-t{font-family:var(--mono);font-size:9px;color:var(--ink-3);font-variant-numeric:tabular-nums;flex:0 0 auto}
+.pg-m{font-size:9.5px;color:var(--ink-2);line-height:1.5}
+
+/* ---------- 页脚 ---------- */
+.foot{
+  border-top:1px solid var(--border);margin-top:6px;padding:22px 0 44px;
+  display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--ink-3);
+}
+
+@media (max-width:1180px){
+  .wrap{padding:0 20px}
+  .grid2{grid-template-columns:minmax(0,1fr)}
+  .topbar{padding:0 20px}
+}
+@media (max-width:980px){
+  .screens{grid-template-columns:max-content}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:520px){
+  .wrap{padding:0 10px}
+  .pagehead h1{font-size:22px}
+  .screens{gap:20px}
+  .sstage{padding:8px;border-radius:16px}
+  .panel{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">E</div>
+    <div>
+      <div class="brand-t">修改模型 · 页面稿</div>
+      <div class="brand-s">离线游戏修改器 · Android / Flutter</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="chip">v1.0</span>
+    <span class="chip on">390 × 844</span>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="pagehead">
+    <div class="kicker">Page E · Model Swap</div>
+    <h1>修改模型：把 A 的样子换到 B 身上，先体检、再预览、最后注入</h1>
+    <p class="lead">
+      设计目标：把「角色 A 的模型换成角色 B」做成一条可以检查的流程——先确认设备与游戏状态，再确认两头在同一个骨架集，
+      预览确认纹理与骨骼，最后才注入。三条底线：预览不撒谎（缺纹理就说缺纹理、解析失败写原因）；规则不越界（跨骨架集直接拒绝，不赌一次）；
+      效果可还原（不写存档、不改游戏文件，停止注入即完全还原）。
+    </p>
+    <div class="pagemeta">
+      <span class="chip">390 × 844</span>
+      <span class="chip">2 × 2 四屏</span>
+      <span class="chip">9 种状态</span>
+      <span class="chip">同骨架集才允许</span>
+      <span class="chip on">沿用 ui-system 令牌</span>
+    </div>
+  </section>
+
+  <!-- ========== 01 四屏 ========== -->
+  <section class="sec" id="states">
+    <div class="sec-head">
+      <div class="kicker">01 · States</div>
+      <h2>四屏状态稿：从空选到生效，一条流程四个截面</h2>
+      <p>四屏均按 390 × 844 真实尺寸渲染，2 × 2 排列。02 屏内部只用规范已有组件类，可整块复制进 ui-system 的 E 预览缩略图。</p>
+    </div>
+
+    <div class="screens">
+
+      <!-- ---------- 01 就绪 · 未选择 ---------- -->
+      <div class="scol">
+        <div class="slabel"><span class="sn">01</span>就绪 · 未选择</div>
+        <div class="sstage">
+          <div class="phone">
+            <div class="sb"><span>9:41</span><span class="sb-bat"></span></div>
+            <div class="pbody">
+              <div class="p-nav">
+                <div class="icbtn">
+                  <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;color:var(--ink)"><path d="M15 5l-6 7 6 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="t">修改模型</div>
+                <div class="a">刷新</div>
+              </div>
+
+              <div class="card" style="padding:6px;display:flex;flex-direction:column;gap:3px">
+                <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;background:var(--sub);border-radius:8px">
+                  <span style="width:18px;height:18px;border-radius:6px;background:var(--success-soft);color:var(--success-ink);display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+                    <svg viewBox="0 0 24 24" fill="none" style="width:11px;height:11px"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span style="font-size:11px;color:var(--ink)">root</span>
+                  <span style="margin-left:auto;font-size:10px;color:var(--ink-2);font-variant-numeric:tabular-nums">已授权</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;background:var(--sub);border-radius:8px">
+                  <span style="width:18px;height:18px;border-radius:6px;background:var(--success-soft);color:var(--success-ink);display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+                    <svg viewBox="0 0 24 24" fill="none" style="width:11px;height:11px"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span style="font-size:11px;color:var(--ink)">游戏进程</span>
+                  <span style="margin-left:auto;font-size:10px;color:var(--ink-2);font-variant-numeric:tabular-nums">运行中 · 4821</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;background:var(--sub);border-radius:8px">
+                  <span style="width:18px;height:18px;border-radius:6px;background:var(--success-soft);color:var(--success-ink);display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+                    <svg viewBox="0 0 24 24" fill="none" style="width:11px;height:11px"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span style="font-size:11px;color:var(--ink)">注入器</span>
+                  <span style="margin-left:auto;font-size:10px;color:var(--ink-2);font-variant-numeric:tabular-nums">运行中 · 9137</span>
+                </div>
+              </div>
+
+              <div style="font-size:10px;color:var(--ink-2);line-height:1.5">换的是「角色这个 id」的模型：看板 / 战斗队伍 / 剧情演出会一起变。</div>
+
+              <div class="card" style="padding:12px">
+                <div class="card-hd" style="margin-bottom:6px">
+                  <span class="tt" style="font-size:12px">替换映射</span>
+                  <span class="chip" style="height:24px;padding:0 10px;border-radius:12px;font-size:10px">未选择</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;height:56px;padding:0 12px;background:var(--sub);border-radius:12px">
+                  <span style="width:24px;height:24px;border-radius:50%;background:var(--accent-soft);border:1px solid var(--accent-border);color:var(--accent);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto">A</span>
+                  <span style="flex:1;min-width:0;font-size:12px;color:var(--ink-3)">未选择角色 A</span>
+                  <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;color:var(--ink-3);flex:0 0 auto"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div style="display:flex;align-items:center;padding-left:12px;margin:5px 0;font-size:10px;color:var(--ink-2)">↓ 替换成</div>
+                <div style="display:flex;align-items:center;gap:10px;height:56px;padding:0 12px;background:var(--sub);border-radius:12px">
+                  <span style="width:24px;height:24px;border-radius:50%;background:var(--accent-soft);border:1px solid var(--accent-border);color:var(--accent);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto">B</span>
+                  <span style="flex:1;min-width:0;font-size:12px;color:var(--ink-3)">未选择角色 B</span>
+                  <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;color:var(--ink-3);flex:0 0 auto"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+
+              <div class="card" style="padding:12px">
+                <div class="card-hd" style="margin-bottom:6px">
+                  <span class="tt" style="font-size:12px">模型预览</span>
+                  <span style="font-family:var(--mono);font-size:10px;color:var(--ink-3)">—</span>
+                </div>
+                <div class="pv" style="height:150px;border-radius:12px;background:var(--sub);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
+                  <svg viewBox="0 0 24 24" fill="none" style="width:28px;height:28px;color:var(--border-strong)"><path d="M4 5h16v14H4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M4 15l5-5 4 4 3-3 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="9" r="1.4" fill="currentColor"/></svg>
+                  <div style="font-size:11px;color:var(--ink-2)">还没有模型素材</div>
+                  <div style="font-size:9px;color:var(--ink-3);line-height:1.5;text-align:center;max-width:220px">导入骨骼、图集与纹理后显示角色静止姿势</div>
+                </div>
+              </div>
+
+              <div style="font-size:10px;color:var(--ink-2);line-height:1.5;margin-top:auto">先选角色 A，再选同一骨架集的角色 B。</div>
+            </div>
+            <div class="p-cta">
+              <div class="btn" style="background:#F1F3F6;color:var(--ink-3);font-size:13px;font-weight:600">应用替换</div>
+            </div>
+          </div>
+        </div>
+        <p class="scap">三行体检先过关；没选角色时 CTA 保持禁用，不制造可点的假象。</p>
+      </div>
+
+      <!-- ---------- 02 已选 · 可预览（只用 ui-system 类） ---------- -->
+      <div class="scol">
+        <div class="slabel"><span class="sn">02</span>已选 · 可预览</div>
+        <div class="sstage">
+          <div class="phone">
+            <div class="sb"><span>9:41</span><span class="sb-bat"></span></div>
+            <div class="pbody">
+              <div class="p-nav">
+                <div class="icbtn">
+                  <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;color:var(--ink)"><path d="M15 5l-6 7 6 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="t">修改模型</div>
+                <div class="a">刷新</div>
+              </div>
+
+              <div class="card" style="padding:6px;display:flex;flex-direction:column;gap:3px">
+                <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;background:var(--sub);border-radius:8px">
+                  <span style="width:18px;height:18px;border-radius:6px;background:var(--success-soft);color:var(--success-ink);display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+                    <svg viewBox="0 0 24 24" fill="none" style="width:11px;height:11px"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span style="font-size:11px;color:var(--ink)">root</span>
+                  <span style="margin-left:auto;font-size:10px;color:var(--ink-2);font-variant-numeric:tabular-nums">已授权</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;background:var(--sub);border-radius:8px">
+                  <span style="width:18px;height:18px;border-radius:6px;background:var(--success-soft);color:var(--success-ink);display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+                    <svg viewBox="0 0 24 24" fill="none" style="width:11px;height:11px"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span style="font-size:11px;color:var(--ink)">游戏进程</span>
+                  <span style="margin-left:auto;font-size:10px;color:var(--ink-2);font-variant-numeric:tabular-nums">运行中 · 4821</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;background:var(--sub);border-radius:8px">
+                  <span style="width:18px;height:18px;border-radius:6px;background:var(--success-soft);color:var(--success-ink);display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+                    <svg viewBox="0 0 24 24" fill="none" style="width:11px;height:11px"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span style="font-size:11px;color:var(--ink)">注入器</span>
+                  <span style="margin-left:auto;font-size:10px;color:var(--ink-2);font-variant-numeric:tabular-nums">运行中 · 9137</span>
+                </div>
+              </div>
+
+              <div class="card" style="padding:12px">
+                <div class="card-hd" style="margin-bottom:6px">
+                  <span class="tt" style="font-size:12px">替换映射</span>
+                  <span class="chipst">同一骨架集</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;height:56px;padding:0 12px;background:var(--sub);border-radius:12px">
+                  <span style="width:24px;height:24px;border-radius:50%;background:var(--accent-soft);border:1px solid var(--accent-border);color:var(--accent);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto">A</span>
+                  <span style="flex:1;min-width:0;display:flex;flex-direction:column">
+                    <span style="font-size:13px;font-weight:500;color:var(--ink);line-height:1.35">桐人</span>
+                    <span style="font-family:var(--mono);font-size:9px;color:var(--ink-3);margin-top:1px">kirito_cathedral</span>
+                  </span>
+                  <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;color:var(--ink-3);flex:0 0 auto"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div style="display:flex;align-items:center;padding-left:12px;margin:5px 0;font-size:10px;color:var(--ink-2)">↓ 替换成</div>
+                <div style="display:flex;align-items:center;gap:10px;height:56px;padding:0 12px;background:var(--sub);border-radius:12px">
+                  <span style="width:24px;height:24px;border-radius:50%;background:var(--accent-soft);border:1px solid var(--accent-border);color:var(--accent);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto">B</span>
+                  <span style="flex:1;min-width:0;display:flex;flex-direction:column">
+                    <span style="font-size:13px;font-weight:500;color:var(--ink);line-height:1.35">尤吉欧</span>
+                    <span style="font-family:var(--mono);font-size:9px;color:var(--ink-3);margin-top:1px">eugeo_woodcutter</span>
+                  </span>
+                  <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;color:var(--ink-3);flex:0 0 auto"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div style="font-size:10px;color:var(--ink-2);line-height:1.5;margin-top:6px;padding-left:12px">只显示同一骨架集（chara_1）的角色。</div>
+              </div>
+
+              <div class="card" style="padding:12px">
+                <div class="card-hd" style="margin-bottom:6px">
+                  <span class="tt" style="font-size:12px">模型预览</span>
+                  <span style="font-family:var(--mono);font-size:10px;color:var(--ink-3)">kirito_cathedral</span>
+                </div>
+                <div class="pv" style="height:150px;border-radius:12px;background:var(--sub);border:1px solid var(--border);display:flex;align-items:center;justify-content:center">
+                  <span class="chip" style="position:absolute;left:8px;top:8px;height:20px;padding:0 7px;border-radius:10px;font-size:9px;background:var(--surface);color:var(--ink-2)">12 网格</span>
+                  <svg viewBox="0 0 120 168" fill="none" style="height:126px;color:var(--ink-3)">
+                    <circle cx="60" cy="22" r="11" stroke="currentColor" stroke-width="1.8"/>
+                    <path d="M60 33v9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M60 42v62" style="stroke:var(--accent)" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M36 50h48" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M36 50l-10 32-4 34" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M84 50l10 32 4 34" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M46 104h28" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M46 104l-4 32-2 28" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M74 104l4 32 2 28" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="60" cy="42" r="2.6" fill="var(--accent)"/>
+                    <circle cx="36" cy="50" r="2.6" fill="var(--accent)"/>
+                    <circle cx="84" cy="50" r="2.6" fill="var(--accent)"/>
+                    <circle cx="26" cy="82" r="2.6" fill="currentColor"/>
+                    <circle cx="94" cy="82" r="2.6" fill="currentColor"/>
+                    <circle cx="46" cy="104" r="2.6" fill="var(--accent)"/>
+                    <circle cx="74" cy="104" r="2.6" fill="var(--accent)"/>
+                    <circle cx="42" cy="136" r="2.6" fill="currentColor"/>
+                    <circle cx="78" cy="136" r="2.6" fill="currentColor"/>
+                  </svg>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+                  <div style="display:flex;align-items:center;gap:6px;height:28px;padding:0 8px;background:var(--sub);border-radius:8px;font-size:10px;color:var(--ink-2);flex:1;min-width:0">
+                    <span>默认皮肤</span>
+                    <svg viewBox="0 0 24 24" fill="none" style="width:12px;height:12px;margin-left:auto;color:var(--ink-3);flex:0 0 auto"><path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </div>
+                  <div style="width:28px;height:28px;border-radius:8px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--ink-2);flex:0 0 auto">
+                    <svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                  </div>
+                  <span style="font-family:var(--mono);font-size:10px;color:var(--ink-3);flex:0 0 auto">37 骨</span>
+                </div>
+              </div>
+
+              <div style="font-size:10px;color:var(--ink-2);line-height:1.5;margin-top:auto">改规则不会热重载已加载的模型：要重进场景或重启游戏。</div>
+            </div>
+            <div class="p-cta"><div class="btn btn-p">应用替换</div></div>
+          </div>
+        </div>
+        <p class="scap">同一骨架集才允许配对；预览里皮肤、线框、骨骼数都写得出来。</p>
+      </div>
+
+      <!-- ---------- 03 注入倒计时 ---------- -->
+      <div class="scol">
+        <div class="slabel"><span class="sn">03</span>注入倒计时 · 5 秒</div>
+        <div class="sstage">
+          <div class="phone">
+            <div class="sb"><span>9:41</span><span class="sb-bat"></span></div>
+            <div class="pbody">
+              <div class="p-nav">
+                <div class="icbtn">
+                  <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;color:var(--ink)"><path d="M15 5l-6 7 6 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="t">修改模型</div>
+                <div class="a">刷新</div>
+              </div>
+
+              <div class="card" style="padding:6px;display:flex;flex-direction:column;gap:3px">
+                <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;background:var(--sub);border-radius:8px">
+                  <span style="width:18px;height:18px;border-radius:6px;background:var(--success-soft);color:var(--success-ink);display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+                    <svg viewBox="0 0 24 24" fill="none" style="width:11px;height:11px"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span style="font-size:11px;color:var(--ink)">root</span>
+                  <span style="margin-left:auto;font-size:10px;color:var(--ink-2);font-variant-numeric:tabular-nums">已授权</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;background:var(--sub);border-radius:8px">
+                  <span style="width:18px;height:18px;border-radius:6px;background:var(--success-soft);color:var(--success-ink);display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+                    <svg viewBox="0 0 24 24" fill="none" style="width:11px;height:11px"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span style="font-size:11px;color:var(--ink)">游戏进程</span>
+                  <span style="margin-left:auto;font-size:10px;color:var(--ink-2);font-variant-numeric:tabular-nums">运行中 · 4821</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;background:var(--sub);border-radius:8px">
+                  <span style="width:18px;height:18px;border-radius:6px;background:#EDEFF3;color:var(--ink-3);display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+                    <svg viewBox="0 0 24 24" fill="none" style="width:11px;height:11px"><path d="M7 12h10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+                  </span>
+                  <span style="font-size:11px;color:var(--ink)">注入器</span>
+                  <span style="margin-left:auto;font-size:10px;color:var(--ink-3)">未启动</span>
+                </div>
+              </div>
+
+              <div class="pg-count">
+                <span style="font-family:var(--mono);font-size:30px;font-weight:700;line-height:1;color:var(--warning-ink);font-variant-numeric:tabular-nums">5</span>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:11px;font-weight:600;color:var(--warning-ink)">秒后开始注入</div>
+                  <div style="font-size:10px;color:var(--ink-2);margin-top:2px">现在切回游戏，保持在前台</div>
+                </div>
+              </div>
+
+              <div class="card" style="padding:12px">
+                <div class="card-hd" style="margin-bottom:6px">
+                  <span class="tt" style="font-size:12px">替换映射</span>
+                  <span class="chip" style="height:24px;padding:0 10px;border-radius:12px;font-size:10px">待注入</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;height:56px;padding:0 12px;background:var(--sub);border-radius:12px">
+                  <span style="width:24px;height:24px;border-radius:50%;background:var(--accent-soft);border:1px solid var(--accent-border);color:var(--accent);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto">A</span>
+                  <span style="flex:1;min-width:0;display:flex;flex-direction:column">
+                    <span style="font-size:13px;font-weight:500;color:var(--ink);line-height:1.35">桐人</span>
+                    <span style="font-family:var(--mono);font-size:9px;color:var(--ink-3);margin-top:1px">kirito_cathedral</span>
+                  </span>
+                  <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;color:var(--ink-3);flex:0 0 auto"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div style="display:flex;align-items:center;padding-left:12px;margin:5px 0;font-size:10px;color:var(--ink-2)">↓ 替换成</div>
+                <div style="display:flex;align-items:center;gap:10px;height:56px;padding:0 12px;background:var(--sub);border-radius:12px">
+                  <span style="width:24px;height:24px;border-radius:50%;background:var(--accent-soft);border:1px solid var(--accent-border);color:var(--accent);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto">B</span>
+                  <span style="flex:1;min-width:0;display:flex;flex-direction:column">
+                    <span style="font-size:13px;font-weight:500;color:var(--ink);line-height:1.35">尤吉欧</span>
+                    <span style="font-family:var(--mono);font-size:9px;color:var(--ink-3);margin-top:1px">eugeo_woodcutter</span>
+                  </span>
+                  <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;color:var(--ink-3);flex:0 0 auto"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+
+              <div class="card" style="padding:12px">
+                <div class="card-hd" style="margin-bottom:6px">
+                  <span class="tt" style="font-size:12px">部署进度</span>
+                  <span style="font-size:10px;color:var(--ink-3);font-variant-numeric:tabular-nums">4 / 4 完成</span>
+                </div>
+                <div class="pg-steps">
+                  <div class="pg-step"><span class="pg-dot"></span><span>注入器就绪：56 MB</span></div>
+                  <div class="pg-step"><span class="pg-dot"></span><span>hook 脚本就绪：33,358 字节</span></div>
+                  <div class="pg-step"><span class="pg-dot"></span><span>部署注入器：成功</span></div>
+                  <div class="pg-step"><span class="pg-dot"></span><span>预建规则文件：成功 (666)</span></div>
+                </div>
+              </div>
+
+              <div style="font-size:10px;color:var(--ink-2);line-height:1.5;margin-top:auto">注入要在游戏前台触发；提示超时就把游戏切回前台再点一次。</div>
+            </div>
+            <div class="p-cta">
+              <div class="btn" style="background:#F1F3F6;color:var(--ink-3);font-size:13px;font-weight:600">正在部署注入器…</div>
+            </div>
+          </div>
+        </div>
+        <p class="scap">部署完成后 5 秒倒计时，把「切回游戏并保持前台」说清楚。</p>
+      </div>
+
+      <!-- ---------- 04 已生效 ---------- -->
+      <div class="scol">
+        <div class="slabel"><span class="sn">04</span>已生效</div>
+        <div class="sstage">
+          <div class="phone">
+            <div class="sb"><span>9:41</span><span class="sb-bat"></span></div>
+            <div class="pbody">
+              <div class="p-nav">
+                <div class="icbtn">
+                  <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;color:var(--ink)"><path d="M15 5l-6 7 6 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="t">修改模型</div>
+                <div class="a">刷新</div>
+              </div>
+
+              <div class="card" style="padding:6px;display:flex;flex-direction:column;gap:3px">
+                <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;background:var(--sub);border-radius:8px">
+                  <span style="width:18px;height:18px;border-radius:6px;background:var(--success-soft);color:var(--success-ink);display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+                    <svg viewBox="0 0 24 24" fill="none" style="width:11px;height:11px"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span style="font-size:11px;color:var(--ink)">root</span>
+                  <span style="margin-left:auto;font-size:10px;color:var(--ink-2);font-variant-numeric:tabular-nums">已授权</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;background:var(--sub);border-radius:8px">
+                  <span style="width:18px;height:18px;border-radius:6px;background:var(--success-soft);color:var(--success-ink);display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+                    <svg viewBox="0 0 24 24" fill="none" style="width:11px;height:11px"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span style="font-size:11px;color:var(--ink)">游戏进程</span>
+                  <span style="margin-left:auto;font-size:10px;color:var(--ink-2);font-variant-numeric:tabular-nums">运行中 · 4821</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;background:var(--sub);border-radius:8px">
+                  <span style="width:18px;height:18px;border-radius:6px;background:var(--success-soft);color:var(--success-ink);display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+                    <svg viewBox="0 0 24 24" fill="none" style="width:11px;height:11px"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span style="font-size:11px;color:var(--ink)">注入器</span>
+                  <span style="margin-left:auto;font-size:10px;color:var(--ink-2);font-variant-numeric:tabular-nums">运行中 · 9137</span>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:9px;align-items:flex-start;padding:12px;background:var(--success-soft);border:1px solid #C7F0DF;border-radius:12px;color:var(--success-ink);font-size:10px;line-height:1.5">
+                <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;flex:0 0 auto;margin-top:1px"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M8 12.4l2.8 2.8L16.4 9.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>替换已生效：桐人 → 尤吉欧。已加载的模型需重进场景刷新。</span>
+              </div>
+
+              <div class="card" style="padding:12px">
+                <div class="card-hd" style="margin-bottom:6px">
+                  <span class="tt" style="font-size:12px">替换映射</span>
+                  <span class="chipst">生效中</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;height:56px;padding:0 12px;background:var(--sub);border-radius:12px">
+                  <span style="width:24px;height:24px;border-radius:50%;background:var(--accent-soft);border:1px solid var(--accent-border);color:var(--accent);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto">A</span>
+                  <span style="flex:1;min-width:0;display:flex;flex-direction:column">
+                    <span style="font-size:13px;font-weight:500;color:var(--ink);line-height:1.35">桐人</span>
+                    <span style="font-family:var(--mono);font-size:9px;color:var(--ink-3);margin-top:1px">kirito_cathedral</span>
+                  </span>
+                  <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;color:var(--ink-3);flex:0 0 auto"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div style="display:flex;align-items:center;padding-left:12px;margin:5px 0;font-size:10px;color:var(--ink-2)">↓ 已替换为</div>
+                <div style="display:flex;align-items:center;gap:10px;height:56px;padding:0 12px;background:var(--sub);border-radius:12px">
+                  <span style="width:24px;height:24px;border-radius:50%;background:var(--accent-soft);border:1px solid var(--accent-border);color:var(--accent);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto">B</span>
+                  <span style="flex:1;min-width:0;display:flex;flex-direction:column">
+                    <span style="font-size:13px;font-weight:500;color:var(--ink);line-height:1.35">尤吉欧</span>
+                    <span style="font-family:var(--mono);font-size:9px;color:var(--ink-3);margin-top:1px">eugeo_woodcutter</span>
+                  </span>
+                  <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;color:var(--ink-3);flex:0 0 auto"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div style="font-size:10px;color:var(--ink-2);line-height:1.5;margin-top:6px;padding-left:12px">影响范围：主界面看板 / 战斗队伍 / 剧情演出</div>
+              </div>
+
+              <div class="pg-log" style="margin-top:auto">
+                <div class="pg-log-hd"><b>注入日志</b><span>模型改写 12 次</span></div>
+                <div class="pg-lg"><span class="pg-t">00:21:03</span><span class="pg-m">规则已应用：kirito_cathedral → eugeo_woodcutter</span></div>
+                <div class="pg-lg"><span class="pg-t">00:20:58</span><span class="pg-m">注入器已启动（PID 9137）</span></div>
+                <div class="pg-lg"><span class="pg-t">00:20:51</span><span class="pg-m">部署完成 · 注入器就绪</span></div>
+              </div>
+
+              <div style="font-size:10px;color:var(--ink-2);line-height:1.5">不写存档、不改游戏文件；停止注入即完全还原。</div>
+            </div>
+            <div class="p-cta"><div class="btn btn-p">关闭替换</div></div>
+          </div>
+        </div>
+        <p class="scap">绿色确认条 + 日志留证；同时提醒已加载的模型要重进场景。</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========== 02 九态文案 ========== -->
+  <section class="sec" id="copy">
+    <div class="sec-head">
+      <div class="kicker">02 · Nine States</div>
+      <h2>九种状态：每个失败都要有下一步</h2>
+      <p>九态共用一套骨架「体检 → 映射 → 预览 → 主 CTA」，只换行尾文案与提示条，不做整页重排；所有失败态都必须给一个可点的出口。</p>
+    </div>
+    <div class="panel">
+      <div class="panel-hd">
+        <div><h3>状态与文案规格</h3><p>状态 / 界面表现 / CTA / 主文案</p></div>
+        <span class="badge accent">9 态</span>
+      </div>
+      <table class="tbl">
+        <tr><th>状态</th><th>界面表现</th><th>CTA</th><th>主文案</th></tr>
+        <tr>
+          <td>未查环境（读取中）</td>
+          <td>三行体检先出灰骨架，右侧值写「读取中」；映射卡与预览卡不渲染</td>
+          <td>禁用「检查中…」</td>
+          <td>正在读取设备与游戏状态</td>
+        </tr>
+        <tr>
+          <td>无 root</td>
+          <td>首行红 ✕「未授权」，其余两行照常读取；映射卡与预览卡不渲染</td>
+          <td>禁用「需要 root」</td>
+          <td>这台手机没有 root，换模型用不了；其他功能不受影响</td>
+        </tr>
+        <tr>
+          <td>游戏未运行</td>
+          <td>游戏行红 ✕「未检测到进程」；注入器行灰「未启动」</td>
+          <td>禁用「请先启动游戏」</td>
+          <td>没找到游戏进程，先把游戏打开再回来</td>
+        </tr>
+        <tr>
+          <td>注入器未启动</td>
+          <td>注入器行灰「未启动」（灰不等于故障，不画红叉），其余两行绿</td>
+          <td>主按钮变「部署并启动注入」</td>
+          <td>注入器未启动，先部署并启动它</td>
+        </tr>
+        <tr>
+          <td>未选择</td>
+          <td>A、B 两行都是「未选择角色 A / B」；预览卡为空态；主 CTA 禁用</td>
+          <td>禁用「应用替换」</td>
+          <td>先选角色 A，再选同一骨架集的角色 B</td>
+        </tr>
+        <tr>
+          <td>已选可应用</td>
+          <td>绿 chip「同一骨架集」；预览卡出静止姿势、默认皮肤、37 骨、12 网格</td>
+          <td>主按钮「应用替换」</td>
+          <td>桐人 → 尤吉欧（chara_1）</td>
+        </tr>
+        <tr>
+          <td>注入倒计时</td>
+          <td>琥珀卡从 5 数到 1；部署进度逐行打点；主 CTA 禁用</td>
+          <td>禁用「正在部署注入器…」</td>
+          <td>5 秒后开始注入 · 现在切回游戏，保持在前台</td>
+        </tr>
+        <tr>
+          <td>已生效</td>
+          <td>绿色确认条 + 映射卡「生效中」+ 注入日志；提示需重进场景</td>
+          <td>主按钮「关闭替换」</td>
+          <td>替换已生效：桐人 → 尤吉欧</td>
+        </tr>
+        <tr>
+          <td>偏移对不上</td>
+          <td>红色提示条压在最上方（OFFSET MISMATCH），预览卡转线框，映射卡只读</td>
+          <td>禁用「请先停用本功能」</td>
+          <td>钩子偏移对不上：游戏可能已更新，换模型不会生效</td>
+        </tr>
+      </table>
+      <p class="tbl-note">九态里只有「已选可应用」「已生效」两态的主按钮可点；其余状态的 CTA 一律禁用并写明原因，不留「点了没反应」的按钮。</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-hd">
+        <div><h3>预览卡的三种非正常态</h3><p>预览宁可少画，也不假装画对了</p></div>
+        <span class="badge">预览</span>
+      </div>
+      <table class="tbl">
+        <tr><th>情况</th><th>画面</th><th>卡片文案</th></tr>
+        <tr>
+          <td>缺纹理</td>
+          <td>线框人形照画，贴图区留空，不拿纯色块顶替</td>
+          <td>缺纹理：只找到骨骼与图集，纹理缺失（kirito_cathedral）</td>
+        </tr>
+        <tr>
+          <td>解析失败</td>
+          <td>画布留空，只给一行红色原因，不写「预览不可用」了事</td>
+          <td>解析失败：骨骼数据读取不了（版本不匹配）</td>
+        </tr>
+        <tr>
+          <td>线框模式</td>
+          <td>只画骨骼连线、关掉贴图，用来分辨是模型错还是贴图错</td>
+          <td>线框模式：线框正常但贴图错位，说明问题在贴图</td>
+        </tr>
+      </table>
+      <p class="tbl-note">三种情况都保留皮肤下拉与 37 骨：预览失败不阻断选择，只阻断「以为已经对了」。</p>
+    </div>
+  </section>
+
+  <!-- ========== 03 角色与骨架集 ========== -->
+  <section class="sec" id="rules">
+    <div class="sec-head">
+      <div class="kicker">03 · Rules</div>
+      <h2>角色与骨架集：先拒绝，再动手</h2>
+      <p>换模型是在游戏内存里改「角色 id → 模型」的映射，配对错了不会报错、只会看起来不对。所以所有校验都放在点击之前。</p>
+    </div>
+    <div class="panel">
+      <div class="panel-hd">
+        <div><h3>配对校验</h3><p>校验项 / 规则 / 失败文案</p></div>
+        <span class="badge accent">6 条</span>
+      </div>
+      <table class="tbl">
+        <tr><th>校验项</th><th>规则</th><th>失败文案</th></tr>
+        <tr>
+          <td>空选</td>
+          <td>A 与 B 都必须从受控下拉里选中，不接受空值</td>
+          <td>先选角色 A，再选同一骨架集的角色 B</td>
+        </tr>
+        <tr>
+          <td>id 长度</td>
+          <td>角色 id 上限 64 个字符</td>
+          <td>角色 id 超过 64 个字符，请重新选择</td>
+        </tr>
+        <tr>
+          <td>非法字符</td>
+          <td>只允许字母、数字、下划线与短横线</td>
+          <td>角色 id 含非法字符，只接受字母、数字、下划线与短横线</td>
+        </tr>
+        <tr>
+          <td>A = B</td>
+          <td>A 与 B 必须是不同 id，同一个 id 替换没有意义</td>
+          <td>A 与 B 是同一个角色，换一个目标</td>
+        </tr>
+        <tr>
+          <td>跨骨架集</td>
+          <td>只允许同一骨架集内部互换：chara_1 / chara_2 / chara_3 / chara_4 / chara_other 互不通用</td>
+          <td>两个角色不在同一骨架集（chara_1 与 chara_2），会缺骨架、比例错乱</td>
+        </tr>
+        <tr>
+          <td>输入方式</td>
+          <td>只允许从下拉选择，不提供手动输入 id 的入口</td>
+          <td>只能从列表中选择角色，不支持手动输入</td>
+        </tr>
+      </table>
+      <p class="tbl-note">校验顺序从「能不能选」到「能不能配」：空选 → 长度 → 字符 → 同 id → 同骨架集，任何一条不过就不渲染预览，也不点亮 CTA。</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-hd">
+        <div><h3>全库统计</h3><p>可替换的素材规模与五个骨架集</p></div>
+        <span class="badge">只读</span>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>2,570</b><span>图集变体</span></div>
+        <div class="stat"><b>2,032</b><span>张脸</span></div>
+        <div class="stat"><b>528</b><span>条名称</span></div>
+        <div class="stat"><b>5</b><span>个骨架集</span></div>
+      </div>
+      <table class="tbl" style="margin-top:16px">
+        <tr><th>骨架集</th><th>图集变体</th><th>能否与 chara_1 互换</th></tr>
+        <tr><td>chara_1</td><td>932</td><td>同集内可互换（桐人、尤吉欧都在这里）</td></tr>
+        <tr><td>chara_2</td><td>1,232</td><td>不可，缺骨架</td></tr>
+        <tr><td>chara_3</td><td>210</td><td>不可，缺骨架</td></tr>
+        <tr><td>chara_4</td><td>90</td><td>不可，缺骨架</td></tr>
+        <tr><td>chara_other</td><td>106</td><td>不可，比例错乱</td></tr>
+        <tr><td>合计</td><td>2,570</td><td>只有同集互换才安全</td></tr>
+      </table>
+      <p class="tbl-note">五个骨架集互不通用，数量相加正好等于图集总量：932 + 1,232 + 210 + 90 + 106 = 2,570。跨集替换会出现缺骨架或比例错乱，因此在选择阶段就拒绝。</p>
+    </div>
+  </section>
+
+  <!-- ========== 04 安全边界 ========== -->
+  <section class="sec" id="safety">
+    <div class="sec-head">
+      <div class="kicker">04 · Safety</div>
+      <h2>安全边界：能还原才敢改</h2>
+      <p>换模型碰的是运行时内存，不是文件。边界写清楚，用户才敢把一个角色的外观换到另一个角色身上。</p>
+    </div>
+    <div class="panel">
+      <div class="panel-hd">
+        <div><h3>五条边界</h3><p>写进界面文案，而不是只写在文档里</p></div>
+        <span class="badge ok">可还原</span>
+      </div>
+      <ul class="dot-list">
+        <li><b>需要 root</b>：三行体检里 root 不绿，换模型不可用，其余功能照常，界面不弹红。</li>
+        <li><b>不写存档、不改游戏文件</b>：只改内存里的模型引用；停止注入即完全还原，不需要备份。</li>
+        <li><b>改规则不热重载</b>：已加载的模型不会自己刷新，要重进场景或重启游戏才看得到新外观。</li>
+        <li><b>跨骨架集不做</b>：缺骨架、比例错乱的「看起来像」不提供，宁可拒绝也不赌一次。</li>
+        <li><b>注入器没起来，规则写了也不生效</b>：所以未启动时主 CTA 先变成「部署并启动注入」。</li>
+      </ul>
+      <div class="note" style="margin-top:16px">
+        <b>一句话口径</b>：这条流程只做三件事——确认环境、确认配对、把映射写进内存；不碰文件、不留痕迹、随时可停。
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 05 组件与落点 ========== -->
+  <section class="sec" id="components">
+    <div class="sec-head">
+      <div class="kicker">05 · Components</div>
+      <h2>组件与 Flutter 落点：0 新色值</h2>
+      <p>本页只组合 ui-system 的组件与令牌；页面级布局类统一前缀 pg-，02 屏一个都不用。</p>
+    </div>
+    <div class="panel">
+      <div class="panel-hd">
+        <div><h3>复用项与落地规则</h3><p>左：本页新增的组合件 / 右：必须遵守的约束</p></div>
+        <span class="badge ok">0 新色值</span>
+      </div>
+      <div style="display:flex;gap:9px;align-items:flex-start;padding:12px;background:#FEF2F2;border:1px solid #FBD5D5;border-radius:12px;color:#DC2626;font-size:10px;line-height:1.5;margin-bottom:16px">
+        <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;flex:0 0 auto;margin-top:1px"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5v5.5M12 16.4v.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>钩子偏移对不上（OFFSET MISMATCH）：游戏可能已更新，换模型不会生效。请先停用本功能</span>
+      </div>
+      <div class="grid2">
+        <table class="tbl">
+          <tr><th>组件</th><th>规格</th></tr>
+          <tr><td>EnvRow 体检行</td><td>高 30 · 18 方块圆角 6 · 标签 11 / 值 10 · 行底 --sub 圆角 8 · 行距 3</td></tr>
+          <tr><td>MapSide 选择行</td><td>高 56 · 圆角 12 · 24 圆标 + 13/9 两行 + 右箭头 16</td></tr>
+          <tr><td>SpinePreviewCard</td><td>画布 150 · 圆角 12；皮肤下拉 28 + 线框钮 28 + mono 37 骨</td></tr>
+          <tr><td>CountdownCard</td><td>琥珀浅底 + 1px 边 · padding 12 · 数字 30 mono</td></tr>
+          <tr><td>StepRow 部署行</td><td>9.5 mono · 行首 4 圆点 · 行距 4</td></tr>
+          <tr><td>LogRow 日志行</td><td>时间 9 mono --ink-3 + 正文 9.5 --ink-2</td></tr>
+          <tr><td>PrimaryCTA</td><td>高 52 · 圆角 16 · 13/600；未启动时文案即「部署并启动注入」</td></tr>
+        </table>
+        <div>
+          <ul class="dot-list">
+            <li><b>0 新色值</b>：成功用 --success-ink、告警用 --warning-ink、失败用 --danger，其余全部引用令牌。</li>
+            <li><b>「未启动」用灰不用红</b>：注入器没运行是缺一步操作，不是故障；红只留给真正的失败。</li>
+            <li><b>状态不靠颜色单独表意</b>：✓ / ✕ / — 三个符号加文字，颜色只是辅助。</li>
+            <li><b>触控 ≥ 44</b>：选择行 56、主 CTA 52；线框钮视觉 28、热区扩到 44。</li>
+            <li><b>预览三条不撒谎</b>：缺纹理写「缺纹理」、解析失败写原因、线框模式用来分辨「模型错还是贴图错」。</li>
+          </ul>
+        </div>
+      </div>
+      <div class="note" style="margin-top:16px">
+        <b>Flutter 落点</b>：页面 = Scaffold + 固定底部 CTA；EnvRow = 30 高 Row；MapSide = 56 高可点容器（圆标 + Column(13/9)）；
+        SpinePreviewCard = 150 高 CustomPaint（Spine 渲染）+ 皮肤 DropdownButton + 线框 IconButton；CountdownCard = 琥珀 Container + 每秒刷新的 Timer。
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span>修改模型 · 页面稿 v1.0</span>
+    <span>令牌来自 design/ui-system.html，本页不新增色值</span>
+    <span>390 × 844 · Android / Flutter</span>
+  </div>
+
+</main>
+
+</body>
+</html>

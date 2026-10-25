@@ -1,0 +1,13 @@
+# 只保留分析器默认规则：本项目是从 saoub_claim 抽出的后端层，先保证零告警。
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+linter:
+  rules:
+    avoid_print: true

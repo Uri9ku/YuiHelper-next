@@ -1,0 +1,2067 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>简洁卡片 UI 规范 · 离线游戏修改器</title>
+<style>
+:root{
+  --bg:#F4F5F7; --surface:#FFFFFF; --sub:#F7F8FA; --sunken:#FAFBFC;
+  --border:#E9EBEF; --border-strong:#DDE1E8;
+  --ink:#12141A; --ink-2:#5B6472; --ink-3:#9AA0AA;
+  --accent:#2563EB; --accent-press:#1D4ED8; --accent-soft:#EFF4FF; --accent-border:#B9CBF2;
+  --success:#10B981; --success-ink:#059669; --success-soft:#ECFDF5;
+  --warning:#F59E0B; --warning-ink:#B45309; --warning-soft:#FFF8EE; --warning-border:#FBE3BE;
+  --danger:#DC2626;
+  --r-pill:36px; --r-card:18px; --r-tile:16px; --r-inner:12px; --r-seg:9px; --r-tab:26px;
+  --sp-page:20px; --sp-card:14px; --sp-pad:16px; --sp-in:12px; --sp-xs:8px; --sp-2xs:4px;
+  --e1:0 1px 2px rgba(18,20,26,.04);
+  --e2:0 6px 18px rgba(18,20,26,.06);
+  --e3:0 8px 20px rgba(37,99,235,.28);
+  --font:"Inter","Noto Sans SC","HarmonyOS Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono","SFMono-Regular",Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--font);font-size:14px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,h4{margin:0;font-weight:600;letter-spacing:-0.01em}
+p{margin:0}
+code,.mono{font-family:var(--mono);font-size:12px}
+
+/* ---------- 顶栏 ---------- */
+.topbar{
+  position:sticky;top:0;z-index:40;height:64px;
+  display:flex;align-items:center;gap:14px;
+  padding:0 32px;background:rgba(255,255,255,.86);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--border);
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-mark{
+  width:30px;height:30px;border-radius:9px;flex:0 0 auto;
+  background:linear-gradient(135deg,#2563EB,#7C5CFF);
+  display:flex;align-items:center;justify-content:center;color:#fff;
+  font-family:var(--mono);font-size:12px;font-weight:700;
+}
+.brand-t{font-size:13px;font-weight:600;letter-spacing:0}
+.brand-s{font-size:11px;color:var(--ink-3);margin-top:-2px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;
+  border-radius:13px;background:var(--sub);border:1px solid var(--border);
+  font-size:11px;color:var(--ink-2);
+}
+.chip.on{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent)}
+
+/* ---------- 布局 ---------- */
+.shell{max-width:1320px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px}
+.toc{position:sticky;top:88px;align-self:start;padding:32px 0 40px;max-height:calc(100vh - 88px);overflow:auto}
+.toc-t{font-size:10px;letter-spacing:1.6px;color:var(--ink-3);font-weight:600;margin-bottom:12px;text-transform:uppercase}
+.toc a{
+  display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:9px;
+  font-size:12px;color:var(--ink-2);transition:background .16s,color .16s;
+}
+.toc a:hover{background:#EBEEF2;color:var(--ink)}
+.toc a.on{background:var(--surface);color:var(--ink);box-shadow:var(--e1);font-weight:500}
+.toc a .n{font-family:var(--mono);font-size:10px;color:var(--ink-3);width:16px}
+.toc a.on .n{color:var(--accent)}
+.toc .sep{height:1px;background:var(--border);margin:12px 10px}
+main{padding:36px 0 120px;min-width:0}
+
+/* ---------- 通用块 ---------- */
+.sec{margin-bottom:64px;scroll-margin-top:88px}
+.sec-head{margin-bottom:20px}
+.kicker{
+  display:inline-flex;align-items:center;gap:7px;font-size:10px;font-weight:600;
+  letter-spacing:1.6px;color:var(--accent);text-transform:uppercase;margin-bottom:8px;
+}
+.kicker::before{content:"";width:14px;height:2px;border-radius:1px;background:var(--accent)}
+.sec-head h2{font-size:24px;line-height:1.35}
+.sec-head p{font-size:13px;color:var(--ink-2);margin-top:6px;max-width:720px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:20px;scroll-margin-top:88px}
+.panel+.panel{margin-top:14px}
+.panel-hd{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
+.panel-hd h3{font-size:14px;line-height:1.4}
+.panel-hd p{font-size:11px;color:var(--ink-2);margin-top:3px}
+.panel-hd .badge{margin-left:auto}
+.badge{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:11px;background:var(--sub);border:1px solid var(--border);font-size:10px;color:var(--ink-2);white-space:nowrap}
+.badge.accent{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent)}
+.badge.ok{background:var(--success-soft);border-color:#C7F0DF;color:var(--success-ink)}
+.badge.warn{background:var(--warning-soft);border-color:var(--warning-border);color:var(--warning-ink)}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+
+/* ---------- 表格 ---------- */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{
+  text-align:left;font-weight:500;color:var(--ink-3);font-size:10px;letter-spacing:.8px;
+  padding:8px 10px;border-bottom:1px solid var(--border);text-transform:uppercase;white-space:nowrap;
+}
+.tbl td{padding:9px 10px;border-bottom:1px solid #F1F3F6;color:var(--ink-2);vertical-align:top}
+.tbl tr:last-child td{border-bottom:0}
+.tbl td:first-child{color:var(--ink);font-weight:500}
+.tbl .mono{color:var(--accent)}
+.tbl-note{font-size:11px;color:var(--ink-3);margin-top:10px}
+
+/* ---------- 封面 ---------- */
+.hero{
+  background:var(--surface);border:1px solid var(--border);border-radius:24px;
+  padding:40px 40px 32px;margin-bottom:56px;position:relative;overflow:hidden;
+}
+.hero::after{
+  content:"";position:absolute;right:-90px;top:-90px;width:320px;height:320px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,rgba(37,99,235,.16),rgba(124,92,255,.10) 55%,transparent 70%);
+}
+.hero h1{font-size:34px;line-height:1.3;letter-spacing:-0.02em;margin-bottom:12px}
+.hero .lead{font-size:14px;color:var(--ink-2);max-width:620px;line-height:1.75}
+.hero-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.hero-meta .chip{background:#fff}
+.hero-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:28px;position:relative;z-index:1}
+.hstat{background:var(--sub);border-radius:var(--r-inner);padding:12px 14px}
+.hstat b{display:block;font-family:var(--mono);font-size:17px;font-weight:600;letter-spacing:-.02em}
+.hstat span{font-size:10px;color:var(--ink-3)}
+
+/* ---------- 色彩 ---------- */
+.sw-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.sw{border:1px solid var(--border);border-radius:var(--r-inner);overflow:hidden;background:#fff}
+.sw .blk{height:62px}
+.sw .meta{padding:9px 11px}
+.sw .meta b{display:block;font-size:11px;font-weight:500}
+.sw .meta code{display:block;font-size:10px;color:var(--ink-3);margin-top:2px}
+.sw .meta em{display:block;font-style:normal;font-size:10px;color:var(--ink-3);margin-top:5px}
+.cr{font-family:var(--mono);font-size:9px;color:var(--ink-3);white-space:nowrap}
+.cr.aa{color:var(--success-ink)}
+.cr.no{color:var(--warning-ink)}
+
+/* ---------- 字体 ---------- */
+.type-row{display:flex;align-items:baseline;gap:18px;padding:13px 0;border-bottom:1px solid #F1F3F6}
+.type-row:last-child{border-bottom:0}
+.type-row .sample{flex:1;min-width:0;color:var(--ink);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.type-row .spec{font-family:var(--mono);font-size:10px;color:var(--ink-3);white-space:nowrap;text-align:right}
+.t-display{font-size:26px;font-weight:700;line-height:1.25}
+.t-h2{font-size:17px;font-weight:600;line-height:1.4}
+.t-card{font-size:14px;font-weight:600;line-height:1.4}
+.t-body{font-size:12px;font-weight:400;line-height:1.58}
+.t-cap{font-size:10px;font-weight:400;line-height:1.5;color:var(--ink-2)}
+.t-micro{font-size:9px;font-weight:500;line-height:1.45;color:var(--ink-3)}
+.t-num{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.t-numl{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+
+/* ---------- 间距 / 圆角 ---------- */
+.space-row{display:flex;align-items:center;gap:14px;padding:8px 0}
+.space-row .lbl{width:120px;font-size:11px;color:var(--ink-2)}
+.space-row .bar{height:12px;background:var(--accent-soft);border:1px solid var(--accent-border);border-radius:3px}
+.space-row .val{font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+.radius-row{display:flex;flex-wrap:wrap;gap:12px}
+.radius-item{width:104px}
+.radius-item .box{height:64px;background:var(--sub);border:1px solid var(--border-strong)}
+.radius-item span{display:block;font-size:10px;color:var(--ink-3);margin-top:7px}
+.radius-item b{display:block;font-size:11px;font-weight:500}
+
+/* ---------- 组件：画布 ---------- */
+.canvas{
+  background:#EDEFF3;
+  background-image:radial-gradient(rgba(18,20,26,.06) 1px,transparent 1px);
+  background-size:12px 12px;
+  border-radius:var(--r-tile);padding:26px;display:flex;justify-content:center;align-items:center;
+}
+.canvas.stack{align-items:flex-start}
+.m{width:350px;max-width:100%}
+.spec-list{margin-top:14px}
+.dot-list{list-style:none;padding:0;margin:0;display:grid;gap:7px}
+.dot-list li{position:relative;padding-left:14px;font-size:12px;color:var(--ink-2)}
+.dot-list li::before{content:"";position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:var(--border-strong)}
+.dot-list li b{color:var(--ink);font-weight:500}
+
+/* ---------- 组件实物 CSS（与 App 一致） ---------- */
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--r-card);padding:16px}
+.card-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.card-hd .tt{font-size:14px;font-weight:600}
+.card-hd .act{font-size:11px;font-weight:500;color:var(--accent)}
+.kpis{display:flex;gap:8px}
+.kpi{flex:1;background:var(--sub);border-radius:var(--r-inner);padding:10px}
+.kpi.lb{background:var(--accent-soft)}
+.kpi .k{font-size:10px;color:var(--ink-2)}
+.kpi .v{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em;margin-top:2px}
+.kpi.lb .k,.kpi.lb .v{color:var(--accent)}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.slot{border:1px solid var(--border);border-radius:var(--r-tile);padding:12px;display:flex;flex-direction:column;gap:8px}
+.slot .n{font-size:11px;font-weight:500}
+.slot .a{font-size:9px;color:var(--accent)}
+.slot.empty{background:var(--sunken);border:1px dashed var(--border-strong)}
+.slot.empty .n{color:var(--ink-3)}
+.slot.empty .a{color:#B4BAC4}
+.ico{width:20px;height:20px;display:block}
+.ico svg{display:block;width:100%;height:100%}
+.task{background:#fff;border:1px solid var(--border);border-radius:var(--r-tile);padding:14px;display:flex;flex-direction:column;gap:9px}
+.task-hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.task-hd .n{font-size:12px;font-weight:500}
+.task .meta{font-size:10px;color:var(--ink-2)}
+.bar{height:4px;border-radius:2px;background:#EDEFF3;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:2px;background:var(--accent)}
+.bar i.warn{background:var(--warning)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;font-family:inherit;cursor:default;white-space:nowrap}
+.btn-p{background:var(--accent);color:#fff;font-size:13px;font-weight:600;height:52px;border-radius:var(--r-tile);box-shadow:var(--e3)}
+.btn-s{background:var(--accent);color:#fff;font-size:10px;font-weight:500;height:26px;padding:0 16px;border-radius:13px}
+.btn-sec{background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-border);font-size:12px;font-weight:500;height:38px;padding:0 18px;border-radius:var(--r-inner)}
+.btn-ghost{background:#fff;color:var(--accent);border:1px solid var(--accent-border);font-size:10px;font-weight:500;height:26px;padding:0 12px;border-radius:13px}
+.btn-dis{background:#F1F3F6;color:var(--ink-3);font-size:10px;font-weight:500;height:26px;padding:0 16px;border-radius:13px}
+.seg{display:flex;gap:4px;padding:4px;background:#E8EAEE;border-radius:var(--r-inner);height:40px}
+.seg span{flex:1;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink-2);border-radius:var(--r-seg)}
+.seg span.on{background:#fff;color:var(--ink);font-weight:600;box-shadow:0 1px 4px rgba(18,20,26,.08)}
+.tabbar{background:#fff;border:1px solid var(--border);border-radius:var(--r-pill);height:62px;padding:4px;display:flex;gap:4px;box-shadow:var(--e2)}
+.tabbar .ti{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:var(--r-tab);color:#8A909B;font-size:10px;font-weight:500}
+.tabbar .ti.on{background:#12141A;color:#fff}
+.slider{position:relative;height:16px;display:flex;align-items:center}
+.slider .track{position:absolute;left:0;right:0;height:5px;border-radius:3px;background:#E8EBF0}
+.slider .fill{position:absolute;left:0;height:5px;border-radius:3px;background:var(--accent)}
+.slider .knob{position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid var(--accent);box-shadow:0 2px 6px rgba(37,99,235,.24);transform:translateX(-7px)}
+.chipst{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:12px;background:var(--success-soft);color:var(--success-ink);font-size:10px;font-weight:500}
+.warn-strip{display:flex;gap:9px;align-items:center;padding:12px;border-radius:var(--r-inner);background:var(--warning-soft);border:1px solid var(--warning-border);font-size:10px;line-height:1.5;color:var(--warning-ink)}
+.navbar{display:flex;align-items:center;gap:10px;height:44px}
+.icbtn{width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.navbar .ttl{flex:1;text-align:center;font-size:17px;font-weight:600}
+.navbar .act{font-size:12px;font-weight:500;color:var(--accent);width:36px;text-align:right}
+.diff{font-size:11px;color:var(--success-ink);font-variant-numeric:tabular-nums}
+.presets{display:flex;gap:8px}
+.preset{flex:1;height:34px;display:flex;align-items:center;justify-content:center;border-radius:17px;background:#fff;border:1px solid var(--border);font-size:11px;color:var(--ink-2);font-weight:500}
+.preset.on{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent);font-weight:600}
+
+/* ---------- 令牌代码块 ---------- */
+.code{
+  background:#0F1218;border-radius:var(--r-tile);padding:18px 20px;overflow:auto;
+  font-family:var(--mono);font-size:11.5px;line-height:1.85;color:#B9C5D8;
+}
+.code .c{color:#5B6577}
+.code .k{color:#7DD3FC}
+.code .v{color:#A5E3B7}
+.code .n{color:#F0B37E}
+
+/* ---------- 决策表 ---------- */
+.note{
+  border-left:2px solid var(--accent-border);padding:2px 0 2px 12px;
+  font-size:12px;color:var(--ink-2);line-height:1.7;
+}
+.note b{color:var(--ink)}
+
+/* ---------- 页面预览 ---------- */
+.pvgrid{display:flex;gap:16px;overflow-x:auto;padding:2px 2px 8px}
+.pvcol{flex:0 0 172px}
+.thumb{
+  width:172px;height:372px;border-radius:14px;border:1px solid var(--border);
+  background:var(--bg);overflow:hidden;position:relative;cursor:zoom-in;
+  box-shadow:var(--e1);transition:box-shadow .2s,border-color .2s;
+}
+.thumb:hover{border-color:var(--accent-border);box-shadow:0 12px 26px rgba(18,20,26,.14)}
+.thumb .stage{position:absolute;top:0;left:0;width:390px;height:844px;transform:scale(.4410);transform-origin:top left}
+.pvlabel{margin-top:10px;font-size:11px;font-weight:500;display:flex;align-items:center;gap:6px}
+.pvlabel i{font-style:normal;font-family:var(--mono);font-size:10px;color:var(--accent)}
+.pvs{font-size:10px;color:var(--ink-3);margin-top:3px;line-height:1.5}
+
+/* 手机壳内的页面结构 */
+.phone{width:390px;height:844px;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;color:var(--ink)}
+.phone .sb{height:62px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:600}
+.sb-bat{width:22px;height:11px;border:1.4px solid var(--ink);border-radius:3px;position:relative;opacity:.8}
+.sb-bat::after{content:"";position:absolute;left:1.6px;top:1.6px;bottom:1.6px;width:12px;background:var(--ink);border-radius:1.5px}
+.phone .pbody{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;padding:8px 20px 14px;overflow:hidden}
+.p-hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.p-hd h4{font-size:26px;font-weight:700;line-height:1.2}
+.p-hd .sub{font-size:11px;color:var(--ink-2);margin-top:3px}
+.p-nav{display:flex;align-items:center;gap:10px;height:44px;flex:0 0 auto}
+.p-nav .t{flex:1;text-align:center;font-size:17px;font-weight:600}
+.p-nav .a{font-size:12px;font-weight:500;color:var(--accent);width:36px;text-align:right}
+.p-cta{padding:10px 20px 18px;flex:0 0 auto}
+.p-cta .btn{width:100%;height:52px;border-radius:16px;font-size:13px}
+.p-tab{padding:12px 21px 21px;flex:0 0 auto}
+.slots.four{grid-template-columns:repeat(4,1fr);gap:8px}
+.slots.four .slot{padding:10px;gap:4px;align-items:flex-start;height:66px}
+.slots.four .slot .n{font-size:8px}
+.pv{height:180px;border-radius:20px;position:relative;overflow:hidden;flex:0 0 auto}
+.pv .scrim{position:absolute;left:0;right:0;bottom:0;height:100px;background:linear-gradient(180deg,rgba(9,12,20,0),rgba(9,12,20,.9))}
+.pv .nm{position:absolute;left:16px;bottom:36px;color:#fff;font-size:17px;font-weight:700}
+.pv .mt{position:absolute;left:16px;bottom:16px;color:#C7D2E4;font-size:11px}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mtile{border:1px solid var(--border);border-radius:16px;padding:8px;background:#fff}
+.mth{height:74px;border-radius:10px}
+.mtile .n{font-size:11px;font-weight:500;margin-top:8px}
+.mtile .sz{font-size:9px;color:var(--ink-3);margin-top:2px}
+.mtile.empty{background:var(--sunken);border:1px dashed var(--border-strong);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.mtile.empty .n{color:var(--ink-3);margin:0}
+.rowcard{display:flex;align-items:center;gap:12px;padding:14px}
+.rowcard .box{width:44px;height:44px;border-radius:12px;background:var(--sub);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+
+/* 放大预览 */
+.lb{position:fixed;inset:0;z-index:90;background:rgba(14,16,20,.66);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center}
+.lb.on{display:flex}
+.lb-stage{line-height:0;filter:drop-shadow(0 30px 60px rgba(0,0,0,.4))}
+.lb-stage .phone{border-radius:32px}
+.lb-close{position:absolute;top:24px;right:28px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px}
+.lb-close:hover{background:rgba(255,255,255,.24)}
+.lb-tip{position:absolute;bottom:22px;left:0;right:0;text-align:center;font-size:11px;color:rgba(255,255,255,.66);letter-spacing:.4px}
+
+/* ---------- 页脚 ---------- */
+.foot{border-top:1px solid var(--border);margin-top:24px;padding-top:20px;display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--ink-3)}
+
+@media (max-width:1080px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:0;padding:0 20px}
+  .toc{display:none}
+  .grid2,.grid3{grid-template-columns:minmax(0,1fr)}
+  .sw-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .hero{padding:28px 22px}
+  .hero-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .topbar{padding:0 20px}
+}
+@media (max-width:520px){
+  .hero h1{font-size:26px}
+  .canvas{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">02</div>
+    <div>
+      <div class="brand-t">简洁卡片 · UI 规范</div>
+      <div class="brand-s">离线游戏修改器 · Android / Flutter</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="chip">v1.3</span>
+    <span class="chip on">浅色主题</span>
+  </div>
+</header>
+
+<div class="shell">
+
+  <aside class="toc">
+    <div class="toc-t">Contents</div>
+    <nav id="tocnav">
+      <a href="#intro"><span class="n">00</span>概览</a>
+      <a href="#principles"><span class="n">01</span>设计原则</a>
+      <a href="#color"><span class="n">02</span>色彩</a>
+      <a href="#type"><span class="n">03</span>字体与字阶</a>
+      <a href="#space"><span class="n">04</span>间距与圆角</a>
+      <a href="#grid"><span class="n">05</span>栅格与布局</a>
+      <a href="#icon"><span class="n">06</span>图标</a>
+      <div class="sep"></div>
+      <a href="#comp"><span class="n">07</span>组件总览</a>
+      <a href="#c-card"><span class="n">7.1</span>卡片 AppCard</a>
+      <a href="#c-seg"><span class="n">7.2</span>分段控制器</a>
+      <a href="#c-tab"><span class="n">7.3</span>胶囊 Tab</a>
+      <a href="#c-btn"><span class="n">7.4</span>按钮</a>
+      <a href="#c-kpi"><span class="n">7.5</span>数值块</a>
+      <a href="#c-slot"><span class="n">7.6</span>槽位卡</a>
+      <a href="#c-task"><span class="n">7.7</span>任务卡</a>
+      <a href="#c-param"><span class="n">7.8</span>参数滑杆</a>
+      <a href="#c-misc"><span class="n">7.9</span>标签与提示</a>
+      <a href="#c-claim"><span class="n">7.10</span>渠道行与进度</a>
+      <a href="#c-model"><span class="n">7.11</span>体检行与映射卡</a>
+      <div class="sep"></div>
+      <a href="#states"><span class="n">08</span>状态与反馈</a>
+      <a href="#motion"><span class="n">09</span>动效</a>
+      <a href="#a11y"><span class="n">10</span>无障碍</a>
+      <a href="#tokens"><span class="n">11</span>令牌速查</a>
+      <a href="#flutter"><span class="n">12</span>Flutter 映射</a>
+      <a href="#decisions"><span class="n">13</span>设计取舍</a>
+      <a href="#pages"><span class="n">14</span>页面清单</a>
+    </nav>
+  </aside>
+
+  <main>
+
+    <!-- ========== 00 概览 ========== -->
+    <section class="hero" id="intro">
+      <div class="kicker">Design System</div>
+      <h1>简洁卡片：一套用卡片组织信息的移动端界面规范</h1>
+      <p class="lead">
+        本规范面向 Android 端的离线游戏修改器，覆盖色彩、字阶、间距、栅格与 11 类核心组件。
+        所有数值即 CSS / Flutter 的实现值，可直接落库为令牌常量；页面稿只允许使用本文件定义的令牌，不新增色值。
+      </p>
+      <div class="hero-meta">
+        <span class="chip">390 × 844 · Android</span>
+        <span class="chip">8pt 栅格</span>
+        <span class="chip">Noto Sans SC / Inter</span>
+        <span class="chip">主色 #2563EB</span>
+        <span class="chip">对比度 AA</span>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><b>6</b><span>语义色组</span></div>
+        <div class="hstat"><b>8</b><span>字阶层级</span></div>
+        <div class="hstat"><b>11</b><span>核心组件</span></div>
+        <div class="hstat"><b>0</b><span>阴影卡片</span></div>
+      </div>
+    </section>
+
+    <!-- ========== 01 原则 ========== -->
+    <section class="sec" id="principles">
+      <div class="sec-head">
+        <div class="kicker">01 · Principles</div>
+        <h2>四条原则决定所有取舍</h2>
+        <p>当规范没有覆盖某个具体场景时，回到这四条判断，就能得出与整体一致的结果。</p>
+      </div>
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-hd"><div><h3>卡片即信息单元</h3><p>Card is the atom</p></div><span class="badge accent">结构</span></div>
+          <p style="font-size:12px;color:var(--ink-2);line-height:1.75">
+            一屏之内，内容只以卡片形式出现。卡片之间固定 14px 呼吸，卡片内部再用 16 / 12 / 8 三档收拢层级。
+            任何“分割线”都由卡片边界承担，不再额外画线。
+          </p>
+        </div>
+        <div class="panel">
+          <div class="panel-hd"><div><h3>一屏一件事</h3><p>One intent per screen</p></div><span class="badge accent">信息架构</span></div>
+          <p style="font-size:12px;color:var(--ink-2);line-height:1.75">
+            主屏只做“扫描 + 快捷操作”，四区平权；所有编辑动作进入二级页。
+            二级页只保留一条主 CTA，固定在底部，单手可达。
+          </p>
+        </div>
+        <div class="panel">
+          <div class="panel-hd"><div><h3>数值优先可扫读</h3><p>Numbers first</p></div><span class="badge accent">排版</span></div>
+          <p style="font-size:12px;color:var(--ink-2);line-height:1.75">
+            所有数字用 Inter 等宽数字（tabular-nums），右对齐、统一小数位。纵向排列时数值成列，
+            眼球一次扫读即可比对，不依赖逐行阅读。
+          </p>
+        </div>
+        <div class="panel">
+          <div class="panel-hd"><div><h3>状态用颜色说话</h3><p>Color carries state</p></div><span class="badge accent">语义</span></div>
+          <p style="font-size:12px;color:var(--ink-2);line-height:1.75">
+            蓝＝可操作 / 绿＝已完成或正向增益 / 琥珀＝风险与未达成 / 灰＝禁用或历史。
+            颜色永不作为唯一信息：状态同时有文案或图标。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 02 色彩 ========== -->
+    <section class="sec" id="color">
+      <div class="sec-head">
+        <div class="kicker">02 · Color</div>
+        <h2>色彩：一个强调色，四种状态色</h2>
+        <p>浅灰底 + 纯白卡构成基础层，蓝色是唯一强调色，只用于“可点击”和“当前状态”。状态色拆成 fill 与 ink 两档：fill 用于块面与线条，ink 用于文字，以保证对比度达标。</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd"><div><h3>基础层</h3><p>页面底色、卡片、卡内次级块与描边</p></div><span class="badge">Surface</span></div>
+        <div class="sw-grid">
+          <div class="sw">
+            <div class="blk" style="background:#F4F5F7;border-bottom:1px solid #E9EBEF"></div>
+            <div class="meta"><b>页面背景</b><code>--bg #F4F5F7</code><em>全部页面铺底，不用于任何块面</em></div>
+          </div>
+          <div class="sw">
+            <div class="blk" style="background:#FFFFFF;border-bottom:1px solid #E9EBEF"></div>
+            <div class="meta"><b>卡片表面</b><code>--surface #FFFFFF</code><em>所有卡片、导航栏、胶囊 Tab</em></div>
+          </div>
+          <div class="sw">
+            <div class="blk" style="background:#F7F8FA;border-bottom:1px solid #E9EBEF"></div>
+            <div class="meta"><b>卡内次级块</b><code>--sub #F7F8FA</code><em>KPI 块、任务行、参数底</em></div>
+          </div>
+          <div class="sw">
+            <div class="blk" style="background:#FAFBFC;border-bottom:1px solid #E9EBEF"></div>
+            <div class="meta"><b>空态 / 禁用面</b><code>--sunken #FAFBFC</code><em>空槽位、导入位、禁用背景</em></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd"><div><h3>文字与描边</h3><p>三级文字 + 两级描边，不额外定义第四级灰</p></div><span class="badge">Ink</span></div>
+        <div class="grid2">
+          <div>
+            <table class="tbl">
+              <tr><th>令牌</th><th>色值</th><th>用途</th><th>对比度</th></tr>
+              <tr><td>--ink</td><td class="mono">#12141A</td><td>标题、数值、主文案</td><td><span class="cr aa">18.9:1</span></td></tr>
+              <tr><td>--ink-2</td><td class="mono">#5B6472</td><td>说明、次要信息、正文</td><td><span class="cr aa">5.8:1</span></td></tr>
+              <tr><td>--ink-3</td><td class="mono">#9AA0AA</td><td>占位、时间、禁用文字</td><td><span class="cr no">2.7:1</span></td></tr>
+              <tr><td>--border</td><td class="mono">#E9EBEF</td><td>卡片 1px 描边</td><td><span class="cr">装饰</span></td></tr>
+              <tr><td>--border-strong</td><td class="mono">#DDE1E8</td><td>虚线空槽、分割</td><td><span class="cr">装饰</span></td></tr>
+            </table>
+            <p class="tbl-note">--ink-3 仅用于 ≥10px 的辅助信息；若该信息决定操作（如“已过期”），必须换用 --ink-2 或加状态色。</p>
+          </div>
+          <div>
+            <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px">
+              <div style="font-size:26px;font-weight:700;line-height:1.3">工作台</div>
+              <div style="font-size:11px;color:#5B6472;margin-top:4px">像素幻想 3 · 已注入 4 项</div>
+              <div style="font-size:12px;color:#5B6472;margin-top:14px;line-height:1.7">正文使用 12px / 1.58，用于任务名、参数说明与描述；一行不超过 34 个汉字。</div>
+              <div style="font-size:10px;color:#9AA0AA;margin-top:10px">10px 仅承载“辅助”信息，不承载操作</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd"><div><h3>强调色与状态色</h3><p>fill / ink 双档：块面用 fill，文字用 ink</p></div><span class="badge warn">关键</span></div>
+        <table class="tbl">
+          <tr><th>语义</th><th>fill（块面 / 线条）</th><th>ink（文字）</th><th>浅底</th><th>使用场景</th></tr>
+          <tr>
+            <td>强调 / 可操作</td>
+            <td class="mono">#2563EB</td>
+            <td class="mono">#2563EB</td>
+            <td><span class="chip" style="background:#EFF4FF;border-color:#B9CBF2;color:#2563EB">#EFF4FF</span></td>
+            <td>主按钮、滑杆、当前 Tab、可领取进度</td>
+          </tr>
+          <tr>
+            <td>成功 / 正向</td>
+            <td class="mono">#10B981</td>
+            <td class="mono">#059669</td>
+            <td><span class="chip" style="background:#ECFDF5;border-color:#C7F0DF;color:#059669">#ECFDF5</span></td>
+            <td>增量数值、已完成、使用中</td>
+          </tr>
+          <tr>
+            <td>警示 / 未达成</td>
+            <td class="mono">#F59E0B</td>
+            <td class="mono">#B45309</td>
+            <td><span class="chip" style="background:#FFF8EE;border-color:#FBE3BE;color:#B45309">#FFF8EE</span></td>
+            <td>风险提示条、未达成进度、超限输入</td>
+          </tr>
+          <tr>
+            <td>危险 / 不可逆</td>
+            <td class="mono">#DC2626</td>
+            <td class="mono">#DC2626</td>
+            <td><span class="chip" style="background:#FEF2F2;border-color:#FBD5D5;color:#DC2626">#FEF2F2</span></td>
+            <td>仅用于“清空备份 / 删除模型”等确认场景</td>
+          </tr>
+        </table>
+        <p class="tbl-note">注意：<code>#10B981</code> 在白底上的对比度仅 2.6:1，因此<b>不允许</b>直接用作小字号文字；文字统一用 <code>#059669</code>。这是原稿中唯一需要修正的地方。</p>
+      </div>
+    </section>
+
+    <!-- ========== 03 字体 ========== -->
+    <section class="sec" id="type">
+      <div class="sec-head">
+        <div class="kicker">03 · Typography</div>
+        <h2>字体：中文 Noto Sans SC，数字 Inter</h2>
+        <p>中文负责语义，数字负责比对。所有数字启用 tabular-nums，确保不同位数的数值在纵向排列时小数点与千分位对齐。</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd"><div><h3>字阶</h3><p>8 级足够覆盖全部界面，不建议再引入第 9 级</p></div><span class="badge">Scale</span></div>
+        <div class="type-row">
+          <div class="sample t-display">工作台</div>
+          <div class="spec">Display · 26 / 32 · Bold · 中文</div>
+        </div>
+        <div class="type-row">
+          <div class="sample t-h2">装配装备</div>
+          <div class="spec">H2 二级页标题 · 17 / 24 · SemiBold</div>
+        </div>
+        <div class="type-row">
+          <div class="sample t-card">数值修改</div>
+          <div class="spec">Card Title · 14 / 20 · SemiBold</div>
+        </div>
+        <div class="type-row">
+          <div class="sample t-body">每日签到 · 离线奖励</div>
+          <div class="spec">Body · 12 / 19 · Regular</div>
+        </div>
+        <div class="type-row">
+          <div class="sample t-cap">进度 9 / 10 · 奖励 8,000 金币</div>
+          <div class="spec">Caption · 10 / 15 · Regular</div>
+        </div>
+        <div class="type-row">
+          <div class="sample t-micro">+240 攻击</div>
+          <div class="spec">Micro · 9 / 13 · Medium</div>
+        </div>
+        <div class="type-row">
+          <div class="sample t-num">99,999,999</div>
+          <div class="spec">Numeric · 16 / 20 · SemiBold · tabular</div>
+        </div>
+        <div class="type-row">
+          <div class="sample t-numl">78%</div>
+          <div class="spec">Numeric L · 26 / 30 · Bold · tabular</div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-hd"><div><h3>字体族</h3><p>无网络依赖的系统栈</p></div></div>
+          <div class="code">
+            <span class="c">/* 中文 */</span><br>
+            <span class="k">font-family</span>: <span class="v">"Noto Sans SC"</span>, <span class="v">"HarmonyOS Sans SC"</span>,<br>
+            &nbsp;&nbsp;<span class="v">"PingFang SC"</span>, <span class="v">"Microsoft YaHei"</span>, <span class="k">sans-serif</span>;<br><br>
+            <span class="c">/* 数字 / 等宽 */</span><br>
+            <span class="k">font-family</span>: <span class="v">"Inter"</span>, <span class="k">system-ui</span>;<br>
+            <span class="k">font-variant-numeric</span>: <span class="n">tabular-nums</span>;
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-hd"><div><h3>使用规则</h3><p>四条硬约束</p></div></div>
+          <ul class="dot-list">
+            <li><b>同层级同字号</b>：所有页面主标题都是 26；二级页标题都是 17，不因内容多少调整。</li>
+            <li><b>数字必右对齐</b>：KPI、参数值、增量统一右对齐，形成可扫读的数值列。</li>
+            <li><b>行高固定</b>：12px 正文配 19，10px 辅助配 15，避免逐块微调导致节奏散乱。</li>
+            <li><b>不用字重做层级</b>：层级靠字号 + 颜色，字重只在标题与数值上用 SemiBold / Bold。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 04 间距 ========== -->
+    <section class="sec" id="space">
+      <div class="sec-head">
+        <div class="kicker">04 · Spacing &amp; Radius</div>
+        <h2>间距：4pt 为步长，14 是唯一例外</h2>
+        <p>其余所有间距都落在 4 的倍数上；只有卡片间距取 14，原因是在 390 宽下 16 显得松散、12 又过于拥挤，14 是“一屏四卡”的最佳密度。</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd"><div><h3>间距序列</h3><p>单位 px</p></div><span class="badge">Spacing</span></div>
+        <div class="space-row"><div class="lbl">页面左右边距</div><div class="bar" style="width:20px"></div><div class="val">20 · --sp-page</div></div>
+        <div class="space-row"><div class="lbl">卡片间距</div><div class="bar" style="width:14px;background:#FDF1DC;border-color:#F5D9A8"></div><div class="val">14 · --sp-card（例外值）</div></div>
+        <div class="space-row"><div class="lbl">卡片内边距</div><div class="bar" style="width:16px"></div><div class="val">16 · --sp-pad</div></div>
+        <div class="space-row"><div class="lbl">卡内元素间距</div><div class="bar" style="width:12px"></div><div class="val">12 · --sp-in</div></div>
+        <div class="space-row"><div class="lbl">紧密元素</div><div class="bar" style="width:8px"></div><div class="val">8 · --sp-xs</div></div>
+        <div class="space-row"><div class="lbl">数值与标签</div><div class="bar" style="width:4px"></div><div class="val">4 · --sp-2xs</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd"><div><h3>圆角</h3><p>按“容器层级”分配，不按元素大小</p></div><span class="badge">Radius</span></div>
+        <div class="radius-row">
+          <div class="radius-item"><div class="box" style="border-radius:36px"></div><b>36 · 胶囊</b><span>Tab 胶囊</span></div>
+          <div class="radius-item"><div class="box" style="border-radius:26px"></div><b>26 · Tab 项</b><span>胶囊内单项</span></div>
+          <div class="radius-item"><div class="box" style="border-radius:18px"></div><b>18 · 卡片</b><span>一级卡片</span></div>
+          <div class="radius-item"><div class="box" style="border-radius:16px"></div><b>16 · 内嵌卡</b><span>槽位、任务、参数</span></div>
+          <div class="radius-item"><div class="box" style="border-radius:12px"></div><b>12 · 块</b><span>KPI、提示条、按钮</span></div>
+          <div class="radius-item"><div class="box" style="border-radius:9px"></div><b>9 · 段</b><span>分段控制器选中项</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd"><div><h3>投影</h3><p>只给“浮起于内容之上”的元素，卡片一律用描边</p></div><span class="badge warn">不要滥用</span></div>
+        <div class="grid3">
+          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(18,20,26,.04);border:1px solid #E9EBEF">
+            <div style="font-size:11px;font-weight:500">e1 · 卡片默认</div>
+            <div class="mono" style="color:#9AA0AA;font-size:10px;margin-top:6px">0 1px 2px / 4%</div>
+            <div style="font-size:10px;color:#5B6472;margin-top:8px;line-height:1.6">几乎不可见，仅防止纯白卡贴在浅灰底上“发飘”。</div>
+          </div>
+          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(18,20,26,.06);border:1px solid #E9EBEF">
+            <div style="font-size:11px;font-weight:500">e2 · 悬浮层</div>
+            <div class="mono" style="color:#9AA0AA;font-size:10px;margin-top:6px">0 6px 18px / 6%</div>
+            <div style="font-size:10px;color:#5B6472;margin-top:8px;line-height:1.6">胶囊 Tab 栏，暗示它悬浮于滚动内容之上。</div>
+          </div>
+          <div style="background:#2563EB;border-radius:12px;padding:14px;box-shadow:0 8px 20px rgba(37,99,235,.28);color:#fff">
+            <div style="font-size:11px;font-weight:500">e3 · 主 CTA</div>
+            <div class="mono" style="color:rgba(255,255,255,.72);font-size:10px;margin-top:6px">0 8px 20px / 28%</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.86);margin-top:8px;line-height:1.6">固定底部的主按钮专用，用主色的投影形成“按下感”。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 05 栅格 ========== -->
+    <section class="sec" id="grid">
+      <div class="sec-head">
+        <div class="kicker">05 · Grid</div>
+        <h2>栅格：390 宽、20 页边距、350 内容区</h2>
+        <p>所有横向排列都从 350 内容宽推导，不出现“目测得来的宽度”。下表的列宽公式可直接写进布局代码。</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd"><div><h3>常用栅格</h3><p>gap 之外的所有剩余空间均分</p></div><span class="badge">Layout</span></div>
+        <table class="tbl">
+          <tr><th>模式</th><th>列数</th><th>列宽</th><th>间距</th><th>公式 / 用途</th></tr>
+          <tr><td>单列卡片流</td><td>1</td><td>350</td><td>14</td><td>主屏四卡、任务列表</td></tr>
+          <tr><td>三列槽位</td><td>3</td><td>110</td><td>10</td><td>(350 − 20) / 3，装配装备 6 槽</td></tr>
+          <tr><td>四槽位</td><td>4</td><td>72</td><td>8</td><td>(350 − 24) / 4，主屏装备摘要</td></tr>
+          <tr><td>两列缩略图</td><td>2</td><td>170</td><td>10</td><td>(350 − 10) / 2，模型库</td></tr>
+          <tr><td>三等分 KPI</td><td>3</td><td>101</td><td>8</td><td>(318 − 16) / 3，卡内边距 16 后计算</td></tr>
+        </table>
+        <p class="tbl-note">竖向安全区：状态栏 62，底部安全区 21（胶囊 Tab 容器 12 + 62 + 21 = 95）；二级页固定 CTA 区高 96。</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd"><div><h3>纵向骨架</h3><p>主屏与二级页的固定高度分配（示意，非等比）</p></div></div>
+        <div class="grid2">
+          <div>
+            <div style="font-size:11px;font-weight:500;margin-bottom:8px">主屏 · 带胶囊 Tab</div>
+            <div style="border:1px solid var(--border);border-radius:14px;overflow:hidden">
+              <div style="height:34px;background:#EFF1F4;display:flex;align-items:center;padding:0 10px;font-size:9px;color:#5B6472">状态栏 62</div>
+              <div style="height:70px;background:#fff;display:flex;align-items:center;padding:0 10px;font-size:9px;color:#5B6472;border-top:1px solid #F1F3F6">标题 + 分段 96</div>
+              <div style="height:150px;background:#F7F8FA;display:flex;align-items:center;justify-content:center;font-size:9px;color:#5B6472;border-top:1px solid #F1F3F6">滚动内容区 弹性</div>
+              <div style="height:44px;background:#EFF1F4;display:flex;align-items:center;padding:0 10px;font-size:9px;color:#5B6472;border-top:1px solid #F1F3F6">Tab 容器 95</div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:500;margin-bottom:8px">二级页 · 固定 CTA</div>
+            <div style="border:1px solid var(--border);border-radius:14px;overflow:hidden">
+              <div style="height:34px;background:#EFF1F4;display:flex;align-items:center;padding:0 10px;font-size:9px;color:#5B6472">状态栏 62</div>
+              <div style="height:54px;background:#fff;display:flex;align-items:center;padding:0 10px;font-size:9px;color:#5B6472;border-top:1px solid #F1F3F6">导航栏 44 + 间距</div>
+              <div style="height:150px;background:#F7F8FA;display:flex;align-items:center;justify-content:center;font-size:9px;color:#5B6472;border-top:1px solid #F1F3F6">滚动内容区 弹性</div>
+              <div style="height:56px;background:#E7EEFD;display:flex;align-items:center;padding:0 10px;font-size:9px;color:#2563EB;border-top:1px solid #D3E0FA">CTA 区 96（含安全区）</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 06 图标 ========== -->
+    <section class="sec" id="icon">
+      <div class="sec-head">
+        <div class="kicker">06 · Icons</div>
+        <h2>图标：线性、圆头、尺寸跟随文字</h2>
+        <p>全站只用一套 24 栅格线性图标，描边 1.8–2px，端点圆头。图标尺寸由所在文本层级决定，不单独设计“大图标风格”。</p>
+      </div>
+      <div class="panel">
+        <div class="grid2">
+          <div class="canvas" style="gap:26px">
+            <div style="text-align:center">
+              <div class="ico" style="width:20px;height:20px;margin:0 auto">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M18 4l2 2-9 9-3-3 10-8z" stroke="#2563EB" stroke-width="2" stroke-linejoin="round"/><path d="M7 14l3 3M4 20l3-3" stroke="#2563EB" stroke-width="2" stroke-linecap="round"/></svg>
+              </div>
+              <div style="font-size:9px;color:#5B6472;margin-top:8px">20 · 卡内</div>
+            </div>
+            <div style="text-align:center">
+              <div class="ico" style="width:18px;height:18px;margin:0 auto">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="#12141A" stroke-width="1.8" stroke-linecap="round"/><circle cx="8.5" cy="6" r="2.2" fill="#12141A"/><circle cx="15.5" cy="12" r="2.2" fill="#12141A"/><circle cx="10.5" cy="18" r="2.2" fill="#12141A"/></svg>
+              </div>
+              <div style="font-size:9px;color:#5B6472;margin-top:8px">18 · Tab</div>
+            </div>
+            <div style="text-align:center">
+              <div class="ico" style="width:16px;height:16px;margin:0 auto">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l9.5 17H2.5L12 3z" stroke="#D97706" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9.5v4M12 16.6v.2" stroke="#D97706" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </div>
+              <div style="font-size:9px;color:#5B6472;margin-top:8px">16 · 行内</div>
+            </div>
+          </div>
+          <div>
+            <table class="tbl">
+              <tr><th>场景</th><th>尺寸</th><th>描边</th><th>颜色</th></tr>
+              <tr><td>卡片内 / 列表行</td><td class="mono">20</td><td class="mono">2.0</td><td>--accent 或 --ink</td></tr>
+              <tr><td>胶囊 Tab</td><td class="mono">18</td><td class="mono">1.8</td><td>随文字（active / inactive）</td></tr>
+              <tr><td>提示条 / 行内</td><td class="mono">16</td><td class="mono">1.8</td><td>语义 ink 色</td></tr>
+              <tr><td>空态 / 导入位</td><td class="mono">24</td><td class="mono">2.0</td><td>--ink-3</td></tr>
+            </table>
+            <ul class="dot-list" style="margin-top:12px">
+              <li>不使用填充图标；若必须实心（如 Tab 激活态），保持同轮廓。</li>
+              <li>图标不单独上色：跟随所在文字的颜色，避免界面出现第二种强调色。</li>
+              <li>可点击图标必须有 36×36 的视觉底座（圆形白底 + 1px 描边），以保证可发现性。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 07 组件 ========== -->
+    <section class="sec" id="comp">
+      <div class="sec-head">
+        <div class="kicker">07 · Components</div>
+        <h2>组件全谱：11 类，覆盖全部页面</h2>
+        <p>每个组件给出「尺寸 × 变体 × 状态」，并标注可复用的边界。新页面只能组合这些组件，不新增形态。</p>
+      </div>
+
+      <!-- 7.1 卡片 -->
+      <div class="panel" id="c-card">
+        <div class="panel-hd">
+          <div><h3>7.1 · AppCard 卡片</h3><p>所有内容的最小容器，4 种形态</p></div>
+          <span class="badge accent">基础</span>
+        </div>
+        <div class="grid2">
+          <div class="canvas stack">
+            <div class="m">
+              <div class="card" style="margin-bottom:14px">
+                <div class="card-hd"><span class="tt">数值修改</span><span class="act">编辑参数</span></div>
+                <div class="kpis">
+                  <div class="kpi"><div class="k">生命值</div><div class="v">9,999</div></div>
+                  <div class="kpi"><div class="k">金币</div><div class="v">99,999</div></div>
+                  <div class="kpi lb"><div class="k">攻击</div><div class="v">1,240</div></div>
+                </div>
+              </div>
+              <div class="card" style="display:flex;align-items:center;gap:12px;padding:14px">
+                <div class="ico" style="width:44px;height:44px;border-radius:12px;background:#F4F5F7;display:flex;align-items:center;justify-content:center">
+                  <svg viewBox="0 0 24 24" fill="none" style="width:22px;height:22px"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" stroke="#2563EB" stroke-width="1.7" stroke-linejoin="round"/></svg>
+                </div>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:600">修改模型</div>
+                  <div style="font-size:10px;color:#5B6472;margin-top:2px">已载入 3 个模型 · 支持热替换</div>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px"><path d="M9 5l7 7-7 7" stroke="#9AA0AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+          </div>
+          <div>
+            <table class="tbl">
+              <tr><th>变体</th><th>内边距</th><th>间距</th><th>用途</th></tr>
+              <tr><td>标准卡</td><td class="mono">16</td><td class="mono">12</td><td>数值、任务、套装效果</td></tr>
+              <tr><td>行式卡</td><td class="mono">14</td><td class="mono">12</td><td>修改模型、设置项</td></tr>
+              <tr><td>内嵌卡</td><td class="mono">14</td><td class="mono">9</td><td>任务卡、参数卡、槽位（圆角 16）</td></tr>
+              <tr><td>空态卡</td><td class="mono">14</td><td class="mono">8</td><td>导入位（1px 虚线 + --sunken）</td></tr>
+            </table>
+            <ul class="dot-list spec-list">
+              <li>统一 1px <b>--border</b> 描边 + <b>e1</b> 微投影；不使用大面积投影。</li>
+              <li>卡片之间固定 <b>14</b>，卡片内部不允许出现 14。</li>
+              <li>卡内“次级块”（KPI、任务行）用 <b>--sub</b> 底 + 12 圆角，不叠加描边。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7.2 分段 -->
+      <div class="panel" id="c-seg">
+        <div class="panel-hd">
+          <div><h3>7.2 · Segmented 分段控制器</h3><p>页内筛选，3–4 段</p></div>
+          <span class="badge">导航</span>
+        </div>
+        <div class="grid2">
+          <div class="canvas stack">
+            <div class="m">
+              <div class="seg" style="margin-bottom:13px">
+                <span class="on">数值</span><span>装备</span><span>任务</span><span>模型</span>
+              </div>
+              <div class="seg">
+                <span class="on">可领取 2</span><span>进行中 1</span><span>已完成 7</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <table class="tbl">
+              <tr><th>属性</th><th>值</th></tr>
+              <tr><td>整体高度</td><td class="mono">40（4 内边距 + 32 项高）</td></tr>
+              <tr><td>轨道底色</td><td class="mono">#E8EAEE · 圆角 12</td></tr>
+              <tr><td>选中项</td><td class="mono">#FFFFFF + 圆角 9 + 1px 4% 投影</td></tr>
+              <tr><td>文字</td><td class="mono">11 / 选中 SemiBold，未选 Regular</td></tr>
+              <tr><td>段数</td><td class="mono">3 或 4，等宽均分</td></tr>
+            </table>
+            <ul class="dot-list spec-list">
+              <li>段数超过 4 时改用横向滚动 Chip，不用分段控制器。</li>
+              <li>可在文案中带数量（<b>可领取 2</b>），但数字不单独变色。</li>
+              <li>切换为纯前端状态，不触发页面跳转，120ms 内完成高亮迁移。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7.3 Tab -->
+      <div class="panel" id="c-tab">
+        <div class="panel-hd">
+          <div><h3>7.3 · Pill Tab Bar 胶囊导航</h3><p>3–4 个一级目的地</p></div>
+          <span class="badge">导航</span>
+        </div>
+        <div class="grid2">
+          <div class="canvas">
+            <div class="m">
+              <div class="tabbar">
+                <div class="ti on">
+                  <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px"><path d="M3 6h18M3 12h18M3 18h18" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="8.5" cy="6" r="2.2" fill="#fff"/><circle cx="15.5" cy="12" r="2.2" fill="#fff"/><circle cx="10.5" cy="18" r="2.2" fill="#fff"/></svg>
+                  <span>数值</span>
+                </div>
+                <div class="ti">
+                  <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px"><path d="M18 4l2 2-9 9-3-3 10-8z" stroke="#8A909B" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 14l3 3M4 20l3-3" stroke="#8A909B" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  <span>装备</span>
+                </div>
+                <div class="ti">
+                  <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px"><path d="M8 6h12M8 12h12M8 18h8" stroke="#8A909B" stroke-width="1.8" stroke-linecap="round"/><circle cx="4" cy="6" r="1.6" fill="#8A909B"/><circle cx="4" cy="12" r="1.6" fill="#8A909B"/><circle cx="4" cy="18" r="1.6" fill="#8A909B"/></svg>
+                  <span>任务</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <table class="tbl">
+              <tr><th>属性</th><th>值</th></tr>
+              <tr><td>容器内边距</td><td class="mono">12 / 21 / 21 / 21</td></tr>
+              <tr><td>胶囊高度</td><td class="mono">62 · 圆角 36</td></tr>
+              <tr><td>单项</td><td class="mono">圆角 26 · 图标 18 + 文字 10</td></tr>
+              <tr><td>激活态</td><td class="mono">#12141A 实底 + 白字白图标</td></tr>
+              <tr><td>未激活</td><td class="mono">透明底 + #8A909B</td></tr>
+            </table>
+            <ul class="dot-list spec-list">
+              <li>激活态必须<b>实底</b>，不能只改文字颜色——这是全局导航的锚点。</li>
+              <li>Tab 状态用 IndexedStack 保留，切回不重置滚动位置。</li>
+              <li>页面滚动内容要预留底部 95 的内边距，避免被胶囊遮挡。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7.4 按钮 -->
+      <div class="panel" id="c-btn">
+        <div class="panel-hd">
+          <div><h3>7.4 · Button 按钮</h3><p>1 个主、2 个次、1 个禁用 + 加载态</p></div>
+          <span class="badge accent">交互</span>
+        </div>
+        <div class="canvas stack">
+          <div class="m">
+            <div class="btn btn-p" style="width:100%;margin-bottom:12px">写入 3 项改动</div>
+            <div style="display:flex;gap:10px;margin-bottom:12px">
+              <div class="btn btn-sec" style="flex:1">次按钮</div>
+              <div class="btn btn-sec" style="flex:1;opacity:.5">加载中</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center">
+              <div class="btn btn-s">领取</div>
+              <div class="btn btn-ghost">去完成</div>
+              <div class="btn btn-dis">已领取</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid2" style="margin-top:14px">
+          <table class="tbl">
+            <tr><th>变体</th><th>高度</th><th>字号 / 字重</th><th>圆角</th><th>用途</th></tr>
+            <tr><td>Primary 全宽</td><td class="mono">52</td><td class="mono">13 / Semibold</td><td class="mono">16</td><td>二级页唯一主 CTA</td></tr>
+            <tr><td>Primary 小</td><td class="mono">28 (26)</td><td class="mono">10 / Medium</td><td class="mono">13</td><td>卡内“领取”</td></tr>
+            <tr><td>Secondary</td><td class="mono">38</td><td class="mono">12 / Medium</td><td class="mono">12</td><td>次级操作、切换</td></tr>
+            <tr><td>Ghost 描边</td><td class="mono">26</td><td class="mono">10 / Medium</td><td class="mono">13</td><td>“去完成”等轻操作</td></tr>
+            <tr><td>Disabled</td><td class="mono">26</td><td class="mono">10 / Medium</td><td class="mono">13</td><td>已完成、不可用</td></tr>
+          </table>
+          <div>
+            <ul class="dot-list">
+              <li><b>一屏一主 CTA</b>：二级页只允许一个 Primary，固定在底部安全区内。</li>
+              <li><b>加载态</b>：文字改为「正在写入…」并禁用点击，不做全屏 loading。</li>
+              <li><b>触控热区</b>：视觉高 &lt; 44 的按钮（26 / 28）必须外扩透明 padding 至 44。</li>
+              <li><b>禁用不等于隐藏</b>：已领取的按钮保留在原位，只换灰阶，避免布局跳动。</li>
+              <li><b>按压反馈</b>：背景压暗 8%（accent → #1D4ED8），110ms 回弹。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7.5 数值块 -->
+      <div class="panel" id="c-kpi">
+        <div class="panel-hd">
+          <div><h3>7.5 · KPI 数值块</h3><p>卡内的三个关键值</p></div>
+          <span class="badge">数据</span>
+        </div>
+        <div class="grid2">
+          <div class="canvas stack">
+            <div class="m">
+              <div class="kpis">
+                <div class="kpi"><div class="k">生命值</div><div class="v">9,999</div></div>
+                <div class="kpi"><div class="k">金币</div><div class="v">99,999</div></div>
+                <div class="kpi lb"><div class="k">攻击</div><div class="v">1,240</div></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <table class="tbl">
+              <tr><th>属性</th><th>值</th></tr>
+              <tr><td>块样式</td><td class="mono">--sub 底 · 圆角 12 · 内边距 10</td></tr>
+              <tr><td>标签</td><td class="mono">10 / Regular / --ink-2</td></tr>
+              <tr><td>数值</td><td class="mono">16 / SemiBold / tabular-nums</td></tr>
+              <tr><td>强调块</td><td class="mono">--accent-soft 底 + 蓝字（最多 1 个）</td></tr>
+            </table>
+            <ul class="dot-list spec-list">
+              <li>一卡最多 3 个 KPI；第 4 个起改为列表行。</li>
+              <li>强调块只标“本次改动影响最大”的那一项，形成视觉焦点。</li>
+              <li>数值溢出时降字号而非换行：16 → 14 → 13。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7.6 槽位 -->
+      <div class="panel" id="c-slot">
+        <div class="panel-hd">
+          <div><h3>7.6 · Slot 槽位卡</h3><p>装备位，3 列网格</p></div>
+          <span class="badge">数据</span>
+        </div>
+        <div class="grid2">
+          <div class="canvas stack">
+            <div class="m">
+              <div class="slots">
+                <div class="slot">
+                  <div class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M18 4l2 2-9 9-3-3 10-8z" stroke="#2563EB" stroke-width="2" stroke-linejoin="round"/><path d="M7 14l3 3M4 20l3-3" stroke="#2563EB" stroke-width="2" stroke-linecap="round"/></svg></div>
+                  <div class="n">龙牙刃</div><div class="a">+240 攻击</div>
+                </div>
+                <div class="slot">
+                  <div class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v6c0 4.2-3 7.2-7 9-4-1.8-7-4.8-7-9V6l7-3z" stroke="#2563EB" stroke-width="2" stroke-linejoin="round"/></svg></div>
+                  <div class="n">秘银铠</div><div class="a">+180 防御</div>
+                </div>
+                <div class="slot empty">
+                  <div class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#C0C6D0" stroke-width="2" stroke-linecap="round"/></svg></div>
+                  <div class="n">空槽位</div><div class="a">点击装配</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <table class="tbl">
+              <tr><th>属性</th><th>值</th></tr>
+              <tr><td>尺寸</td><td class="mono">110 × 92（固定）</td></tr>
+              <tr><td>内边距 / 间距</td><td class="mono">12 / 8</td></tr>
+              <tr><td>圆角 / 描边</td><td class="mono">16 / 1px --border</td></tr>
+              <tr><td>图标 / 名称 / 属性</td><td class="mono">20 · 11/500 · 9/400</td></tr>
+              <tr><td>空态</td><td class="mono">--sunken 底 + 1px 虚线 --border-strong</td></tr>
+            </table>
+            <ul class="dot-list spec-list">
+              <li>固定 110×92 保证 6 槽两行等距，名称不换行（超 5 字截断加省略号）。</li>
+              <li>属性行只用 <b>--accent</b> 一个颜色，不按稀有度上色。</li>
+              <li>空槽必须可点，虚线是唯一“非实线”描边使用场景。</li>
+              <li>B 装配装备用 <b>2×2 的 4 槽位形态</b>（想象力槽位）；本阶段只有「一键装配」，槽位卡只展示状态，不承担单槽操作。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7.7 任务卡 -->
+      <div class="panel" id="c-task">
+        <div class="panel-hd">
+          <div><h3>7.7 · Task 任务卡</h3><p>一张卡承载三种状态</p></div>
+          <span class="badge accent">状态</span>
+        </div>
+        <div class="canvas stack">
+          <div class="m" style="display:grid;gap:12px">
+            <div class="task">
+              <div class="task-hd"><span class="n">清剿荒原狼群 ×10</span><span class="btn btn-s">领取</span></div>
+              <div class="meta">进度 9 / 10 · 奖励 8,000 金币</div>
+              <div class="bar"><i style="width:90%"></i></div>
+            </div>
+            <div class="task">
+              <div class="task-hd"><span class="n">装备强化至 +5</span><span class="btn btn-ghost">去完成</span></div>
+              <div class="meta">进度 3 / 5 · 奖励 珍稀图纸 ×1</div>
+              <div class="bar"><i class="warn" style="width:60%"></i></div>
+            </div>
+            <div class="task">
+              <div class="task-hd"><span class="n" style="color:#6B7280">首次离线挂机</span><span class="btn btn-dis">已领取</span></div>
+              <div class="meta" style="color:#9AA0AA">已完成 · 已获得 5,000 金币</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid2" style="margin-top:14px">
+          <table class="tbl">
+            <tr><th>状态</th><th>按钮</th><th>进度条</th><th>文字</th></tr>
+            <tr><td>可领取</td><td>Primary 小（蓝底）</td><td>蓝 90–100%</td><td>--ink / --ink-2</td></tr>
+            <tr><td>进行中</td><td>Ghost（蓝描边）</td><td>琥珀 5–99%</td><td>--ink / --ink-2</td></tr>
+            <tr><td>已领取</td><td>Disabled（灰底）</td><td>不显示</td><td>--ink-2 / --ink-3</td></tr>
+          </table>
+          <div>
+            <ul class="dot-list">
+              <li>状态切换时<b>按钮位置不变</b>，仅换样式，避免卡片高度跳动。</li>
+              <li>进度条一定要有数值文案（9 / 10），颜色只是辅助。</li>
+              <li>已完成卡不显示进度条，用文案「已完成」替代，减少视觉噪声。</li>
+              <li>奖励统一写在 meta 行末尾，不单独做奖励图标。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7.8 参数滑杆 -->
+      <div class="panel" id="c-param">
+        <div class="panel-hd">
+          <div><h3>7.8 · Param 参数卡 + 滑杆</h3><p>数值修改页的核心组件</p></div>
+          <span class="badge accent">交互</span>
+        </div>
+        <div class="canvas stack">
+          <div class="m">
+            <div class="presets" style="margin-bottom:12px">
+              <div class="preset">安全</div>
+              <div class="preset on">激进 · 当前</div>
+              <div class="preset">极限</div>
+            </div>
+            <div class="card" style="border-radius:16px;padding:14px;margin-bottom:12px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                <span style="font-size:12px;font-weight:500">生命值</span>
+                <span style="font-size:15px;font-weight:600;color:#2563EB;font-variant-numeric:tabular-nums">9,999</span>
+              </div>
+              <div class="slider">
+                <div class="track"></div>
+                <div class="fill" style="width:100%"></div>
+                <div class="knob" style="left:100%"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:9px">
+                <span style="font-size:9px;color:#9AA0AA">原始 1,200</span>
+                <span class="diff">↑ +8,799</span>
+              </div>
+            </div>
+            <div class="card" style="border-radius:16px;padding:14px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                <span style="font-size:12px;font-weight:500">攻击</span>
+                <span style="font-size:15px;font-weight:600;color:#2563EB;font-variant-numeric:tabular-nums">1,240</span>
+              </div>
+              <div class="slider">
+                <div class="track"></div>
+                <div class="fill" style="width:55%"></div>
+                <div class="knob" style="left:55%"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:9px">
+                <span style="font-size:9px;color:#9AA0AA">原始 620</span>
+                <span class="diff">↑ +620</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid2" style="margin-top:14px">
+          <table class="tbl">
+            <tr><th>部件</th><th>规格</th></tr>
+            <tr><td>轨道</td><td class="mono">高 5 · 圆角 3 · #E8EBF0</td></tr>
+            <tr><td>填充</td><td class="mono">--accent，宽度即百分比</td></tr>
+            <tr><td>滑块</td><td class="mono">14 圆 · 白底 + 2px 蓝边</td></tr>
+            <tr><td>触控区</td><td class="mono">高 44（视觉 16，上下各扩 14）</td></tr>
+            <tr><td>底行</td><td class="mono">9px：原始值 + 绿色增量</td></tr>
+          </table>
+          <div>
+            <ul class="dot-list">
+              <li><b>实时写值</b>：拖动即更新右上角数值，不做二次确认。</li>
+              <li>底行「原始 → 增量」让用户始终知道改了多少，避免失控。</li>
+              <li>超过安全阈值时，填充与数值转为 <b>--warning</b>，并给行内提示。</li>
+              <li>写入前展示 diff 汇总（绿色），主按钮文案带数量：「写入 3 项改动」。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7.9 标签与提示 -->
+      <div class="panel" id="c-misc">
+        <div class="panel-hd">
+          <div><h3>7.9 · 状态标签 / 提示条 / 导航栏</h3><p>小件但高频</p></div>
+          <span class="badge">辅助</span>
+        </div>
+        <div class="canvas stack">
+          <div class="m">
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px">
+              <span class="chipst">使用中</span>
+              <span class="chip" style="background:#FFF8EE;border-color:#FBE3BE;color:#B45309;height:24px;border-radius:12px;font-size:10px">未达成</span>
+              <span class="chip" style="height:24px;border-radius:12px;font-size:10px">已归档</span>
+            </div>
+            <div class="warn-strip" style="margin-bottom:16px">
+              <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;flex:0 0 auto"><path d="M12 3l9.5 17H2.5L12 3z" stroke="#D97706" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9.5v4M12 16.6v.2" stroke="#D97706" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <span>替换前请先退出游戏进程，否则资源不会热加载。</span>
+            </div>
+            <div class="navbar">
+              <div class="icbtn">
+                <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px"><path d="M15 5l-6 7 6 7" stroke="#12141A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="ttl">装配装备</div>
+              <div class="act">保存</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid2" style="margin-top:14px">
+          <table class="tbl">
+            <tr><th>元素</th><th>规格</th><th>说明</th></tr>
+            <tr><td>状态标签</td><td class="mono">高 24 · px 10 · 圆角 12</td><td>浅底 + ink 文字</td></tr>
+            <tr><td>提示条</td><td class="mono">px 12 · 圆角 12 · 1px 边</td><td>图标 16 + 10/15 文案</td></tr>
+            <tr><td>导航栏</td><td class="mono">高 44 · 圆钮 36</td><td>标题 17 居中，右侧动作 12</td></tr>
+          </table>
+          <div>
+            <ul class="dot-list">
+              <li>状态标签最多同屏 3 个，超过则归入详情。</li>
+              <li>提示条只承载“会阻断操作”的信息；普通说明用 --ink-3 文案。</li>
+              <li>导航栏返回按钮固定 36 圆形底座，点击热区 44。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- 7.10 渠道行与领取进度 -->
+      <div class="panel" id="c-claim">
+        <div class="panel-hd">
+          <div><h3>7.10 · Claim 渠道领取行 + 领取进度</h3><p>「领取所有奖励」的四类渠道与多步进度</p></div>
+          <span class="badge accent">状态</span>
+        </div>
+        <div class="canvas stack">
+          <div class="m">
+            <div class="task" style="padding:12px;border-radius:14px;gap:8px;margin-bottom:10px">
+              <div class="task-hd">
+                <span class="n">使命 · 全部栏目</span>
+                <span class="chip" style="height:24px;border-radius:12px;font-size:10px;background:var(--accent-soft);border:1px solid var(--accent-border);color:var(--accent)">可领取 1,203</span>
+              </div>
+              <div class="meta">一般 · 每日 · 每週 · 活动 · 公会</div>
+            </div>
+            <div class="task" style="padding:12px;border-radius:14px;gap:8px;margin-bottom:10px">
+              <div class="task-hd">
+                <span class="n">礼物盒</span>
+                <span class="chip" style="height:24px;border-radius:12px;font-size:10px;background:var(--sub);border:1px solid var(--border);color:var(--ink-2)">无内容</span>
+              </div>
+              <div class="meta">本版本存档无来源</div>
+            </div>
+            <div class="task" style="padding:12px;border-radius:14px;gap:8px;margin-bottom:16px">
+              <div class="task-hd">
+                <span class="n">赛季奖励</span>
+                <span class="chip" style="height:24px;border-radius:12px;font-size:10px;background:var(--success-soft);border:1px solid #C7F0DF;color:var(--success-ink)">✓ 已领取 3,016</span>
+              </div>
+              <div class="meta">通行证 · 活动等级</div>
+            </div>
+            <div class="card" style="padding:14px;border-radius:14px">
+              <div class="card-hd" style="margin-bottom:10px">
+                <span class="tt" style="font-size:12px">领取进度</span>
+                <span class="act" style="font-size:10px">第 2 / 4 步 · 礼物盒</span>
+              </div>
+              <div class="bar"><i style="width:25%"></i></div>
+              <div class="meta" style="font-size:10px;color:var(--ink-2);margin-top:8px">已到账 1,203 项 · 正在核对礼物盒</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid2" style="margin-top:14px">
+          <table class="tbl">
+            <tr><th>元素</th><th>规格</th><th>说明</th></tr>
+            <tr><td>渠道行</td><td class="mono">高 74 · px 12 · 圆角 14</td><td>复用 Task 卡两行形态，去掉进度条</td></tr>
+            <tr><td>行尾状态</td><td class="mono">chip 24 · 字号 10</td><td>可领取（蓝）/ 无内容（灰）/ ✓ 数量（绿）/ 失败（红）</td></tr>
+            <tr><td>进度条</td><td class="mono">高 4 · 圆角 2 · --accent</td><td>宽度 = 已完成步数 / 4</td></tr>
+            <tr><td>步骤文案</td><td class="mono">10px · --accent</td><td>第 n / 4 步 · 渠道名</td></tr>
+          </table>
+          <div>
+            <ul class="dot-list">
+              <li><b>顺序固定</b>：使命 → 礼物盒 → 赛季 → 活动角色，顺序文案常驻，不让用户猜。</li>
+              <li><b>行尾不撒谎</b>：没领过不显示，0 项写「无内容」，失败写「失败」，成功写 ✓ 数量。</li>
+              <li><b>失败即停</b>：中途失败立刻停下，已到账的保留，但绝不显示「全部完成」。</li>
+              <li><b>单行可点</b>：渠道行本身可单独领取（排障用），领取中全部禁用。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- 7.11 体检行与映射卡 -->
+      <div class="panel" id="c-model">
+        <div class="panel-hd">
+          <div><h3>7.11 · EnvRow 体检行 + MapSide 映射选择</h3><p>换模型页的「能不能用」与「换谁」</p></div>
+          <span class="badge accent">状态</span>
+        </div>
+        <div class="canvas stack">
+          <div class="m">
+            <div class="card" style="padding:6px;border-radius:14px;margin-bottom:12px">
+              <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;background:var(--sub);border-radius:9px">
+                <div style="width:18px;height:18px;border-radius:5px;background:var(--success-soft);border:1px solid #C7F0DF;display:flex;align-items:center;justify-content:center;color:var(--success-ink);font-size:10px;font-weight:700">✓</div>
+                <span style="font-size:11px">root</span>
+                <span style="margin-left:auto;font-size:11.5px;font-weight:600;color:var(--success-ink)">已授权</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;background:var(--sub);border-radius:9px;margin-top:3px">
+                <div style="width:18px;height:18px;border-radius:5px;background:var(--success-soft);border:1px solid #C7F0DF;display:flex;align-items:center;justify-content:center;color:var(--success-ink);font-size:10px;font-weight:700">✓</div>
+                <span style="font-size:11px">游戏进程</span>
+                <span style="margin-left:auto;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--success-ink)">运行中 · 4821</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;background:var(--sub);border-radius:9px;margin-top:3px">
+                <div style="width:18px;height:18px;border-radius:5px;background:var(--sunken);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;color:var(--ink-3);font-size:10px;font-weight:700">—</div>
+                <span style="font-size:11px">注入器</span>
+                <span style="margin-left:auto;font-size:11px;font-weight:600;color:var(--ink-3)">未启动</span>
+              </div>
+            </div>
+
+            <div class="card" style="padding:14px">
+              <div class="card-hd"><span class="tt">替换映射</span><span class="chipst">同一骨架集</span></div>
+              <div style="display:flex;align-items:center;gap:10px;background:var(--sub);border-radius:12px;padding:10px 12px">
+                <div style="width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-family:var(--mono);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 auto">A</div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:13px;font-weight:600">桐人</div>
+                  <div style="font-family:var(--mono);font-size:9px;color:var(--ink-3);margin-top:1px">kirito_cathedral</div>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;flex:0 0 auto"><path d="M9 5l7 7-7 7" stroke="#9AA0AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div style="font-size:10px;color:var(--ink-2);margin:8px 0 8px 12px">↓ 替换成</div>
+              <div style="display:flex;align-items:center;gap:10px;background:var(--sub);border-radius:12px;padding:10px 12px">
+                <div style="width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-family:var(--mono);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 auto">B</div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:13px;font-weight:600">尤吉歐</div>
+                  <div style="font-family:var(--mono);font-size:9px;color:var(--ink-3);margin-top:1px">eugeo_woodcutter</div>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;flex:0 0 auto"><path d="M9 5l7 7-7 7" stroke="#9AA0AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div style="font-size:10px;color:var(--ink-2);margin-top:10px">只显示同一骨架集（chara_1）的角色。</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid2" style="margin-top:14px">
+          <table class="tbl">
+            <tr><th>元素</th><th>规格</th><th>说明</th></tr>
+            <tr><td>体检行</td><td class="mono">高 30 · 圆角 9</td><td>18 方块标记 + 标签 + 右值</td></tr>
+            <tr><td>体检标记</td><td class="mono">18 · 圆角 5</td><td>✓ 绿 / ✕ 红 / — 灰（未启动）</td></tr>
+            <tr><td>映射行</td><td class="mono">高 56 · px 12 · 圆角 12</td><td>A/B 圆标 24 + 名称/ID 两行</td></tr>
+            <tr><td>骨架集提示</td><td class="mono">10px · --ink-2</td><td>A 选定后只列同集候选</td></tr>
+          </table>
+          <div>
+            <ul class="dot-list">
+              <li><b>先体检再操作</b>：环境没通过时只解释原因，不出现预览与选择器。</li>
+              <li><b>不猜状态</b>：读取中写「读取中」，未知写「未知」，不拿占位事实下结论。</li>
+              <li><b>未启动不是坏了</b>：注入器未启动用灰色 —，不用红 ✕。</li>
+              <li><b>主 CTA 随环境变</b>：注入器没跑时先部署并 5 秒倒计时启动，再应用替换。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 08 状态 ========== -->
+    <section class="sec" id="states">
+      <div class="sec-head">
+        <div class="kicker">08 · States</div>
+        <h2>状态与反馈：每个异步动作都要有出口</h2>
+        <p>写入参数、加载模型、领取奖励都是异步操作，必须覆盖“进行中 / 成功 / 失败 / 空”四种结果，且失败可重试。</p>
+      </div>
+      <div class="panel">
+        <table class="tbl">
+          <tr><th>状态</th><th>表现</th><th>位置</th><th>退出条件</th></tr>
+          <tr><td>加载</td><td>CTA 文案改「正在写入…」+ 按钮禁用，不盖全屏遮罩</td><td>原按钮位置</td><td>请求返回</td></tr>
+          <tr><td>成功</td><td>SnackBar「已写入 3 项参数」，3s 自动消失；数据即时刷新</td><td>底部，避让 CTA 96</td><td>自动</td></tr>
+          <tr><td>失败</td><td>同位置红色 SnackBar +「重试」动作，参数不丢失</td><td>底部</td><td>手动关闭 / 重试</td></tr>
+          <tr><td>空态</td><td>虚线导入位 + 一句说明，不渲染空网格</td><td>内容区</td><td>导入后</td></tr>
+          <tr><td>超限</td><td>滑杆转琥珀 + 行内提示，主按钮置灰不可点</td><td>控件旁</td><td>回到合法区间</td></tr>
+        </table>
+        <p class="tbl-note">反馈遵循“就近原则”：错误出现在出错的控件旁，成功汇总在页面底部，不使用弹窗打断。</p>
+      </div>
+    </section>
+
+    <!-- ========== 09 动效 ========== -->
+    <section class="sec" id="motion">
+      <div class="sec-head">
+        <div class="kicker">09 · Motion</div>
+        <h2>动效：短、轻、只解释因果</h2>
+        <p>动效只用于表达“从哪里来、到哪里去”，不做装饰性动画。所有时长都在 240ms 以内，避免拖慢高频操作。</p>
+      </div>
+      <div class="panel">
+        <table class="tbl">
+          <tr><th>场景</th><th>时长</th><th>曲线</th><th>说明</th></tr>
+          <tr><td>按钮按压</td><td class="mono">110ms</td><td class="mono">ease-out</td><td>底色压暗 8%，松手回弹</td></tr>
+          <tr><td>分段切换</td><td class="mono">120ms</td><td class="mono">ease-out</td><td>白块位移 + 文字色过渡</td></tr>
+          <tr><td>卡片展开 / 收起</td><td class="mono">200ms</td><td class="mono">cubic(.2,.8,.2,1)</td><td>高度与透明度同步</td></tr>
+          <tr><td>二级页推入</td><td class="mono">240ms</td><td class="mono">cubic(.2,.8,.2,1)</td><td>右侧滑入，背景不动</td></tr>
+          <tr><td>数值变化</td><td class="mono">160ms</td><td class="mono">ease-out</td><td>数字滚动，禁止弹跳</td></tr>
+        </table>
+        <p class="tbl-note">触觉反馈：领取成功、写入成功各触发一次 lightImpact；失败用 selectionClick，不用重震动。</p>
+      </div>
+    </section>
+
+    <!-- ========== 10 无障碍 ========== -->
+    <section class="sec" id="a11y">
+      <div class="sec-head">
+        <div class="kicker">10 · Accessibility</div>
+        <h2>无障碍：可点、可读、不靠颜色</h2>
+        <p>以下五条为上线前必须逐条通过的检查项，任一条不满足都不算完成。</p>
+      </div>
+      <div class="panel">
+        <div class="grid2">
+          <ul class="dot-list">
+            <li><b>触控 ≥ 44×44</b>：26 / 28 高的按钮与滑块必须外扩透明热区。</li>
+            <li><b>正文 ≥ 12px</b>：10px 只承载辅助信息，9px 仅用于槽位属性等非关键值。</li>
+            <li><b>对比度</b>：正文对底色 ≥ 4.5:1；大字号 ≥ 3:1；禁用态可豁免但需有文案。</li>
+          </ul>
+          <ul class="dot-list">
+            <li><b>颜色不单独表意</b>：进度条同时给「9 / 10」，状态按钮同时有动词。</li>
+            <li><b>字号缩放 1.0–1.3</b>：三列 KPI 在 1.3 倍时切为两列；槽位名称最多两行。</li>
+            <li><b>焦点顺序</b>：标题 → 筛选 → 卡片（按视觉顺序）→ 底部 CTA，与阅读顺序一致。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 11 令牌 ========== -->
+    <section class="sec" id="tokens">
+      <div class="sec-head">
+        <div class="kicker">11 · Tokens</div>
+        <h2>令牌速查：可直接复制的 :root</h2>
+        <p>页面稿与组件样式只允许引用这些变量。新增色值需先在此处登记，否则视为实现偏差。</p>
+      </div>
+      <div class="code">
+<span class="c">/* 基础层 */</span><br>
+<span class="k">--bg</span>: <span class="v">#F4F5F7</span>;&nbsp;&nbsp;<span class="k">--surface</span>: <span class="v">#FFFFFF</span>;&nbsp;&nbsp;<span class="k">--sub</span>: <span class="v">#F7F8FA</span>;&nbsp;&nbsp;<span class="k">--sunken</span>: <span class="v">#FAFBFC</span>;<br>
+<span class="k">--border</span>: <span class="v">#E9EBEF</span>;&nbsp;&nbsp;<span class="k">--border-strong</span>: <span class="v">#DDE1E8</span>;<br><br>
+<span class="c">/* 文字 */</span><br>
+<span class="k">--ink</span>: <span class="v">#12141A</span>;&nbsp;&nbsp;<span class="k">--ink-2</span>: <span class="v">#5B6472</span>;&nbsp;&nbsp;<span class="k">--ink-3</span>: <span class="v">#9AA0AA</span>;<br><br>
+<span class="c">/* 语义色：fill 用于块面，ink 用于文字 */</span><br>
+<span class="k">--accent</span>: <span class="v">#2563EB</span>;&nbsp;&nbsp;<span class="k">--accent-press</span>: <span class="v">#1D4ED8</span>;&nbsp;&nbsp;<span class="k">--accent-soft</span>: <span class="v">#EFF4FF</span>;&nbsp;&nbsp;<span class="k">--accent-border</span>: <span class="v">#B9CBF2</span>;<br>
+<span class="k">--success</span>: <span class="v">#10B981</span>;&nbsp;&nbsp;<span class="k">--success-ink</span>: <span class="v">#059669</span>;&nbsp;&nbsp;<span class="k">--success-soft</span>: <span class="v">#ECFDF5</span>;<br>
+<span class="k">--warning</span>: <span class="v">#F59E0B</span>;&nbsp;&nbsp;<span class="k">--warning-ink</span>: <span class="v">#B45309</span>;&nbsp;&nbsp;<span class="k">--warning-soft</span>: <span class="v">#FFF8EE</span>;&nbsp;&nbsp;<span class="k">--warning-border</span>: <span class="v">#FBE3BE</span>;<br>
+<span class="k">--danger</span>: <span class="v">#DC2626</span>;<br><br>
+<span class="c">/* 圆角 */</span><br>
+<span class="k">--r-pill</span>: <span class="n">36px</span>;&nbsp;&nbsp;<span class="k">--r-tab</span>: <span class="n">26px</span>;&nbsp;&nbsp;<span class="k">--r-card</span>: <span class="n">18px</span>;&nbsp;&nbsp;<span class="k">--r-tile</span>: <span class="n">16px</span>;&nbsp;&nbsp;<span class="k">--r-inner</span>: <span class="n">12px</span>;&nbsp;&nbsp;<span class="k">--r-seg</span>: <span class="n">9px</span>;<br><br>
+<span class="c">/* 间距 */</span><br>
+<span class="k">--sp-page</span>: <span class="n">20px</span>;&nbsp;&nbsp;<span class="k">--sp-pad</span>: <span class="n">16px</span>;&nbsp;&nbsp;<span class="k">--sp-card</span>: <span class="n">14px</span>;&nbsp;&nbsp;<span class="k">--sp-in</span>: <span class="n">12px</span>;&nbsp;&nbsp;<span class="k">--sp-xs</span>: <span class="n">8px</span>;&nbsp;&nbsp;<span class="k">--sp-2xs</span>: <span class="n">4px</span>;<br><br>
+<span class="c">/* 投影 */</span><br>
+<span class="k">--e1</span>: <span class="v">0 1px 2px rgba(18,20,26,.04)</span>;&nbsp;&nbsp;<span class="c">/* 卡片 */</span><br>
+<span class="k">--e2</span>: <span class="v">0 6px 18px rgba(18,20,26,.06)</span>;&nbsp;&nbsp;<span class="c">/* 悬浮 Tab */</span><br>
+<span class="k">--e3</span>: <span class="v">0 8px 20px rgba(37,99,235,.28)</span>;&nbsp;&nbsp;<span class="c">/* 主 CTA */</span>
+      </div>
+    </section>
+
+    <!-- ========== 12 Flutter ========== -->
+    <section class="sec" id="flutter">
+      <div class="sec-head">
+        <div class="kicker">12 · Flutter</div>
+        <h2>映射：令牌 → ThemeData</h2>
+        <p>规范里的每个数值都有唯一的代码落点。组件不允许在页面内散写颜色与圆角，必须走主题或常量。</p>
+      </div>
+      <div class="panel">
+        <table class="tbl">
+          <tr><th>规范项</th><th>Flutter 落点</th><th>实现要点</th></tr>
+          <tr><td>主色 / 语义色</td><td class="mono">ColorScheme.fromSeed(#2563EB)</td><td>再覆写 surface / outline 为规范值，勿用默认 M3 紫</td></tr>
+          <tr><td>文字层级</td><td class="mono">TextTheme + 自定义 AppText</td><td>用 displaySmall / titleMedium / bodySmall / labelSmall 四档映射</td></tr>
+          <tr><td>卡片</td><td class="mono">AppCard</td><td>Container(decoration: BoxDecoration(border, borderRadius, boxShadow))</td></tr>
+          <tr><td>胶囊 Tab</td><td class="mono">PillTabBar</td><td>Container(62) + Row(Expanded) + AnimatedContainer 激活态</td></tr>
+          <tr><td>分段</td><td class="mono">SegmentedBar</td><td>不用 Material SegmentedButton（圆角/内边距不可控）</td></tr>
+          <tr><td>滑杆</td><td class="mono">SliderTheme</td><td>trackHeight 5，thumbRadius 7，overlayRadius 22</td></tr>
+          <tr><td>进度条</td><td class="mono">LinearProgressIndicator</td><td>minHeight 4，borderRadius 2，背景 #EDEFF3</td></tr>
+          <tr><td>栅格</td><td class="mono">SliverGridDelegateWithFixedCrossAxisCount</td><td>槽位 crossAxisCount 3 · childAspectRatio 110/92</td></tr>
+        </table>
+        <p class="tbl-note">建议把 token 写成 <code>lib/theme/tokens.dart</code> 中的 const（AppColors / AppRadius / AppSpace / AppShadow），页面只 import 常量，不写字面量。</p>
+      </div>
+    </section>
+
+    <!-- ========== 13 取舍 ========== -->
+    <section class="sec" id="decisions">
+      <div class="sec-head">
+        <div class="kicker">13 · Decisions</div>
+        <h2>设计取舍：六个被反复确认的判断</h2>
+        <p>每条都对应一个真实约束。后续若有人提出相反方案，请先对照这里的理由。</p>
+      </div>
+      <div class="panel">
+        <table class="tbl">
+          <tr><th>决策</th><th>理由</th><th>代价 / 边界</th></tr>
+          <tr>
+            <td>卡片只用描边，不用投影</td>
+            <td>浅色底上大面积投影会显脏，且一屏四卡叠加后边界模糊</td>
+            <td>卡片层次完全依赖留白，间距必须严格</td>
+          </tr>
+          <tr>
+            <td>主 CTA 固定底部</td>
+            <td>单手拇指区，写入类操作需要稳定可达</td>
+            <td>内容区要预留 96 底部内边距</td>
+          </tr>
+          <tr>
+            <td>装备用 3 列而非 2 列</td>
+            <td>6 槽两行即可一屏看完，2 列会多出一屏滚动</td>
+            <td>槽位文字只能 4–5 字，超出需截断</td>
+          </tr>
+          <tr>
+            <td>状态按钮不换位</td>
+            <td>按钮位置变化会引起误触与列表跳动</td>
+            <td>禁用态需要足够的灰阶对比才能识别</td>
+          </tr>
+          <tr>
+            <td>卡间距取 14（非 16）</td>
+            <td>390 宽下 16 显松、12 显挤，14 是四卡一屏的密度最优解</td>
+            <td>偏离 4pt 栅格，需以常量固化，避免被“顺手改回 16”</td>
+          </tr>
+          <tr>
+            <td>状态色拆 fill / ink</td>
+            <td>#10B981 作文字仅 2.6:1，不达标；拆两档同时满足观感与可读性</td>
+            <td>实现时需成对引用，不能只取 fill</td>
+          </tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ========== 14 页面 ========== -->
+    <section class="sec" id="pages">
+      <div class="sec-head">
+        <div class="kicker">14 · Pages</div>
+        <h2>页面清单：7 个面，按本规范实现</h2>
+        <p>规范先行，页面稿紧随其后。每个页面只组合上文的组件，不引入新形态；B、E、F 的四态完整稿见 <a href="equip.html" style="color:var(--accent)">design/equip.html</a>、<a href="model-swap.html" style="color:var(--accent)">design/model-swap.html</a>、<a href="claim-all.html" style="color:var(--accent)">design/claim-all.html</a>。</p>
+      </div>
+      <div class="panel">
+        <table class="tbl">
+          <tr><th>页面</th><th>主内容</th><th>用到的组件</th><th>状态</th></tr>
+          <tr><td>A 工作台</td><td>四张功能卡 + 分段筛选</td><td>分段、AppCard、KPI、槽位、任务卡、胶囊 Tab</td><td><span class="badge ok">已设计</span></td></tr>
+          <tr><td>B 装配装备</td><td>角色大图 + 4 个想象力槽位 + 装配规则 + 一键装配</td><td>大图预览、槽位卡、KPI、提示条、固定 CTA</td><td><span class="badge ok">已设计</span></td></tr>
+          <tr><td>C 任务领取</td><td>三态任务列表 + 使命一键领取</td><td>分段、任务卡、进度条、固定 CTA</td><td><span class="badge ok">已设计</span></td></tr>
+          <tr><td>D 数值修改</td><td>预设 + 4 条参数滑杆 + diff</td><td>预设 Chip、参数卡、滑杆、提示条、固定 CTA</td><td><span class="badge ok">已设计</span></td></tr>
+          <tr><td>E 修改模型</td><td>环境体检 + A→B 映射 + 模型预览 + 注入器</td><td>体检行、映射卡、预览画布、状态标签、日志行</td><td><span class="badge ok">已设计</span></td></tr>
+          <tr><td>F 领取所有奖励</td><td>四类渠道行 + 步骤进度 + 到账汇总</td><td>渠道领取行、领取进度、KPI、提示条、固定 CTA</td><td><span class="badge ok">已设计</span></td></tr>
+          <tr><td>G 设置 / 关于</td><td>偏好、备份、版本信息</td><td>行式卡、开关、状态标签</td><td><span class="badge warn">待产出</span></td></tr>
+        </table>
+        <p class="tbl-note">下一步：A、C、D 按本文件逐页产出 HTML 页面稿（每页一个自包含文件），并保持与规范中的令牌一致。</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd">
+          <div><h3>装配装备 · 规则与状态</h3><p>一次批量写入，关键在「只动该动的那几个字段」</p></div>
+          <span class="badge accent">交互</span>
+        </div>
+        <table class="tbl">
+          <tr><th>状态</th><th>界面表现</th><th>CTA</th><th>主文案</th></tr>
+          <tr><td>待装配</td><td>角色大图 + 4 槽位（3 已装配 1 空）+ KPI（角色 62 / 可装配 48 / 空槽 120）</td><td>一键装配所有角色 · 48 个</td><td>「已装配 3 / 4 槽位 · 库存 2 件」</td></tr>
+          <tr><td>装配中</td><td>进度条 52% + 「32 / 62」+ 日志行，CTA 禁用</td><td>正在装配…（32 / 62）</td><td>「已填 78 / 120 个空槽位」</td></tr>
+          <tr><td>已装配</td><td>成功条 + KPI（48 角色 / 120 槽位 / 跳过 14）+ 4 槽全装配态</td><td>完成</td><td>「已给 48 个角色装上专属想象力（共 120 个槽位）」</td></tr>
+          <tr><td>空态</td><td>空态卡 + KPI 全 0，不渲染假装配</td><td>返回</td><td>「没有需要装配的角色」</td></tr>
+          <tr><td>数据已更新</td><td>红色提示条 + 日志 stale 行</td><td>重启游戏后重试</td><td>「游戏端数据已更新，这次修改没生效。请重启游戏后再试一次」</td></tr>
+          <tr><td>读取失败</td><td>红色提示条，不把「读取失败」显示成「没有可装配角色」</td><td>重新读取</td><td>「读取角色表失败，请确认游戏在前台」</td></tr>
+          <tr><td>写入被拒</td><td>红色提示条 + 跳过的角色计数</td><td>重试</td><td>「游戏拒绝了这次修改，请重启游戏后再试」</td></tr>
+        </table>
+        <p class="tbl-note">装配规则：<b>只填空槽</b>（已有想象力的槽位不动）；<b>只装已解锁槽位</b>（最多 4 个）；每角色一个<b>专属想象力</b>（内置表 210 条）；多槽位使用<b>不同库存副本</b>；无专属 / 未解锁 / 无库存的角色如实跳过；写入带 <b>hash.before.pc 版本栅栏</b>，成功后提示重启游戏。</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd">
+          <div><h3>修改模型 · 状态与安全边界</h3><p>「不可逆感」很强的功能，边界必须写在界面上</p></div>
+          <span class="badge accent">交互</span>
+        </div>
+        <table class="tbl">
+          <tr><th>状态</th><th>界面表现</th><th>CTA</th><th>主文案</th></tr>
+          <tr><td>未查环境</td><td>体检卡三行「读取中」，不下任何结论</td><td>禁用</td><td>「正在读取设备状态」</td></tr>
+          <tr><td>无 root</td><td>root 红 ✕ 未授权 + 琥珀提示条</td><td>禁用</td><td>「这台手机没有 root，换模型用不了；其他功能不受影响」</td></tr>
+          <tr><td>游戏未运行</td><td>游戏进程 ✕ 没在跑 + 琥珀提示条</td><td>禁用</td><td>「先打开游戏再回来，注入要往游戏进程里挂」</td></tr>
+          <tr><td>注入器未启动</td><td>注入器灰 — 未启动；映射与预览仍可用</td><td>部署并启动注入（5 秒倒计时）</td><td>「点按钮后 5 秒开始注入，现在切回游戏保持前台」</td></tr>
+          <tr><td>未选择</td><td>A / B 均为「未选择」，预览空态，不渲染假模型</td><td>应用替换（禁用）</td><td>「先选角色 A，再选同一骨架集的角色 B」</td></tr>
+          <tr><td>已选可应用</td><td>A → B 映射 + 预览 + 骨架集提示</td><td>应用替换</td><td>「只显示同一骨架集（chara_1）的角色」</td></tr>
+          <tr><td>注入倒计时</td><td>大号 5 + 「切回游戏保持前台」+ 部署步骤行</td><td>正在部署注入器…（禁用）</td><td>「5 秒后开始注入」</td></tr>
+          <tr><td>已生效</td><td>成功提示条 + 生效中映射 + 注入日志</td><td>关闭替换</td><td>「替换已生效：桐人 → 尤吉歐；已加载的模型要重进场景刷新」</td></tr>
+          <tr><td>偏移对不上</td><td>红色提示条 + 日志错误行（OFFSET MISMATCH）</td><td>停止注入</td><td>「钩子偏移对不上：游戏可能已更新，换模型不会生效。请先停用本功能」</td></tr>
+        </table>
+        <p class="tbl-note">安全边界：<b>需 root</b>；<b>不写存档、不改游戏文件</b>，停止注入即完全还原；<b>改规则不热重载</b>，要重进场景或重启游戏；<b>只允许同骨架集互换</b>；注入器未运行时规则写了也不生效，所以主 CTA 先部署启动再应用。全库 2,570 个图集变体 / 2,032 张脸 / 528 条名称 / 5 个骨架集。</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd">
+          <div><h3>领取所有奖励 · 状态与文案</h3><p>多步异步领取必须说清楚「跑到哪、领到多少、为什么停」</p></div>
+          <span class="badge accent">交互</span>
+        </div>
+        <table class="tbl">
+          <tr><th>状态</th><th>界面表现</th><th>CTA</th><th>主文案</th></tr>
+          <tr><td>待领取</td><td>汇总卡（可领取总数 + 四类分布）+ 4 个渠道行</td><td>一键领取全部 · N 项</td><td>「本次可领取 4,219 项」</td></tr>
+          <tr><td>领取中</td><td>进度条 + 「第 2 / 4 步 · 渠道名」，行尾转 ···，全部可点项禁用</td><td>正在领取…（禁用）</td><td>「已到账 1,203 项 · 正在核对礼物盒」</td></tr>
+          <tr><td>完成</td><td>汇总卡转成功态 + 每行 ✓ 数量 + 日志摘要</td><td>完成</td><td>「共到账 4,219 项（使命 1,203，赛季 3,016，礼物盒 0，活动角色 0）」</td></tr>
+          <tr><td>空态</td><td>汇总卡 0 项，四行全部「无内容」，不渲染假的成功</td><td>返回</td><td>「没有可领取的东西」</td></tr>
+          <tr><td>部分失败</td><td>红色提示条 + 失败行标「失败」+ 未执行行保持灰色</td><td>从第 N 步重试</td><td>「已到账 1,203 项，停在 3 / 4 步：赛季被拒绝」</td></tr>
+          <tr><td>引擎未就绪</td><td>整页占位 + 重试按钮，不显示 0 项</td><td>重新连接</td><td>「游戏内接口未响应，请确认游戏在前台」</td></tr>
+        </table>
+        <p class="tbl-note">三条硬规则：<b>顺序固定且可见</b>（使命 → 礼物盒 → 赛季 → 活动角色）；<b>到账数只认游戏回应</b>，不按提交条数显示；<b>失败立即停</b>，不把前半段包装成「全部完成」。入口：A 工作台「任务领取」卡右侧「全部领取」；进入 F 之后也能单点某个渠道单独领取。</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd">
+          <div><h3>页面预览</h3><p>A–F 六个面按本规范实现后的样子，点击任意缩略图可放大查看</p></div>
+          <span class="badge ok">6 / 6</span>
+        </div>
+        <div class="pvgrid">
+
+          <!-- A 工作台 -->
+          <div class="pvcol">
+            <div class="thumb" data-page="A 工作台">
+              <div class="stage">
+                <div class="phone">
+                  <div class="sb"><span>9:41</span><span class="sb-bat"></span></div>
+                  <div class="pbody">
+                    <div class="p-hd">
+                      <div>
+                        <h4>工作台</h4>
+                        <div class="sub">像素幻想 3 · 已注入 4 项</div>
+                      </div>
+                      <div class="icbtn">
+                        <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px"><circle cx="10.5" cy="10.5" r="6.5" stroke="#12141A" stroke-width="1.9"/><path d="M15.5 15.5l4.5 4.5" stroke="#12141A" stroke-width="1.9" stroke-linecap="round"/></svg>
+                      </div>
+                    </div>
+                    <div class="seg"><span class="on">数值</span><span>装备</span><span>任务</span><span>模型</span></div>
+                    <div class="card">
+                      <div class="card-hd"><span class="tt">数值修改</span><span class="act">编辑参数</span></div>
+                      <div class="kpis">
+                        <div class="kpi"><div class="k">生命值</div><div class="v">9,999</div></div>
+                        <div class="kpi"><div class="k">金币</div><div class="v">99,999</div></div>
+                        <div class="kpi lb"><div class="k">攻击</div><div class="v">1,240</div></div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-hd"><span class="tt">装配装备</span><span class="act">3 / 4 槽位</span></div>
+                      <div class="slots four">
+                        <div class="slot">
+                          <div class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M18 4l2 2-9 9-3-3 10-8z" stroke="#2563EB" stroke-width="2" stroke-linejoin="round"/><path d="M7 14l3 3M4 20l3-3" stroke="#2563EB" stroke-width="2" stroke-linecap="round"/></svg></div>
+                          <div class="n">槽位 1</div>
+                        </div>
+                        <div class="slot">
+                          <div class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v6c0 4.2-3 7.2-7 9-4-1.8-7-4.8-7-9V6l7-3z" stroke="#2563EB" stroke-width="2" stroke-linejoin="round"/></svg></div>
+                          <div class="n">槽位 2</div>
+                        </div>
+                        <div class="slot">
+                          <div class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4l7 6-7 10-7-10 7-6z" stroke="#2563EB" stroke-width="2" stroke-linejoin="round"/></svg></div>
+                          <div class="n">槽位 3</div>
+                        </div>
+                        <div class="slot empty">
+                          <div class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#C0C6D0" stroke-width="2" stroke-linecap="round"/></svg></div>
+                          <div class="n">空</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-hd"><span class="tt">任务领取</span><span class="act">全部领取</span></div>
+                      <div class="task" style="padding:12px;border-radius:12px;background:#F7F8FA;border:0">
+                        <div class="task-hd"><span class="n">每日签到 · 离线奖励</span><span class="btn btn-s">领取</span></div>
+                        <div class="meta">进度 4 / 5 · 奖励 8,000 金币</div>
+                      </div>
+                    </div>
+                    <div class="card rowcard">
+                      <div class="box">
+                        <svg viewBox="0 0 24 24" fill="none" style="width:22px;height:22px"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" stroke="#2563EB" stroke-width="1.7" stroke-linejoin="round"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9" stroke="#2563EB" stroke-width="1.7" stroke-linejoin="round"/></svg>
+                      </div>
+                      <div style="flex:1">
+                        <div style="font-size:13px;font-weight:600">修改模型</div>
+                        <div style="font-size:10px;color:#5B6472;margin-top:2px">已映射 1 条角色规则 · 需 root</div>
+                      </div>
+                      <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px"><path d="M9 5l7 7-7 7" stroke="#9AA0AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                  </div>
+                  <div class="p-tab">
+                    <div class="tabbar">
+                      <div class="ti on">
+                        <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px"><path d="M3 6h18M3 12h18M3 18h18" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="8.5" cy="6" r="2.2" fill="#fff"/><circle cx="15.5" cy="12" r="2.2" fill="#fff"/><circle cx="10.5" cy="18" r="2.2" fill="#fff"/></svg>
+                        <span>数值</span>
+                      </div>
+                      <div class="ti">
+                        <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px"><path d="M18 4l2 2-9 9-3-3 10-8z" stroke="#8A909B" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 14l3 3M4 20l3-3" stroke="#8A909B" stroke-width="1.8" stroke-linecap="round"/></svg>
+                        <span>装备</span>
+                      </div>
+                      <div class="ti">
+                        <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px"><path d="M8 6h12M8 12h12M8 18h8" stroke="#8A909B" stroke-width="1.8" stroke-linecap="round"/><circle cx="4" cy="6" r="1.6" fill="#8A909B"/><circle cx="4" cy="12" r="1.6" fill="#8A909B"/><circle cx="4" cy="18" r="1.6" fill="#8A909B"/></svg>
+                        <span>任务</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="pvlabel"><i>A</i>工作台</div>
+            <div class="pvs">四卡平铺，胶囊 Tab</div>
+          </div>
+
+          <!-- B 装配装备 -->
+          <div class="pvcol">
+            <div class="thumb" data-page="B 装配装备">
+              <div class="stage">
+                  <div class="phone">
+                              <div class="sb"><span>9:41</span><span class="sb-bat"></span></div>
+                              <div class="pbody">
+                                <div class="p-nav">
+                                  <div class="icbtn">
+                                    <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;color:var(--ink)"><path d="M15 5l-6 7 6 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                  </div>
+                                  <div class="t">装配装备</div>
+                                  <div class="a">刷新</div>
+                                </div>
+
+                                <div class="pv" style="height:150px;background:linear-gradient(135deg,#283A63,#4B3D7D 55%,#1C2137)">
+                                  <div class="scrim" style="height:96px"></div>
+                                  <div class="nm">桐人 · 专属想象力</div>
+                                  <div class="mt">已装配 3 / 4 槽位 · 库存 2 件</div>
+                                  <span class="chip" style="position:absolute;right:12px;top:12px;height:22px;padding:0 8px;border-radius:11px;font-size:9px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);color:var(--surface)">专属</span>
+                                </div>
+
+                                <div class="card" style="padding:12px">
+                                  <div class="kpis">
+                                    <div class="kpi"><div class="k">拥有角色</div><div class="v">62</div></div>
+                                    <div class="kpi"><div class="k">可装配</div><div class="v">48</div></div>
+                                    <div class="kpi"><div class="k">空槽位</div><div class="v">120</div></div>
+                                  </div>
+                                </div>
+
+                                <div class="slots" style="grid-template-columns:repeat(2,1fr);gap:8px">
+                                  <div class="slot" style="gap:6px">
+                                    <div class="ico"><svg viewBox="0 0 24 24" fill="none" style="color:var(--accent)"><path d="M12 3l2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4L12 3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                                    <div class="n">专属想象力</div>
+                                    <div class="a" style="font-family:var(--mono);color:var(--ink-3);font-size:9px">380114001</div>
+                                  </div>
+                                  <div class="slot" style="gap:6px">
+                                    <div class="ico"><svg viewBox="0 0 24 24" fill="none" style="color:var(--accent)"><path d="M18 4l2 2-9 9-3-3 10-8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 14l3 3M4 20l3-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+                                    <div class="n">专属想象力</div>
+                                    <div class="a" style="font-family:var(--mono);color:var(--ink-3);font-size:9px">380114002</div>
+                                  </div>
+                                  <div class="slot" style="gap:6px">
+                                    <div class="ico"><svg viewBox="0 0 24 24" fill="none" style="color:var(--accent)"><path d="M12 3l7 3v6c0 4.2-3 7.2-7 9-4-1.8-7-4.8-7-9V6l7-3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                                    <div class="n">专属想象力</div>
+                                    <div class="a" style="font-family:var(--mono);color:var(--ink-3);font-size:9px">380114003</div>
+                                  </div>
+                                  <div class="slot empty" style="gap:6px">
+                                    <div class="ico"><svg viewBox="0 0 24 24" fill="none" style="color:var(--ink-3)"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+                                    <div class="n">空槽位</div>
+                                    <div class="a" style="color:var(--ink-3)">已解锁 · 可装配</div>
+                                  </div>
+                                </div>
+
+                                <div class="card" style="padding:14px">
+                                  <div class="card-hd" style="margin-bottom:10px">
+                                    <span class="tt">装配规则</span>
+                                    <span class="act">3 条</span>
+                                  </div>
+                                  <div style="display:flex;flex-direction:column;gap:4px">
+                                    <div style="font-size:10px;line-height:1.5;color:var(--ink-2)">只填空槽，已装配的槽位不动</div>
+                                    <div style="font-size:10px;line-height:1.5;color:var(--ink-2)">只装已解锁槽位（最多 4 个）</div>
+                                    <div style="font-size:10px;line-height:1.5;color:var(--ink-2)">多槽位使用不同库存副本</div>
+                                  </div>
+                                </div>
+
+                                <div style="font-size:10px;color:var(--ink-2);line-height:1.5">装配后需重启游戏，客户端才会重新拉取存档。</div>
+                              </div>
+                              <div class="p-cta"><div class="btn btn-p">一键装配所有角色 · 48 个</div></div>
+                            </div>
+              </div>
+            </div>
+            <div class="pvlabel"><i>B</i>装配装备</div>
+            <div class="pvs">角色大图 + 4 槽位 + 装配规则 + 单 CTA</div>
+          </div>
+
+          <!-- C 任务领取 -->
+          <div class="pvcol">
+            <div class="thumb" data-page="C 任务领取">
+              <div class="stage">
+                <div class="phone">
+                  <div class="sb"><span>9:41</span><span class="sb-bat"></span></div>
+                  <div class="pbody">
+                    <div class="p-nav">
+                      <div class="icbtn">
+                        <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px"><path d="M15 5l-6 7 6 7" stroke="#12141A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </div>
+                      <div class="t">任务领取</div>
+                      <div class="a" style="width:36px">&nbsp;</div>
+                    </div>
+                    <div class="seg"><span class="on">可领取 2</span><span>进行中 1</span><span>已完成 7</span></div>
+                    <div class="task">
+                      <div class="task-hd"><span class="n">清剿荒原狼群 ×10</span><span class="btn btn-s">领取</span></div>
+                      <div class="meta">进度 9 / 10 · 奖励 8,000 金币</div>
+                      <div class="bar"><i style="width:90%"></i></div>
+                    </div>
+                    <div class="task">
+                      <div class="task-hd"><span class="n">在线时长 60 分钟</span><span class="btn btn-s">领取</span></div>
+                      <div class="meta">进度 42 / 60 分钟 · 奖励 12,000 金币</div>
+                      <div class="bar"><i style="width:70%"></i></div>
+                    </div>
+                    <div class="task">
+                      <div class="task-hd"><span class="n">累计登录 7 天</span><span class="btn btn-s">领取</span></div>
+                      <div class="meta">进度 7 / 7 · 奖励 稀有宝箱 ×1</div>
+                      <div class="bar"><i style="width:100%"></i></div>
+                    </div>
+                    <div class="task">
+                      <div class="task-hd"><span class="n">装备强化至 +5</span><span class="btn btn-ghost">去完成</span></div>
+                      <div class="meta">进度 3 / 5 · 奖励 珍稀图纸 ×1</div>
+                      <div class="bar"><i class="warn" style="width:60%"></i></div>
+                    </div>
+                    <div class="task">
+                      <div class="task-hd"><span class="n" style="color:#6B7280">首次离线挂机</span><span class="btn btn-dis">已领取</span></div>
+                      <div class="meta" style="color:#9AA0AA">已完成 · 已获得 5,000 金币</div>
+                    </div>
+                  </div>
+                  <div class="p-cta"><div class="btn btn-p">一键领取 · 2 项</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="pvlabel"><i>C</i>任务领取</div>
+            <div class="pvs">三种按钮状态 + 进度条语义</div>
+          </div>
+
+          <!-- D 数值修改 -->
+          <div class="pvcol">
+            <div class="thumb" data-page="D 数值修改">
+              <div class="stage">
+                <div class="phone">
+                  <div class="sb"><span>9:41</span><span class="sb-bat"></span></div>
+                  <div class="pbody" style="gap:10px">
+                    <div class="p-nav">
+                      <div class="icbtn">
+                        <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px"><path d="M15 5l-6 7 6 7" stroke="#12141A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </div>
+                      <div class="t">数值修改</div>
+                      <div class="a" style="color:#6B7280">重置</div>
+                    </div>
+                    <div class="presets">
+                      <div class="preset">安全</div>
+                      <div class="preset on">激进</div>
+                      <div class="preset">极限</div>
+                    </div>
+                    <div class="card" style="padding:14px;border-radius:16px">
+                      <div style="display:flex;justify-content:space-between;align-items:center">
+                        <span style="font-size:12px;font-weight:500">生命值</span>
+                        <span style="font-size:15px;font-weight:600;color:#2563EB;font-variant-numeric:tabular-nums">9,999</span>
+                      </div>
+                      <div class="slider" style="margin-top:10px">
+                        <div class="track"></div><div class="fill" style="width:100%"></div><div class="knob" style="left:100%"></div>
+                      </div>
+                      <div style="display:flex;justify-content:space-between;margin-top:9px">
+                        <span style="font-size:9px;color:#9AA0AA">原始 1,200</span><span class="diff">↑ +8,799</span>
+                      </div>
+                    </div>
+                    <div class="card" style="padding:14px;border-radius:16px">
+                      <div style="display:flex;justify-content:space-between;align-items:center">
+                        <span style="font-size:12px;font-weight:500">金币</span>
+                        <span style="font-size:15px;font-weight:600;color:#2563EB;font-variant-numeric:tabular-nums">99,999</span>
+                      </div>
+                      <div class="slider" style="margin-top:10px">
+                        <div class="track"></div><div class="fill" style="width:78%"></div><div class="knob" style="left:78%"></div>
+                      </div>
+                      <div style="display:flex;justify-content:space-between;margin-top:9px">
+                        <span style="font-size:9px;color:#9AA0AA">原始 2,400</span><span class="diff">↑ +97,599</span>
+                      </div>
+                    </div>
+                    <div class="card" style="padding:14px;border-radius:16px">
+                      <div style="display:flex;justify-content:space-between;align-items:center">
+                        <span style="font-size:12px;font-weight:500">攻击</span>
+                        <span style="font-size:15px;font-weight:600;color:#2563EB;font-variant-numeric:tabular-nums">1,240</span>
+                      </div>
+                      <div class="slider" style="margin-top:10px">
+                        <div class="track"></div><div class="fill" style="width:55%"></div><div class="knob" style="left:55%"></div>
+                      </div>
+                      <div style="display:flex;justify-content:space-between;margin-top:9px">
+                        <span style="font-size:9px;color:#9AA0AA">原始 620</span><span class="diff">↑ +620</span>
+                      </div>
+                    </div>
+                    <div class="card" style="padding:14px;border-radius:16px">
+                      <div class="card-hd" style="margin-bottom:8px"><span class="tt" style="font-size:11px;font-weight:500;color:#5B6472">改动预览</span><span class="act" style="font-size:10px">3 项待写入</span></div>
+                      <div class="diff">生命值 1,200 → 9,999</div>
+                      <div class="diff" style="margin-top:5px">金币 2,400 → 99,999</div>
+                    </div>
+                    <div class="warn-strip">
+                      <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;flex:0 0 auto"><path d="M12 3l9.5 17H2.5L12 3z" stroke="#D97706" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9.5v4M12 16.6v.2" stroke="#D97706" stroke-width="1.8" stroke-linecap="round"/></svg>
+                      <span>数值过高可能触发校验，建议不超过 9,999。</span>
+                    </div>
+                  </div>
+                  <div class="p-cta"><div class="btn btn-p">写入 3 项改动</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="pvlabel"><i>D</i>数值修改</div>
+            <div class="pvs">预设 + 滑杆 + diff 预览</div>
+          </div>
+
+          <!-- E 修改模型 -->
+          <div class="pvcol">
+            <div class="thumb" data-page="E 修改模型">
+              <div class="stage">
+                  <div class="phone">
+                              <div class="sb"><span>9:41</span><span class="sb-bat"></span></div>
+                              <div class="pbody">
+                                <div class="p-nav">
+                                  <div class="icbtn">
+                                    <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;color:var(--ink)"><path d="M15 5l-6 7 6 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                  </div>
+                                  <div class="t">修改模型</div>
+                                  <div class="a">刷新</div>
+                                </div>
+
+                                <div class="card" style="padding:6px;display:flex;flex-direction:column;gap:3px">
+                                  <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;background:var(--sub);border-radius:8px">
+                                    <span style="width:18px;height:18px;border-radius:6px;background:var(--success-soft);color:var(--success-ink);display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+                                      <svg viewBox="0 0 24 24" fill="none" style="width:11px;height:11px"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    </span>
+                                    <span style="font-size:11px;color:var(--ink)">root</span>
+                                    <span style="margin-left:auto;font-size:10px;color:var(--ink-2);font-variant-numeric:tabular-nums">已授权</span>
+                                  </div>
+                                  <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;background:var(--sub);border-radius:8px">
+                                    <span style="width:18px;height:18px;border-radius:6px;background:var(--success-soft);color:var(--success-ink);display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+                                      <svg viewBox="0 0 24 24" fill="none" style="width:11px;height:11px"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    </span>
+                                    <span style="font-size:11px;color:var(--ink)">游戏进程</span>
+                                    <span style="margin-left:auto;font-size:10px;color:var(--ink-2);font-variant-numeric:tabular-nums">运行中 · 4821</span>
+                                  </div>
+                                  <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;background:var(--sub);border-radius:8px">
+                                    <span style="width:18px;height:18px;border-radius:6px;background:var(--success-soft);color:var(--success-ink);display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+                                      <svg viewBox="0 0 24 24" fill="none" style="width:11px;height:11px"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    </span>
+                                    <span style="font-size:11px;color:var(--ink)">注入器</span>
+                                    <span style="margin-left:auto;font-size:10px;color:var(--ink-2);font-variant-numeric:tabular-nums">运行中 · 9137</span>
+                                  </div>
+                                </div>
+
+                                <div class="card" style="padding:12px">
+                                  <div class="card-hd" style="margin-bottom:6px">
+                                    <span class="tt" style="font-size:12px">替换映射</span>
+                                    <span class="chipst">同一骨架集</span>
+                                  </div>
+                                  <div style="display:flex;align-items:center;gap:10px;height:56px;padding:0 12px;background:var(--sub);border-radius:12px">
+                                    <span style="width:24px;height:24px;border-radius:50%;background:var(--accent-soft);border:1px solid var(--accent-border);color:var(--accent);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto">A</span>
+                                    <span style="flex:1;min-width:0;display:flex;flex-direction:column">
+                                      <span style="font-size:13px;font-weight:500;color:var(--ink);line-height:1.35">桐人</span>
+                                      <span style="font-family:var(--mono);font-size:9px;color:var(--ink-3);margin-top:1px">kirito_cathedral</span>
+                                    </span>
+                                    <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;color:var(--ink-3);flex:0 0 auto"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                  </div>
+                                  <div style="display:flex;align-items:center;padding-left:12px;margin:5px 0;font-size:10px;color:var(--ink-2)">↓ 替换成</div>
+                                  <div style="display:flex;align-items:center;gap:10px;height:56px;padding:0 12px;background:var(--sub);border-radius:12px">
+                                    <span style="width:24px;height:24px;border-radius:50%;background:var(--accent-soft);border:1px solid var(--accent-border);color:var(--accent);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto">B</span>
+                                    <span style="flex:1;min-width:0;display:flex;flex-direction:column">
+                                      <span style="font-size:13px;font-weight:500;color:var(--ink);line-height:1.35">尤吉欧</span>
+                                      <span style="font-family:var(--mono);font-size:9px;color:var(--ink-3);margin-top:1px">eugeo_woodcutter</span>
+                                    </span>
+                                    <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;color:var(--ink-3);flex:0 0 auto"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                  </div>
+                                  <div style="font-size:10px;color:var(--ink-2);line-height:1.5;margin-top:6px;padding-left:12px">只显示同一骨架集（chara_1）的角色。</div>
+                                </div>
+
+                                <div class="card" style="padding:12px">
+                                  <div class="card-hd" style="margin-bottom:6px">
+                                    <span class="tt" style="font-size:12px">模型预览</span>
+                                    <span style="font-family:var(--mono);font-size:10px;color:var(--ink-3)">kirito_cathedral</span>
+                                  </div>
+                                  <div class="pv" style="height:150px;border-radius:12px;background:var(--sub);border:1px solid var(--border);display:flex;align-items:center;justify-content:center">
+                                    <span class="chip" style="position:absolute;left:8px;top:8px;height:20px;padding:0 7px;border-radius:10px;font-size:9px;background:var(--surface);color:var(--ink-2)">12 网格</span>
+                                    <svg viewBox="0 0 120 168" fill="none" style="height:126px;color:var(--ink-3)">
+                                      <circle cx="60" cy="22" r="11" stroke="currentColor" stroke-width="1.8"/>
+                                      <path d="M60 33v9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                                      <path d="M60 42v62" style="stroke:var(--accent)" stroke-width="1.8" stroke-linecap="round"/>
+                                      <path d="M36 50h48" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                                      <path d="M36 50l-10 32-4 34" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                      <path d="M84 50l10 32 4 34" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                      <path d="M46 104h28" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                                      <path d="M46 104l-4 32-2 28" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                      <path d="M74 104l4 32 2 28" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                      <circle cx="60" cy="42" r="2.6" fill="var(--accent)"/>
+                                      <circle cx="36" cy="50" r="2.6" fill="var(--accent)"/>
+                                      <circle cx="84" cy="50" r="2.6" fill="var(--accent)"/>
+                                      <circle cx="26" cy="82" r="2.6" fill="currentColor"/>
+                                      <circle cx="94" cy="82" r="2.6" fill="currentColor"/>
+                                      <circle cx="46" cy="104" r="2.6" fill="var(--accent)"/>
+                                      <circle cx="74" cy="104" r="2.6" fill="var(--accent)"/>
+                                      <circle cx="42" cy="136" r="2.6" fill="currentColor"/>
+                                      <circle cx="78" cy="136" r="2.6" fill="currentColor"/>
+                                    </svg>
+                                  </div>
+                                  <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+                                    <div style="display:flex;align-items:center;gap:6px;height:28px;padding:0 8px;background:var(--sub);border-radius:8px;font-size:10px;color:var(--ink-2);flex:1;min-width:0">
+                                      <span>默认皮肤</span>
+                                      <svg viewBox="0 0 24 24" fill="none" style="width:12px;height:12px;margin-left:auto;color:var(--ink-3);flex:0 0 auto"><path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    </div>
+                                    <div style="width:28px;height:28px;border-radius:8px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--ink-2);flex:0 0 auto">
+                                      <svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                                    </div>
+                                    <span style="font-family:var(--mono);font-size:10px;color:var(--ink-3);flex:0 0 auto">37 骨</span>
+                                  </div>
+                                </div>
+
+                                <div style="font-size:10px;color:var(--ink-2);line-height:1.5;margin-top:auto">改规则不会热重载已加载的模型：要重进场景或重启游戏。</div>
+                              </div>
+                              <div class="p-cta"><div class="btn btn-p">应用替换</div></div>
+                            </div>
+              </div>
+            </div>
+            <div class="pvlabel"><i>E</i>修改模型</div>
+            <div class="pvs">环境体检 + A→B 映射 + 预览 + 单 CTA</div>
+          </div>
+
+          <!-- F 领取所有奖励 -->
+          <div class="pvcol">
+            <div class="thumb" data-page="F 领取所有奖励">
+              <div class="stage">
+                  <div class="phone">
+                              <div class="sb"><span>9:41</span><span class="sb-bat"></span></div>
+                              <div class="pbody">
+                                <div class="p-nav">
+                                  <div class="icbtn">
+                                    <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px"><path d="M15 5l-6 7 6 7" stroke="#12141A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                  </div>
+                                  <div class="t">领取所有奖励</div>
+                                  <div class="a">日志</div>
+                                </div>
+
+                                <div class="card" style="padding:14px">
+                                  <div class="card-hd">
+                                    <span class="tt">本次可领取</span>
+                                    <span class="chip" style="height:24px;border-radius:12px;font-size:10px">4 类奖励</span>
+                                  </div>
+                                  <div style="display:flex;align-items:baseline;gap:6px;line-height:1.15">
+                                    <span style="font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em">4,219</span>
+                                    <span style="font-size:11px;color:var(--ink-2)">项</span>
+                                    <span style="margin-left:auto;font-size:10px;color:var(--ink-3);font-variant-numeric:tabular-nums">上次到账 3,986 项</span>
+                                  </div>
+                                  <div class="kpis" style="margin-top:12px">
+                                    <div class="kpi"><div class="k">使命</div><div class="v" style="font-size:12px">1,203</div></div>
+                                    <div class="kpi"><div class="k">礼物盒</div><div class="v" style="font-size:12px">0</div></div>
+                                    <div class="kpi"><div class="k">赛季</div><div class="v" style="font-size:12px">3,016</div></div>
+                                    <div class="kpi"><div class="k">活动角色</div><div class="v" style="font-size:12px">0</div></div>
+                                  </div>
+                                </div>
+
+                                <div class="task" style="padding:12px;border-radius:14px;gap:8px">
+                                  <div class="task-hd">
+                                    <span class="n">使命 · 全部栏目</span>
+                                    <span class="chip" style="height:24px;border-radius:12px;font-size:10px;background:var(--accent-soft);border:1px solid var(--accent-border);color:var(--accent)">可领取 1,203</span>
+                                  </div>
+                                  <div class="meta">一般 · 每日 · 每週 · 活动 · 公会</div>
+                                </div>
+
+                                <div class="task" style="padding:12px;border-radius:14px;gap:8px">
+                                  <div class="task-hd">
+                                    <span class="n">礼物盒</span>
+                                    <span class="chip" style="height:24px;border-radius:12px;font-size:10px;background:var(--sub);border:1px solid var(--border);color:var(--ink-2)">无内容</span>
+                                  </div>
+                                  <div class="meta">本版本存档无来源</div>
+                                </div>
+
+                                <div class="task" style="padding:12px;border-radius:14px;gap:8px">
+                                  <div class="task-hd">
+                                    <span class="n">赛季奖励</span>
+                                    <span class="chip" style="height:24px;border-radius:12px;font-size:10px;background:var(--accent-soft);border:1px solid var(--accent-border);color:var(--accent)">可领取 3,016</span>
+                                  </div>
+                                  <div class="meta">通行证 · 活动等级</div>
+                                </div>
+
+                                <div class="task" style="padding:12px;border-radius:14px;gap:8px">
+                                  <div class="task-hd">
+                                    <span class="n">活动角色奖励</span>
+                                    <span class="chip" style="height:24px;border-radius:12px;font-size:10px;background:var(--sub);border:1px solid var(--border);color:var(--ink-2)">无内容</span>
+                                  </div>
+                                  <div class="meta">本版本无奖励定义</div>
+                                </div>
+
+                                <div style="font-size:10px;color:var(--ink-2);line-height:1.45;margin-top:auto">顺序：使命 → 礼物盒 → 赛季 → 活动角色；每步失败即停</div>
+
+                                <div class="warn-strip">
+                                  <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;flex:0 0 auto"><path d="M12 3l9.5 17H2.5L12 3z" stroke="#D97706" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9.5v4M12 16.6v.2" stroke="#D97706" stroke-width="1.8" stroke-linecap="round"/></svg>
+                                  <span>领取时请保持游戏在前台，切走会中断本次领取。</span>
+                                </div>
+                              </div>
+                              <div class="p-cta"><div class="btn btn-p">一键领取全部 · 4,219 项</div></div>
+                            </div>
+              </div>
+            </div>
+            <div class="pvlabel"><i>F</i>领取所有奖励</div>
+            <div class="pvs">四类渠道 + 步骤进度 + 到账汇总</div>
+          </div>
+
+        </div>
+        <p class="tbl-note">缩略图按 390 × 844 真实尺寸渲染后等比缩小，结构与真实页面完全一致；点击可放大查看细节。</p>
+      </div>
+
+      <div class="foot">
+        <span>简洁卡片 UI 规范 · v1.3</span>
+        <span>离线游戏修改器 · Android / Flutter</span>
+        <span>令牌唯一来源，页面稿不得新增色值</span>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  try{
+    var links = Array.prototype.slice.call(document.querySelectorAll('#tocnav a'));
+    var map = {};
+    links.forEach(function(a){
+      var id = a.getAttribute('href').slice(1);
+      var el = document.getElementById(id);
+      if(el){ map[id] = a; }
+    });
+    var targets = Object.keys(map).map(function(k){ return document.getElementById(k); });
+    if(!('IntersectionObserver' in window) || !targets.length) return;
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(!e.isIntersecting) return;
+        links.forEach(function(l){ l.classList.remove('on'); });
+        var a = map[e.target.id];
+        if(a) a.classList.add('on');
+      });
+    }, { rootMargin: '-12% 0px -72% 0px', threshold: 0 });
+    targets.forEach(function(t){ io.observe(t); });
+  }catch(err){}
+})();
+</script>
+
+<div class="lb" id="lb">
+  <div class="lb-close" id="lbClose">✕</div>
+  <div class="lb-stage" id="lbStage"></div>
+  <div class="lb-tip" id="lbTip">点击任意处关闭</div>
+</div>
+
+<script>
+(function(){
+  try{
+    var lb = document.getElementById('lb');
+    var stage = document.getElementById('lbStage');
+    var tip = document.getElementById('lbTip');
+    var close = document.getElementById('lbClose');
+    if(!lb || !stage) return;
+    function hide(){
+      lb.classList.remove('on');
+      stage.innerHTML = '';
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('.thumb'), function(t){
+      t.addEventListener('click', function(){
+        var src = t.querySelector('.phone');
+        if(!src) return;
+        stage.innerHTML = '';
+        var c = src.cloneNode(true);
+        c.style.transform = 'scale(.82)';
+        c.style.transformOrigin = 'center';
+        c.style.borderRadius = '32px';
+        stage.appendChild(c);
+        tip.textContent = (t.getAttribute('data-page') || '页面预览') + ' · 点击任意处关闭';
+        lb.classList.add('on');
+      });
+    });
+    lb.addEventListener('click', hide);
+    if(close) close.addEventListener('click', hide);
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape') hide(); });
+  }catch(err){}
+})();
+</script>
+</body>
+</html>

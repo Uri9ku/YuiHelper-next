@@ -1,0 +1,19 @@
+# Flutter / Dart
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+.idea/
+.vscode/
+
+# 打包产物
+*.apk
+*.aab
+*.ipa
+
+# 工具运行态与存档实验数据（含游戏存档，勿上传）
+.workbuddy/
+*.log
+

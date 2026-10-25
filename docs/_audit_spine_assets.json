@@ -1,0 +1,381 @@
+﻿{
+    "audit":  "spine_assets",
+    "generated_at":  "2026-10-25T22:00:00+08:00",
+    "root":  "C:\\Users\\Administrator\\Desktop\\解包\\解包结果\\资产库\\Spine",
+    "readonly":  true,
+    "method":  {
+                   "png":  "read IHDR first 33 bytes only; no full decode except 25 sampled pages for alpha/blankness",
+                   "atlas":  "text block parser: page section (name.png + size/format/filter/repeat), region sections (name + xy/size/orig/offset/rotate)",
+                   "skeleton_json":  "full json.load of all 628 files",
+                   "dedupe":  "md5",
+                   "scripts":  "%TEMP%\\spine_audit\\stage1..stage16 (.py + .json), rerunnable read-only"
+               },
+    "inventory":  {
+                      "total_files":  19527,
+                      "total_mb":  9041.42,
+                      "dirs":  {
+                                   "Pages":  {
+                                                 "files":  3425,
+                                                 "mb":  1517.7
+                                             },
+                                   "Atlases":  {
+                                                   "files":  8423,
+                                                   "mb":  1381.639
+                                               },
+                                   "Bundles":  {
+                                                   "files":  6770,
+                                                   "mb":  2196.825
+                                               },
+                                   "Skeletons_JSON":  {
+                                                          "files":  628,
+                                                          "mb":  3922.104
+                                                      },
+                                   "Renders":  {
+                                                   "files":  274,
+                                                   "mb":  19.608
+                                               },
+                                   "_Stage0_ViewerReady":  {
+                                                               "files":  7,
+                                                               "mb":  3.544
+                                                           }
+                               }
+                  },
+    "atlases":  {
+                    "n_atlases":  1666,
+                    "by_category":  {
+                                        "Characters":  950,
+                                        "Enemies":  338,
+                                        "Weapons":  373,
+                                        "Others":  5
+                                    },
+                    "n_pages_declared":  3425,
+                    "n_regions":  203096,
+                    "pages_per_atlas":  {
+                                            "2":  1598,
+                                            "4":  41,
+                                            "3":  17,
+                                            "1":  9,
+                                            "5":  1
+                                        },
+                    "format_all":  "RGBA8888",
+                    "filter_all":  "Linear,Linear",
+                    "pma":  false
+                },
+    "texture_completeness":  {
+                                 "pages_declared":  3425,
+                                 "png_found_by_name_in_pkg":  3425,
+                                 "png_missing":  0,
+                                 "extra_png":  0,
+                                 "pages_md5_equal_to_atlas_pkg_png":  3425,
+                                 "pages_unique_referenced_by_regions_json":  2767,
+                                 "pages_orphaned":  658,
+                                 "pages_orphaned_mb":  410.97,
+                                 "pages_orphaned_all_in_category":  "Characters",
+                                 "pages_basename_matches_atlas_page_names":  0,
+                                 "pages_resolution_key":  "regions.json.readable",
+                                 "regions_json_entries":  6845,
+                                 "regions_json_missing_targets":  0
+                             },
+    "texture_size_consistency":  {
+                                     "consistent_decl_le_png_le_decl_plus4":  2755,
+                                     "inconsistent":  670,
+                                     "inconsistent_ratio":  0.1956,
+                                     "pages_regions_out_of_bounds":  660,
+                                     "pages_regions_oob_both_axes":  232,
+                                     "packages_affected":  337,
+                                     "packages_total":  1666,
+                                     "packages_affected_ratio":  0.2023,
+                                     "root_cause":  "one bundle often holds 2 atlas variants sharing identical page filenames but different layouts; pages were copied by filename so one variant\u0027s textures were overwritten",
+                                     "repair":  {
+                                                    "rule_label_face_to_body":  640,
+                                                    "rule_unique_size_match":  2,
+                                                    "repaired_total":  642,
+                                                    "unresolved":  28,
+                                                    "usable_after_repair":  3397,
+                                                    "usable_after_repair_ratio":  0.992
+                                                }
+                                 },
+    "texture_quality_sample":  {
+                                   "sample_n":  25,
+                                   "all_rgba_with_alpha":  true,
+                                   "all_non_blank":  true,
+                                   "fully_transparent_pages":  0,
+                                   "nontransparent_bbox_frac_avg":  0.811,
+                                   "nontransparent_bbox_frac_min":  0.3457,
+                                   "unique_colors_64x64_range":  [
+                                                                     214,
+                                                                     1999
+                                                                 ],
+                                   "bpp_median":  0.1387,
+                                   "bpp_lt_0_05":  156,
+                                   "bpp_lt_0_02":  24,
+                                   "visual_confirmed_5":  [
+                                                              "Pages/Characters/Asuna/Ggo Face.png (face parts)",
+                                                              "Pages/Characters/Npc/Sadore.png (body costume parts)",
+                                                              "Pages/Enemies/530 Dragon/530201 Normal2.png (mask/2nd page)",
+                                                              "Pages/Weapons/Sword/Sword R4 None Leafa Os 3d2.png (glow/mask 2nd page)",
+                                                              "Pages/Effects/S0003 Effect Phenix/S0003 Effect Phenix.png (phoenix effect)"
+                                                          ]
+                               },
+    "resolution":  {
+                       "distinct_page_sizes":  1016,
+                       "max_side":  4096,
+                       "pages_any_side_gt_4096":  0,
+                       "pages_w_ge_4096":  1105,
+                       "pages_h_ge_4096":  757,
+                       "pages_4k_both":  12,
+                       "total_pixels_gpx":  11.78
+                   },
+    "skeleton_pairing":  {
+                             "bundles_total":  1033,
+                             "bundles_with_skeleton":  107,
+                             "bundles_with_skeleton_by_cat":  {
+                                                                  "Characters":  69,
+                                                                  "Enemies":  38,
+                                                                  "Weapons":  0
+                                                              },
+                             "bundle_skeleton_refs":  138,
+                             "bundle_skel_binaries":  138,
+                             "bundle_refs_missing_json":  0,
+                             "atlas_packages_with_skeleton":  118,
+                             "atlas_packages_total":  1666,
+                             "character_groups_with_skeleton":  39,
+                             "character_groups_total":  122,
+                             "enemy_groups_with_skeleton":  38,
+                             "enemy_groups_total":  50,
+                             "skeletons_json_total":  628,
+                             "skeletons_with_explicit_bundle":  138,
+                             "skeletons_with_images_path":  556,
+                             "skeletons_images_basename_matches_page":  443,
+                             "atlas_packages_covered_by_images_rule":  236,
+                             "character_groups_covered_by_images_rule":  68,
+                             "enemy_groups_covered_by_images_rule":  37,
+                             "region_containment_validation_note":  "not a valid criterion: skeletons carry 9-11 skins (per weapon/expression) spanning multiple atlases; sampled attachment-name coverage vs single atlas only 3%-58%",
+                             "pairing_basis":  [
+                                                   "bundle.json skeletons[] full sha1",
+                                                   "Bundles/**/skeleton_\u003c8\u003e.json|skel",
+                                                   "Skeletons_JSON/\u003csha1\u003e.json",
+                                                   "atlas_\u003chash\u003e.atlas + atlas.json + regions.json",
+                                                   "regions.json readable -\u003e Pages path"
+                                               ],
+                             "low_confidence":  "490 skeletons without bundle; images paths point to other dev/project asset trees; their atlases are not among the 1666",
+                             "atlas_packages_with_bundle_level_skeleton":  413,
+                             "atlas_packages_fully_consistent":  361,
+                             "atlas_packages_usable_after_repair":  407,
+                             "atlas_packages_unusable_after_repair":  6,
+                             "atlas_packages_without_skeleton":  1253,
+                             "coverage_note":  "enemy bundle skeleton covers all element/colour atlases of that enemy; 413 = 118 Characters + 295 Enemies bundle-level covered packages"
+                         },
+    "volume":  {
+                   "pages_by_category_mb":  {
+                                                "Characters":  966.48,
+                                                "Enemies":  443.847,
+                                                "Weapons":  104.941,
+                                                "Effects":  2.431
+                                            },
+                   "pages_by_category_count":  {
+                                                   "Characters":  1980,
+                                                   "Enemies":  695,
+                                                   "Weapons":  745,
+                                                   "Effects":  5
+                                               },
+                   "pages_avg_mb":  {
+                                        "Characters":  0.488,
+                                        "Enemies":  0.639,
+                                        "Weapons":  0.141,
+                                        "Effects":  0.486
+                                    },
+                   "max_page":  {
+                                    "path":  "Pages/Characters/Subtilizer/Death Angel.png",
+                                    "mb":  6.074,
+                                    "w":  4096,
+                                    "h":  2808
+                                },
+                   "per_costume_characters":  {
+                                                  "n":  614,
+                                                  "mb_median":  0.943,
+                                                  "mb_p90":  2.167,
+                                                  "mb_max":  13.236,
+                                                  "mb_total":  740.9
+                                              },
+                   "per_character_all_costumes":  {
+                                                      "n":  122,
+                                                      "mb_median":  2.26,
+                                                      "mb_p90":  15.17,
+                                                      "mb_max":  64.09
+                                                  },
+                   "atlas_only_per_costume":  {
+                                                  "n":  950,
+                                                  "mb_median":  0.811,
+                                                  "mb_p90":  1.55,
+                                                  "mb_max":  3.327
+                                              },
+                   "skeletons_json":  {
+                                          "n":  628,
+                                          "mb_total":  3922.104,
+                                          "mb_median":  4.024,
+                                          "mb_p90":  15.558,
+                                          "mb_max":  41.63,
+                                          "gzip_ratio_median":  0.10
+                                      },
+                   "skeletons_bin":  {
+                                         "n":  139,
+                                         "mb_total":  209.26,
+                                         "mb_median":  0.934,
+                                         "mb_max":  10.122
+                                     },
+                   "bundles_by_cat_mb":  {
+                                             "Characters":  1425.419,
+                                             "Enemies":  663.038,
+                                             "Weapons":  108.368
+                                         },
+                   "budget_tiers":  {
+                                        "one_costume_mb":  {
+                                                               "median_texture":  0.943,
+                                                               "median_with_one_binary_skel":  1.87,
+                                                               "p90_with_skel_approx":  3.2
+                                                           },
+                                        "20_costumes_mb":  18.9,
+                                        "20_characters_all_costumes_mb":  45.3,
+                                        "all_characters_textures_mb":  {
+                                                                           "atlas_tree":  793.2,
+                                                                           "bundles_non_json":  740.9
+                                                                       },
+                                        "all_characters_with_skeletons_mb_estimate":  {
+                                                                                          "low":  1600,
+                                                                                          "high":  1700,
+                                                                                          "note":  "950 costumes x median 0.93MB skel binary added"
+                                                                                      },
+                                        "webp_q80":  {
+                                                         "ratio_median_measured":  0.261,
+                                                         "ratio_total_measured":  0.247,
+                                                         "sample_n":  25,
+                                                         "pages_webp_mb":  375
+                                                     },
+                                        "etc2_rgba8_mb":  11236.0,
+                                        "astc_6x6_mb":  4993.8,
+                                        "astc_8x8_mb":  2809.0,
+                                        "rgba8_vram_mb":  44944.1,
+                                        "rgba8_vram_with_mips_mb":  59924.0,
+                                        "per_page_vram_mb":  {
+                                                                 "median":  6.31,
+                                                                 "p90":  35.89,
+                                                                 "max":  64.0
+                                                             },
+                                        "per_costume_vram_mb":  {
+                                                                    "median":  26.8,
+                                                                    "p90":  46.6,
+                                                                    "max":  93.2
+                                                                }
+                                    }
+               },
+    "actions":  {
+                    "skeletons_total":  628,
+                    "by_skeleton_counts_this_audit":  {
+                                                          "idle_battle":  123,
+                                                          "attack":  119,
+                                                          "damage":  119,
+                                                          "victory":  47,
+                                                          "dash":  55,
+                                                          "skill":  405,
+                                                          "skill_cut":  394,
+                                                          "fadv":  101,
+                                                          "fadv_run":  94,
+                                                          "adv_idle":  195
+                                                      },
+                    "combos_this_audit":  {
+                                              "idle_attack_damage":  110,
+                                              "plus_victory":  45,
+                                              "plus_dash":  45,
+                                              "strict6":  9,
+                                              "skill_only":  383,
+                                              "no_tags":  112
+                                          },
+                    "lead_scan_reference":  {
+                                                "attack_skeletons":  123,
+                                                "move_skeletons":  170,
+                                                "idle_battle":  123,
+                                                "skill":  455,
+                                                "battle6":  19,
+                                                "anim_instances":  {
+                                                                       "skill":  4647,
+                                                                       "attack":  802,
+                                                                       "damage":  603,
+                                                                       "move":  1218,
+                                                                       "idle_battle":  1233,
+                                                                       "idle":  1641,
+                                                                       "fadv":  3541,
+                                                                       "guard":  215,
+                                                                       "victory":  390
+                                                                   },
+                                                "source":  "docs/_scan_skeletons.json (lead)"
+                                            },
+                    "notes":  [
+                                  "battle anims are weapon-prefixed (common_/sword_/finesword_/dagger_/dualblade_/gun_/knuckle_/mace_/shield_/bow_/thsword_/whip_)",
+                                  "skills live in separate skeletons (383/628 are skill-cut only)",
+                                  "field movement = fadv_run_*/fadv_walk_*; battle only *_dash",
+                                  "strict6 definition differs from lead\u0027s battle6 -\u003e 9 vs 19"
+                              ]
+                },
+    "skeleton_format":  {
+                            "spine_versions":  {
+                                                   "3.6.53":  628
+                                               },
+                            "version_field_present":  false,
+                            "top_keys":  [
+                                             "skeleton",
+                                             "bones",
+                                             "slots",
+                                             "ik",
+                                             "transform",
+                                             "path",
+                                             "animations",
+                                             "skins",
+                                             "events"
+                                         ],
+                            "attachment_types":  {
+                                                     "mesh":  314464,
+                                                     "linkedmesh":  110407,
+                                                     "region":  16297,
+                                                     "clipping":  433,
+                                                     "path":  1400
+                                                 },
+                            "attachment_types_source":  "lead _scan_skeletons.json, independently reproduced identically by this audit",
+                            "skeletons_with_clipping":  432,
+                            "skeletons_with_clipping_ratio":  0.688,
+                            "skeletons_with_mesh":  628,
+                            "skeletons_with_linkedmesh":  606,
+                            "skeletons_with_path":  455,
+                            "weighted_mesh_attachments":  0,
+                            "weights_key_occurrences":  0,
+                            "bones_median":  189,
+                            "bones_p90":  259,
+                            "attachments_median":  875.5,
+                            "attachments_p90":  1021,
+                            "animations_median":  11,
+                            "animations_max":  136,
+                            "custom_suffix":  "binary .skel header 3.6.53 (custom suffix D/E) per _Stage0_ViewerReady/FrenzyBoar101 info.json; JSON header writes plain 3.6.53"
+                        },
+    "evidence":  {
+                     "playable_sample":  "_Stage0_ViewerReady/FrenzyBoar101/ (README: verified with official spine-ts 3.6)",
+                     "broken_page_example":  "Atlases/Characters/Administrator/Christmas Face [dcc17496]/atlas.atlas declares 4096x2310 but administrator_christmas.png is 3712x2312",
+                     "orphan_texture_example":  "Pages/Characters/Administrator/Christmas.png (4096x2312, referenced by no regions.json)",
+                     "bundle_pairing_example":  "Bundles/Characters/Administrator/Cathedral/bundle.json",
+                     "skeleton_images_example":  "Skeletons_JSON/0495dde0....json images=D:/ALICE_git/saoal/asset/source/spine/characterAtlas/chara_1/subtilizer_burn_enemy/"
+                 },
+    "unverified":  [
+                       "443 images-rule pairings: medium confidence, render verification needed",
+                       "origin of 490 non-bundle skeletons: low confidence (not traced to other extraction dirs)",
+                       "28 unrepairable pages: low confidence whether truly missing",
+                       "visual impact of region OOB: not rendered",
+                       "Renders/ frames vs current skel: not compared"
+                   ],
+    "bottom_line":  {
+                        "textures":  "files complete (3425/3425) but 19.6% page slots mismatched; repairable to 99.2%",
+                        "characters":  "only 39/122 character dirs and 38/50 enemy dirs have skel+atlas+pages; weapons 0",
+                        "actions":  "idle/attack/damage ~120 skeletons; victory 47; dash 55; skill 405 separate; strict 6-piece only 9 skeletons (lead battle6=19)",
+                        "volume":  "one costume ~0.94MB (with skel ~1.9MB); 20 costumes ~18.9MB; all chars ~0.8-1.7GB; skeleton JSON alone 3.83GiB; RGBA8 VRAM 44.9GB",
+                        "format":  "all Spine 3.6.53 JSON; clipping 68.8%; mesh 100%; no weighted meshes; binary header has custom suffix D/E",
+                        "verdict":  "embed 1-2 sample characters only; full character set requires side-loading, texture remap repair, and downsample/compression"
+                    }
+}

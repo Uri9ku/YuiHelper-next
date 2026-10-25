@@ -1,0 +1,528 @@
+# SAOUB 骨骼动作修改器 —— 中英文对照名称表
+# 格式: kind <TAB> id <TAB> 中文 <TAB> [token: pre|post]
+# 中文一律繁體；第二行英文由 APP 直接显示 id（规则里写的就是 id）。
+# 本文件由 saoars_mod/build_names.py 生成，可手工修改后用「重新部署」生效。
+anim	guard_loop	防禦循環
+anim	idle_back	背面待機
+anim	idle_battle	戰鬥待機
+anim	idle_battle_abnormal	異常狀態戰鬥待機
+anim	idle_battle_front	正面戰鬥待機
+anim	idle_fear	恐懼待機
+anim	idle_front	正面待機
+anim	idle_near_death	瀕死待機
+anim	idle_side	側面待機
+anim	kneel_2_loop	跪倒（循環）
+anim	run_front	正面奔跑
+anim	run_side	側面奔跑
+anim	walk_side	側面行走
+anim	run_back	背面奔跑
+anim	walk_back	背面行走
+anim	walk_front	正面行走
+anim	fadv_	劇情前綴（未成形）
+anim	dagger	短劍
+anim	guard_damage	防禦受擊
+anim	kneel_1_start	跪倒（開始）
+anim	throw	投擲
+anim	00_idle	待機00
+anim	01_normal	普通01
+anim	06_sigh	嘆息06
+anim	08_happy	高興08
+anim	__end__	結束標記
+anim	angry	憤怒
+anim	break	崩潰
+anim	dead	死亡
+anim	end	結束
+anim	final	終結
+anim	incarnate_skill	心意技能
+anim	normal	普通
+anim	sad	悲傷
+anim	start	開始
+anim	victory_loop	勝利（循環）
+anim	is_guard_break	破防中
+anim	parry_final_attack	格擋終結攻擊
+anim	fadv_07_think_2_loop	劇情·思考2（循環）
+anim	fadv_11_boast_2_loop	劇情·誇耀2（循環）
+anim	fadv_idle_front	劇情·正面待機
+anim	fadv_idle_side	劇情·側面待機
+anim	fadv_run_front	劇情·正面奔跑
+anim	fadv_run_side	劇情·側面奔跑
+anim	fadv_walk_side	劇情·側面行走
+anim	sword_charge_loop	劍蓄力（循環）
+anim	sword_victory_loop	劍勝利（循環）
+base	administrator	管理員
+base	agil	艾基爾
+base	airy	艾莉
+base	alice	愛麗絲
+base	alicia	艾莉西亞
+base	anna	安娜
+base	argo	阿爾戈
+base	asuna	亞絲娜
+base	azurica	亞祖莉卡
+base	bercouli	貝爾庫利
+base	cardinal	卡迪娜爾
+base	cruiga	克魯伊卡
+base	dakira	達奇拉
+base	dark	闇黑
+base	deusolbert	迪索爾伯特
+base	diavel	迪亞貝爾
+base	dil	迪爾
+base	edith	艾蒂絲
+base	egome	艾格梅
+base	eiji	英二
+base	eldrie	艾爾多利耶
+base	emperor	皇帝
+base	entokia	恩特基亞
+base	eugene	尤金
+base	eugeo	尤吉歐
+base	fanatio	法娜提歐
+base	fizel	菲潔爾
+base	frenica	芙蕾妮卡
+base	golgorosso	葛爾戈羅索
+base	guardsman	衛兵
+base	heathcliff	希茲克利夫
+base	hozaika	霍扎伊卡
+base	humbert	漢伯特
+base	iskahn	伊斯卡恩
+base	kagemune	影宗
+base	kibaou	牙王
+base	kirito	桐人
+base	klein	克萊因
+base	kuradeel	庫拉德爾
+base	leafa	莉法
+base	lind	林德
+base	linel	里涅爾
+base	lipia	莉琵雅
+base	lisbeth	莉茲貝特
+base	medina	梅蒂娜
+base	miki	美紀
+base	mito	米特
+base	mob	路人
+base	nergius	涅爾吉烏斯
+base	npc	NPC
+base	oberon	奧伯龍
+base	phillia	菲莉亞
+base	premiere	普蕾米亞
+base	quinella	葵妮拉
+base	rain	蕾茵
+base	raios	萊歐斯
+base	renri	連利
+base	ronye	羅妮耶
+base	rosalia	羅薩莉亞
+base	sachi	幸
+base	sakuya	朔夜
+base	scheta	謝塔
+base	sculptor	雕刻家
+base	selka	賽魯卡
+base	seven	賽玟
+base	shasta	夏斯塔
+base	shirley	雪莉
+base	shivata	希瓦塔
+base	silica	西莉卡
+base	sinon	詩乃
+base	siune	席涅
+base	sortiliena	索爾緹莉娜
+base	strea	斯翠亞
+base	subtilizer	薩布提利澤
+base	sylvie	希薇
+base	tiese	緹潔
+base	vassago	瓦沙戈
+base	volo	沃羅
+base	yotte	約提
+base	yui	結衣
+base	yuna	悠那
+base	yuriko	百合子
+base	yuuki	有紀
+base	zeppos	傑波斯
+base	zink	辛克
+token	alo	ALO	post
+token	os	序列爭戰	pre
+token	alo_aprilfool	ALO愚人節	pre
+token	ggo	GGO	post
+token	child	幼年	pre
+token	swimsuit	泳裝	pre
+token	integrator	整合騎士	pre
+token	alo_pajamas	ALO睡衣	pre
+token	halloween	萬聖節	pre
+token	integrator_2nd	整合騎士（第二代）	pre
+token	alo_swim	ALO泳裝	pre
+token	mc	主線	pre
+token	uw_easy	UW簡易	pre
+token	wounded	負傷	pre
+token	alo_idol	ALO偶像	pre
+token	sao	SAO	post
+token	valentine	情人節	pre
+token	2022_whiteday	白色情人節	pre
+token	uw_2022_new_year	UW新年	pre
+token	alo_2022_swim	ALO泳裝	pre
+token	sao_2nd_anniv	SAO二週年	pre
+token	sao_progre	SAOP	post
+token	contest	競賽	pre
+token	tales	傳奇	pre
+token	tall	高個	pre
+token	alo_2022_new_year	ALO新年	pre
+token	alo_2022_yukata	ALO浴衣	pre
+token	dark_knight	暗黑騎士	pre
+token	sao_anniv	SAO週年	pre
+token	fighter	鬥士	pre
+token	job	職業	pre
+token	mc_integrator	主線整合騎士	pre
+token	christmas	聖誕	pre
+token	2022_wedding	婚禮	pre
+token	cathedral_room	教堂房	pre
+token	easy_wounded	負傷（簡易）	pre
+token	inc_dress	連衣裙	pre
+token	real	現實	pre
+token	real_party	現實派對	pre
+token	uw_2022_new_year_inc	UW新年	pre
+token	uw_bath	UW入浴	pre
+token	after_mc	主線後	pre
+token	alo_titania_em	ALO蒂塔妮亞	pre
+token	alo_wedding	ALO婚禮	pre
+token	mc_pajamas	主線睡衣	pre
+token	saop_without_crownup	SAOP無冠	pre
+token	stacia	史提西亞	pre
+token	stacia_mob	史提西亞路人	pre
+token	sculpture	雕像	pre
+token	fa_without_hood	無兜帽	pre
+token	integrator_nohelmet	整合騎士無頭盔	pre
+token	magisian_a	魔法師A	pre
+token	magisian_b	魔法師B	pre
+token	bath	入浴	pre
+token	darkside	闇黑面	pre
+token	goddess	女神	pre
+token	goddess_shadow	女神闇影	pre
+token	shadow	闇影	pre
+token	uw_2022_halloween	UW萬聖節	pre
+token	south	南方	pre
+token	uw_2022_new_year_f	UW新年	pre
+token	lip	唇	pre
+token	fa_hood	兜帽	pre
+token	one_eye	獨眼	pre
+token	alo_aprilfool_redeyes	ALO愚人節紅眼	pre
+token	alo_ca	ALO	post
+token	alo_fd	ALO	post
+token	ggo_man	GGO男	pre
+token	ggo_wizard	GGO巫師	pre
+token	sao_gold	SAO黃金	pre
+token	alo_2020_new_year	ALO新年	pre
+token	alo_2nd_anniv	ALO二週年	pre
+token	terraria	泰拉瑞亞	pre
+token	ur	UR	post
+token	beta	β測試	pre
+token	real_student	現實學生	pre
+token	assassin_fa_hood_boss	暗殺者兜帽首領	pre
+token	big_zakkaria_swordman2	札克利亞劍士（大）2	pre
+token	fighter_b	鬥士B	pre
+token	renri_friend	連利的朋友	pre
+token	sao_a	SAO雜兵A	pre
+token	sao_b	SAO雜兵B	pre
+token	sao_c	SAO雜兵C	pre
+token	tall_father_noble	高個貴族父親	pre
+token	tall_mercenary	高個傭兵	pre
+token	tall_noble	高個貴族	pre
+token	tall_southern_knight	高個南方騎士	pre
+token	tall_tall_man	高個男子	pre
+token	tall_teacher	高個教師	pre
+token	tall_titanshand1	高個巨人手1	pre
+token	tall_titanshand2	高個巨人手2	pre
+token	tall_zakkaria_swordman1	高個札克利亞劍士1	pre
+token	trainee2nd	二代見習生	pre
+token	woman_fighter	女鬥士	pre
+token	woman_nergius_sister	涅爾吉烏斯之妹	pre
+token	woman_teacher	女教師	pre
+token	woman_trainee2nd	二代女見習生	pre
+token	woman_trainee2nd_b	二代女見習生B	pre
+token	integrator_past	整合騎士（過去）	pre
+token	child_boy	幼年男孩	pre
+token	child_girl	幼年女孩	pre
+token	mc_long	主線長髮	pre
+token	mc_long_bath	主線長髮入浴	pre
+token	mc_long_halloween	主線長髮萬聖節	pre
+token	pajamas_anime_long	動畫睡衣長髮	pre
+token	festival	祭典	pre
+token	sister_girl	妹妹	pre
+token	sao_yellow	SAO黃色	pre
+token	alo_init	ALO初期	pre
+token	ggo_2nd_anniv	GGO二週年	pre
+token	solus	索爾斯	pre
+token	army_empire	帝國軍	pre
+token	black_eyes	黑眼	pre
+token	burn	燒傷	pre
+token	dark_knight_aura	暗黑騎士光環	pre
+token	dark_knight_init	暗黑騎士初期	pre
+token	father	父親	pre
+token	mother	母親	pre
+token	mc_bath	主線入浴	pre
+token	combat	戰鬥	pre
+token	uw_knight	UW騎士	pre
+token	alo_anniv	ALO週年	pre
+token	woodcutter	樵夫	pre
+token	cathedral	教堂	pre
+char	administrator	管理員
+char	administrator_christmas	聖誕管理員
+char	agil	艾基爾
+char	agil_alo	艾基爾（ALO）
+char	airy	艾莉
+char	alice	愛麗絲
+char	alice_2022_wedding	婚禮愛麗絲
+char	alice_2022_whiteday	白色情人節愛麗絲
+char	alice_alo	愛麗絲（ALO）
+char	alice_cathedral_room	教堂房愛麗絲
+char	alice_child	幼年愛麗絲
+char	alice_easy_wounded	負傷愛麗絲（簡易）
+char	alice_halloween	萬聖節愛麗絲
+char	alice_inc_dress	連衣裙愛麗絲
+char	alice_integrator_2nd	整合騎士愛麗絲（第二代）
+char	alice_real	現實愛麗絲
+char	alice_real_party	現實派對愛麗絲
+char	alice_swimsuit	泳裝愛麗絲
+char	alice_uw_2022_new_year	UW新年愛麗絲
+char	alice_uw_2022_new_year_inc	UW新年愛麗絲
+char	alice_uw_bath	UW入浴愛麗絲
+char	alice_uw_easy	UW簡易愛麗絲
+char	alice_wounded	負傷愛麗絲
+char	alicia	艾莉西亞
+char	anna_alo	安娜（ALO）
+char	argo	阿爾戈
+char	asuna	亞絲娜
+char	asuna_after_mc	主線後亞絲娜
+char	asuna_alo	亞絲娜（ALO）
+char	asuna_alo_2022_swim	ALO泳裝亞絲娜
+char	asuna_alo_aprilfool	ALO愚人節亞絲娜
+char	asuna_alo_idol	ALO偶像亞絲娜
+char	asuna_alo_swim	ALO泳裝亞絲娜
+char	asuna_alo_titania_em	ALO蒂塔妮亞亞絲娜
+char	asuna_alo_wedding	ALO婚禮亞絲娜
+char	asuna_ggo	亞絲娜（GGO）
+char	asuna_mc	主線亞絲娜
+char	asuna_mc_pajamas	主線睡衣亞絲娜
+char	asuna_os	序列爭戰亞絲娜
+char	asuna_sao_2nd_anniv	SAO二週年亞絲娜
+char	asuna_sao_progre	亞絲娜（SAOP）
+char	asuna_saop_without_crownup	SAOP無冠亞絲娜
+char	asuna_stacia	史提西亞亞絲娜
+char	asuna_stacia_mob	史提西亞路人亞絲娜
+char	asuna_uw_easy	UW簡易亞絲娜
+char	azurica	亞祖莉卡
+char	bercouli	貝爾庫利
+char	bercouli_sculpture	雕像貝爾庫利
+char	cardinal	卡迪娜爾
+char	cruiga	克魯伊卡
+char	cruiga_fa_without_hood	無兜帽克魯伊卡
+char	dakira_integrator_nohelmet	整合騎士無頭盔達奇拉
+char	dark_magisian_a	闇黑（魔法師A）
+char	dark_magisian_b	闇黑（魔法師B）
+char	deusolbert	迪索爾伯特
+char	diavel	迪亞貝爾
+char	dil	迪爾
+char	edith	艾蒂絲
+char	edith_2022_whiteday	白色情人節艾蒂絲
+char	edith_bath	入浴艾蒂絲
+char	edith_darkside	闇黑面艾蒂絲
+char	edith_goddess	女神艾蒂絲
+char	edith_goddess_shadow	女神闇影艾蒂絲
+char	edith_integrator_2nd	整合騎士艾蒂絲（第二代）
+char	edith_shadow	闇影艾蒂絲
+char	edith_swimsuit	泳裝艾蒂絲
+char	edith_uw_2022_halloween	UW萬聖節艾蒂絲
+char	edith_uw_2022_new_year	UW新年艾蒂絲
+char	edith_wounded	負傷艾蒂絲
+char	egome	艾格梅
+char	eiji_alo	英二（ALO）
+char	eiji_os	序列爭戰英二
+char	eldrie	艾爾多利耶
+char	emperor_south	皇帝（南方）
+char	entokia_integrator	整合騎士恩特基亞
+char	eugene	尤金
+char	eugeo	尤吉歐
+char	eugeo_cathedral	教堂尤吉歐
+char	eugeo_child	幼年尤吉歐
+char	eugeo_contest	競賽尤吉歐
+char	eugeo_halloween	萬聖節尤吉歐
+char	eugeo_integrator	整合騎士尤吉歐
+char	eugeo_integrator_2nd	整合騎士尤吉歐（第二代）
+char	eugeo_uw_2022_new_year_f	UW新年尤吉歐
+char	fanatio	法娜提歐
+char	fanatio_lip	唇法娜提歐
+char	fanatio_mc	主線法娜提歐
+char	fizel	菲潔爾
+char	frenica	芙蕾妮卡
+char	golgorosso	葛爾戈羅索
+char	guardsman	衛兵
+char	heathcliff	希茲克利夫
+char	hozaika_fa_hood	兜帽霍扎伊卡
+char	humbert	漢伯特
+char	iskahn	伊斯卡恩
+char	iskahn_mc	主線伊斯卡恩
+char	iskahn_one_eye	獨眼伊斯卡恩
+char	iskahn_wounded	負傷伊斯卡恩
+char	kagemune	影宗
+char	kibaou	牙王
+char	kirito	桐人
+char	kirito_alo_aprilfool	ALO愚人節桐人
+char	kirito_alo_aprilfool_redeyes	ALO愚人節紅眼桐人
+char	kirito_alo_ca	桐人（ALO）
+char	kirito_alo_fd	桐人（ALO）
+char	kirito_child	幼年桐人
+char	kirito_ggo_man	GGO男桐人
+char	kirito_ggo_wizard	GGO巫師桐人
+char	kirito_integrator	整合騎士桐人
+char	kirito_os	序列爭戰桐人
+char	kirito_sao_2nd_anniv	SAO二週年桐人
+char	kirito_sao_gold	SAO黃金桐人
+char	kirito_sao_progre	桐人（SAOP）
+char	kirito_tales	傳奇桐人
+char	kirito_tall	高個桐人
+char	kirito_woodcutter	樵夫桐人
+char	klein	克萊因
+char	klein_alo	克萊因（ALO）
+char	klein_alo_2022_new_year	ALO新年克萊因
+char	klein_ggo	克萊因（GGO）
+char	klein_os	序列爭戰克萊因
+char	kuradeel	庫拉德爾
+char	leafa	莉法
+char	leafa_alo_2020_new_year	ALO新年莉法
+char	leafa_alo_2022_yukata	ALO浴衣莉法
+char	leafa_alo_2nd_anniv	ALO二週年莉法
+char	leafa_alo_aprilfool	ALO愚人節莉法
+char	leafa_alo_idol	ALO偶像莉法
+char	leafa_alo_pajamas	ALO睡衣莉法
+char	leafa_alo_swim	ALO泳裝莉法
+char	leafa_os	序列爭戰莉法
+char	leafa_tales	傳奇莉法
+char	leafa_terraria	泰拉瑞亞莉法
+char	leafa_ur	莉法（UR）
+char	lind	林德
+char	linel	里涅爾
+char	lipia_dark_knight	暗黑騎士莉琵雅
+char	lisbeth	莉茲貝特
+char	lisbeth_alo	莉茲貝特（ALO）
+char	lisbeth_alo_2022_new_year	ALO新年莉茲貝特
+char	lisbeth_alo_aprilfool	ALO愚人節莉茲貝特
+char	lisbeth_alo_pajamas	ALO睡衣莉茲貝特
+char	lisbeth_alo_swim	ALO泳裝莉茲貝特
+char	lisbeth_ggo	莉茲貝特（GGO）
+char	lisbeth_os	序列爭戰莉茲貝特
+char	lisbeth_sao_anniv	SAO週年莉茲貝特
+char	medina_fighter	鬥士梅蒂娜
+char	miki_alo	美紀（ALO）
+char	mito_beta	β測試米特
+char	mito_real_student	現實學生米特
+char	mito_sao	米特（SAO）
+char	mob	路人
+char	mob_assassin_fa_hood_boss	路人（暗殺者兜帽首領）
+char	mob_big_zakkaria_swordman2	路人（札克利亞劍士（大）2）
+char	mob_fighter	路人（鬥士）
+char	mob_fighter_b	路人（鬥士B）
+char	mob_renri_friend	路人（連利的朋友）
+char	mob_sao_a	路人（SAO雜兵A）
+char	mob_sao_b	路人（SAO雜兵B）
+char	mob_sao_c	路人（SAO雜兵C）
+char	mob_tall_father_noble	路人（高個貴族父親）
+char	mob_tall_mercenary	路人（高個傭兵）
+char	mob_tall_noble	路人（高個貴族）
+char	mob_tall_southern_knight	路人（高個南方騎士）
+char	mob_tall_tall_man	路人（高個男子）
+char	mob_tall_teacher	路人（高個教師）
+char	mob_tall_titanshand1	路人（高個巨人手1）
+char	mob_tall_titanshand2	路人（高個巨人手2）
+char	mob_tall_zakkaria_swordman1	路人（高個札克利亞劍士1）
+char	mob_trainee2nd	路人（二代見習生）
+char	mob_woman_fighter	路人（女鬥士）
+char	mob_woman_nergius_sister	路人（涅爾吉烏斯之妹）
+char	mob_woman_teacher	路人（女教師）
+char	mob_woman_trainee2nd	路人（二代女見習生）
+char	mob_woman_trainee2nd_b	路人（二代女見習生B）
+char	nergius_integrator	整合騎士涅爾吉烏斯
+char	nergius_integrator_past	整合騎士涅爾吉烏斯（過去）
+char	npc_child_boy	NPC（幼年男孩）
+char	npc_child_girl	NPC（幼年女孩）
+char	oberon	奧伯龍
+char	phillia_sao	菲莉亞（SAO）
+char	premiere_sao	普蕾米亞（SAO）
+char	quinella	葵妮拉
+char	rain_alo	蕾茵（ALO）
+char	raios	萊歐斯
+char	renri	連利
+char	ronye	羅妮耶
+char	ronye_job	職業羅妮耶
+char	ronye_mc_integrator	主線整合騎士羅妮耶
+char	ronye_mc_long	主線長髮羅妮耶
+char	ronye_mc_long_bath	主線長髮入浴羅妮耶
+char	ronye_mc_long_halloween	主線長髮萬聖節羅妮耶
+char	ronye_pajamas_anime_long	動畫睡衣長髮羅妮耶
+char	ronye_swimsuit	泳裝羅妮耶
+char	ronye_valentine	情人節羅妮耶
+char	rosalia	羅薩莉亞
+char	sachi	幸
+char	sakuya	朔夜
+char	scheta	謝塔
+char	scheta_mc	主線謝塔
+char	sculptor	雕刻家
+char	selka	賽魯卡
+char	selka_festival	祭典賽魯卡
+char	selka_sister_girl	妹妹賽魯卡
+char	seven_alo	賽玟（ALO）
+char	shasta	夏斯塔
+char	shirley	雪莉
+char	shivata	希瓦塔
+char	silica	西莉卡
+char	silica_alo_pajamas	ALO睡衣西莉卡
+char	silica_ggo	西莉卡（GGO）
+char	silica_os	序列爭戰西莉卡
+char	silica_sao_anniv	SAO週年西莉卡
+char	silica_sao_yellow	SAO黃色西莉卡
+char	sinon	詩乃
+char	sinon_alo	詩乃（ALO）
+char	sinon_alo_2022_yukata	ALO浴衣詩乃
+char	sinon_alo_aprilfool	ALO愚人節詩乃
+char	sinon_alo_idol	ALO偶像詩乃
+char	sinon_alo_init	ALO初期詩乃
+char	sinon_alo_pajamas	ALO睡衣詩乃
+char	sinon_alo_swim	ALO泳裝詩乃
+char	sinon_ggo	詩乃（GGO）
+char	sinon_ggo_2nd_anniv	GGO二週年詩乃
+char	sinon_os	序列爭戰詩乃
+char	sinon_solus	索爾斯詩乃
+char	siune	席涅
+char	sortiliena	索爾緹莉娜
+char	sortiliena_army_empire	帝國軍索爾緹莉娜
+char	sortiliena_child	幼年索爾緹莉娜
+char	sortiliena_swimsuit	泳裝索爾緹莉娜
+char	sortiliena_uw_easy	UW簡易索爾緹莉娜
+char	sortiliena_valentine	情人節索爾緹莉娜
+char	strea_alo	斯翠亞（ALO）
+char	subtilizer	薩布提利澤
+char	subtilizer_black_eyes	黑眼薩布提利澤
+char	subtilizer_burn	燒傷薩布提利澤
+char	sylvie_dark_knight	暗黑騎士希薇
+char	sylvie_dark_knight_aura	暗黑騎士光環希薇
+char	sylvie_dark_knight_init	暗黑騎士初期希薇
+char	sylvie_father	父親希薇
+char	sylvie_mother	母親希薇
+char	tiese	緹潔
+char	tiese_child	幼年緹潔
+char	tiese_contest	競賽緹潔
+char	tiese_halloween	萬聖節緹潔
+char	tiese_job	職業緹潔
+char	tiese_mc_bath	主線入浴緹潔
+char	tiese_mc_integrator	主線整合騎士緹潔
+char	tiese_swimsuit	泳裝緹潔
+char	tiese_valentine	情人節緹潔
+char	vassago_combat	戰鬥瓦沙戈
+char	vassago_ggo	瓦沙戈（GGO）
+char	vassago_uw_knight	UW騎士瓦沙戈
+char	volo	沃羅
+char	yotte	約提
+char	yui	結衣
+char	yui_alo_aprilfool	ALO愚人節結衣
+char	yuna_os	序列爭戰悠那
+char	yuriko_alo	百合子（ALO）
+char	yuuki	有紀
+char	yuuki_alo_2022_swim	ALO泳裝有紀
+char	yuuki_alo_anniv	ALO週年有紀
+char	yuuki_alo_aprilfool	ALO愚人節有紀
+char	yuuki_halloween	萬聖節有紀
+char	zeppos	傑波斯
+char	zink	辛克
+char	zink_tall	高個辛克
