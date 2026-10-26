@@ -13,6 +13,7 @@ final class FakeShell {
     this.resultJson = '',
     this.resultBytes = const <int>[],
     this.statSizes = const <String, String>{},
+    this.doneText = 'ok:2',
   });
 
   final bool root;
@@ -20,6 +21,9 @@ final class FakeShell {
   final String resultJson;
   final List<int> resultBytes;
   final Map<String, String> statSizes;
+
+  /// done.txt 的内容（空串表示永远没完成）
+  final String doneText;
   final List<String> calls = <String>[];
 
   Future<ShellResult> call(String cmd, {Duration timeout = const Duration(seconds: 8)}) async {
@@ -37,6 +41,11 @@ final class FakeShell {
     }
     if (cmd.startsWith('rm -rf ')) return const ShellResult(0, '');
     if (cmd.contains('spine-inject -p')) return const ShellResult(0, '');
+    if (cmd.contains('done.txt')) return ShellResult(0, doneText);
+    if (cmd.contains('inject.log')) return const ShellResult(0, '');
+    if (cmd.contains('nohup ./spine-inject')) return const ShellResult(0, 'STARTED');
+    if (cmd.startsWith('monkey ')) return const ShellResult(0, '');
+    if (cmd.startsWith('pkill ')) return const ShellResult(0, '');
     if (cmd.startsWith('base64 ')) return ShellResult(0, base64Encode(resultBytes));
     if (cmd.startsWith('cat ') && cmd.contains('result.json')) return ShellResult(0, resultJson);
     if (cmd.startsWith('cat ')) return const ShellResult(0, '');
@@ -87,7 +96,12 @@ void main() {
         },
       );
       final stages = <String>[];
-      final oracle = SpineOracle(shell: shell.call, assets: _fakeAssets);
+      final oracle = SpineOracle(
+        shell: shell.call,
+        assets: _fakeAssets,
+        doneTimeout: const Duration(milliseconds: 300),
+        donePollInterval: const Duration(milliseconds: 10),
+      );
 
       final result = await oracle.fetch([_skelPath, _pagePath], onProgress: stages.add);
 
@@ -106,7 +120,12 @@ void main() {
 
     test('没有 root 时抛 noRoot，不执行注入', () async {
       final shell = FakeShell(root: false);
-      final oracle = SpineOracle(shell: shell.call, assets: _fakeAssets);
+      final oracle = SpineOracle(
+        shell: shell.call,
+        assets: _fakeAssets,
+        doneTimeout: const Duration(milliseconds: 300),
+        donePollInterval: const Duration(milliseconds: 10),
+      );
       await expectLater(
         oracle.fetch([_skelPath]),
         throwsA(isA<SpineOracleException>().having((e) => e.failure, 'failure', OracleFailure.noRoot)),
@@ -116,7 +135,12 @@ void main() {
 
     test('游戏没运行抛 gameNotRunning 并给出可操作文案', () async {
       final shell = FakeShell(gamePid: '');
-      final oracle = SpineOracle(shell: shell.call, assets: _fakeAssets);
+      final oracle = SpineOracle(
+        shell: shell.call,
+        assets: _fakeAssets,
+        doneTimeout: const Duration(milliseconds: 300),
+        donePollInterval: const Duration(milliseconds: 10),
+      );
       await expectLater(
         oracle.fetch([_skelPath]),
         throwsA(isA<SpineOracleException>()
@@ -127,7 +151,12 @@ void main() {
 
     test('脚本没产出 result.json 时抛 badResult（带 done 状态）', () async {
       final shell = FakeShell(resultJson: '');
-      final oracle = SpineOracle(shell: shell.call, assets: _fakeAssets);
+      final oracle = SpineOracle(
+        shell: shell.call,
+        assets: _fakeAssets,
+        doneTimeout: const Duration(milliseconds: 300),
+        donePollInterval: const Duration(milliseconds: 10),
+      );
       await expectLater(
         oracle.fetch([_skelPath]),
         throwsA(isA<SpineOracleException>().having((e) => e.failure, 'failure', OracleFailure.badResult)),
@@ -136,7 +165,12 @@ void main() {
 
     test('空请求直接返回空结果，不做任何设备操作', () async {
       final shell = FakeShell();
-      final oracle = SpineOracle(shell: shell.call, assets: _fakeAssets);
+      final oracle = SpineOracle(
+        shell: shell.call,
+        assets: _fakeAssets,
+        doneTimeout: const Duration(milliseconds: 300),
+        donePollInterval: const Duration(milliseconds: 10),
+      );
       final result = await oracle.fetch(const []);
       expect(result.isEmpty, isTrue);
       expect(shell.calls, isEmpty);
@@ -148,7 +182,12 @@ void main() {
         resultBytes: const [0x1c],
         statSizes: const {'spine-inject': '3', 'spine_fetch.js': '5'},
       );
-      final oracle = SpineOracle(shell: shell.call, assets: _fakeAssets);
+      final oracle = SpineOracle(
+        shell: shell.call,
+        assets: _fakeAssets,
+        doneTimeout: const Duration(milliseconds: 300),
+        donePollInterval: const Duration(milliseconds: 10),
+      );
       final result = await oracle.fetch([_skelPath]);
       expect(result.failures[_skelPath], '脚本未返回');
     });

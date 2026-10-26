@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -87,6 +88,8 @@ final class SpineOracle {
     AssetLoader? assets,
     this.gamePackage = defaultGamePackage,
     this.injectorProcessName = 'yui-spine-inject',
+    this.doneTimeout = const Duration(seconds: 75),
+    this.donePollInterval = const Duration(seconds: 2),
   })  : _shell = shell ?? const RootShell().run,
         _assets = assets ?? _bundleLoad;
 
@@ -101,13 +104,20 @@ final class SpineOracle {
   static const String injectorAsset = 'assets/frida-inject';
   static const String scriptAsset = 'assets/spine_fetch.js';
 
-  /// 脚本注入后等游戏加载、再取数的秒数（脚本内部定时 40s）。
-  static const Duration injectTimeout = Duration(seconds: 150);
+  /// 注入器最长等待：脚本 30s 内会自己收尾（实例捕获后立刻取数）。
+  static const Duration injectTimeout = Duration(seconds: 90);
 
   final ShellRunner _shell;
   final AssetLoader _assets;
   final String gamePackage;
   final String injectorProcessName;
+
+  /// 等 done.txt 的最长时间 / 轮询间隔（测试可调小）。
+  final Duration doneTimeout;
+  final Duration donePollInterval;
+
+  /// 串行化：同一时刻只允许一个取数流程（双注入会让游戏崩）。
+  static Future<void> _serial = Future<void>.value();
 
   String get _ioDir => gameIoDir(gamePackage);
   String get _binPath => '$deviceBinDir/spine-inject';
@@ -117,6 +127,22 @@ final class SpineOracle {
   ///
   /// [onProgress] 可用来更新 UI（"正在注入…/正在取数…"），不做强制。
   Future<OracleFetchResult> fetch(
+    List<String> logicalPaths, {
+    void Function(String stage)? onProgress,
+  }) async {
+    // 排队执行（上一次取数没结束时等它）
+    final previous = _serial;
+    final completer = Completer<void>();
+    _serial = completer.future;
+    await previous;
+    try {
+      return await _fetchUnlocked(logicalPaths, onProgress: onProgress);
+    } finally {
+      completer.complete();
+    }
+  }
+
+  Future<OracleFetchResult> _fetchUnlocked(
     List<String> logicalPaths, {
     void Function(String stage)? onProgress,
   }) async {
@@ -146,20 +172,76 @@ final class SpineOracle {
 
     onProgress?.call('部署注入器');
     await _deploy();
+    // 清掉上一次可能残留的注入器（残留 agent/hook 会污染游戏）
+    await _shell('pkill -f spine-inject 2>/dev/null', timeout: const Duration(seconds: 5));
     await _prepareIo(logicalPaths);
 
-    onProgress?.call('注入并取数（约 40~60 秒）');
-    final run = await _shell(
-      'cd $deviceBinDir && ./spine-inject -p $pid -s $_scriptPath',
-      timeout: injectTimeout,
+    // ⚠ 必须让游戏在前台再注入：后台进程会被系统冻结，冻结状态下注入/读引擎数据会 SIGABRT 闪退
+    onProgress?.call('把游戏切到前台再取数');
+    await _shell(
+      'monkey -p $gamePackage -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1',
+      timeout: const Duration(seconds: 15),
     );
-    // 注入器退出码不可靠（脚本结束方式不同），以 done.txt 为准
-    if (run.out.contains('Unable to find process')) {
-      throw SpineOracleException(OracleFailure.injectorFailed, '注入器找不到游戏进程（pid=$pid）', detail: run.out);
+    await Future<void>.delayed(const Duration(milliseconds: 2500));
+
+    // 后台起注入器（不阻塞 su），然后轮询 done.txt；拿到结果立刻杀掉注入器。
+    // —— 这是 V0 真机验证过的方式；阻塞式等待会被脚本常驻拖到超时，且残留 agent 有风险。
+    onProgress?.call('注入并取数（约 45~60 秒）');
+    await _shell(
+      'cd $deviceBinDir && (nohup ./spine-inject -p $pid -s $_scriptPath '
+      '>/data/local/tmp/yui-spine/inject.log 2>&1 &) ; echo STARTED',
+      timeout: const Duration(seconds: 20),
+    );
+    final done = await _waitDone(doneTimeout);
+    await _shell('pkill -f spine-inject 2>/dev/null', timeout: const Duration(seconds: 5));
+    // 取完把 App 切回前台
+    await _shell(
+      'monkey -p com.yuihelper.next -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1',
+      timeout: const Duration(seconds: 10),
+    );
+    if (done == null) {
+      throw SpineOracleException(
+        OracleFailure.timeout,
+        '注入后 ${doneTimeout.inSeconds} 秒内没有拿到取数结果（游戏可能被系统冻结/闪退）',
+      );
+    }
+    // 注入器退出码不可靠（脚本常驻/被 kill），以 done.txt 为准；注入日志用于报错详情
+    final injectLog = await _shell(
+      'tail -n 20 /data/local/tmp/yui-spine/inject.log 2>/dev/null',
+      timeout: const Duration(seconds: 8),
+    );
+    if (injectLog.out.contains('Unable to find process')) {
+      throw SpineOracleException(
+        OracleFailure.injectorFailed,
+        '注入器找不到游戏进程（pid=$pid）',
+        detail: injectLog.out,
+      );
+    }
+
+    // 游戏如果在取数期间退出（崩溃/被系统杀），如实报错，不吞
+    final alive = await _shell('pidof $gamePackage', timeout: const Duration(seconds: 8));
+    if (alive.out.trim().isEmpty) {
+      throw SpineOracleException(
+        OracleFailure.timeout,
+        '取数过程中游戏退出了（后台冻结时注入会闪退；已改为自动切前台，请重试）',
+        detail: injectLog.out,
+      );
     }
 
     onProgress?.call('读取结果');
-    return await _collect(logicalPaths, started, run.out);
+    return await _collect(logicalPaths, started, injectLog.out);
+  }
+
+  /// 轮询 done.txt（脚本写 `ok:N` / `no-instance-timeout`）。
+  Future<String?> _waitDone(Duration timeout) async {
+    final sw = Stopwatch()..start();
+    while (sw.elapsed < timeout) {
+      await Future<void>.delayed(donePollInterval);
+      final r = await _shell('cat $_ioDir/done.txt 2>/dev/null', timeout: const Duration(seconds: 8));
+      final text = r.out.trim();
+      if (text.isNotEmpty) return text;
+    }
+    return null;
   }
 
   /// 清理设备上的临时明文（默认取完即删，避免残留）。

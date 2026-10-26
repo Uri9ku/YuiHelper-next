@@ -751,6 +751,29 @@ E 修改模型页 / 动作预览页
 2. 多动画混合（mix）、drawOrder、slot 颜色/附件切换；
 3. 真机全链路回归（USB 断开中）+ 全屏压测。
 
+### 14.17 S2 真机事故与修复（2026-10-26）：注入后游戏闪退
+
+**现象**：在 App 里点「刷新」取数后，游戏（pid 26601）SIGABRT 闪退。
+墓碑（`/data/tombstones/tombstone_07`）显示：`SIGABRT in tid 1139 (gmain)`，栈里出现 `libmonochrome(WebView)` + `memfd:frida-agent-64.so`。
+
+**定位**（对比实验）：
+- ✅ 游戏在**前台**时注入 + 取数：2/2 成功（atlas 26,005 B / 骨架 1,304,140 B，与本地解压一致），游戏存活；
+- ❌ App 里注入时**游戏在后台**（App 是前台）：崩溃。
+- 结论：**Android 16 会冻结后台应用**；对冻结进程注入并调用引擎 `DataCache::read`（frida JS 线程）会 abort。
+  另外 App 第一版是"阻塞式等待注入器 + 从不清注入器"，脚本常驻会让 frida agent 留在游戏里，也是后续崩溃的隐患。
+
+**修复（v0.1.2）**：
+1. 取数前 App **自动把游戏切到前台**（`monkey -p <pkg> -c LAUNCHER`）+ 等 2.5s 再注入；
+2. 注入器改**后台启动 + 轮询 `done.txt`**（最多 75s），拿到结果**立刻 `pkill -f spine-inject`**，不留 agent；
+3. 取数结束把 **App 切回前台**（`monkey -p com.yuihelper.next`）；
+4. `SpineOracle.fetch` 加**串行锁**（同一时刻只允许一个取数流程，避免双注入）；
+5. 取数后检查 **游戏 pid 是否还在**：不在就明确报"取数过程中游戏退出（已改为自动切前台，请重试）"，不吞崩溃；
+6. 单测同步更新（done 轮询可注入毫秒级节奏），全量 **185 用例通过**，`dart analyze` No issues found。
+
+**产物**：`dist/YuiHelperNext-v0.1.2-arm64.apk`（41.17 MB，versionName 0.1.2 / versionCode 3）。
+
+**待验证**：USB 再次断开，未能在真机上跑完"App 内点刷新 → 自动切游戏 → 取数 → 切回 → 渲染"的完整链路。
+
 ---
 
 > 声明：本分析仅用于个人学习、研究与存档；游戏素材版权归 ©Bandai Namco Entertainment / ©Wright Flyer Studios 及相关权利方所有，请勿用于商业用途或再分发。
